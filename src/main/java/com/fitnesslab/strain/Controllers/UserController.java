@@ -1,28 +1,25 @@
 package com.fitnesslab.strain.Controllers;
 
 import com.fitnesslab.strain.Models.User;
+import com.fitnesslab.strain.Security.JwtUtil;
 import com.fitnesslab.strain.Services.UserService;
-import jdk.jfr.ContentType;
-import org.apache.catalina.LifecycleState;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
 public class UserController {
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserService userService){
+    public UserController(UserService userService, JwtUtil jwtUtil){
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/admin")
@@ -37,17 +34,35 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user){
-        if(userService.existsByEmail(user.getEmail())) {
-            return new ResponseEntity<>("User with this email already exists!", HttpStatus.BAD_REQUEST);
+        String message = userService.register(user);
+        if(!message.equals("success")){
+            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
         }
-        userService.register(user);
+
         return new ResponseEntity<>(user.toString(), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User user){
-        userService.login(user);
+    public ResponseEntity<String> login(@RequestBody String email, @RequestBody String password){
+        String result = userService.login(email, password);
+        if(result.equals("Wrong email or password")){
+            return new ResponseEntity<>(result,HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userService.getByEmail(email);
+        String token = jwtUtil.generateToken(email,user.getFirstName(),user.getLastName());
+        return new ResponseEntity<>(token,HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<User> logout(@RequestBody User user){
         return new ResponseEntity<>(user,HttpStatus.OK);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> changePassword(@RequestBody String email, @RequestBody String newPassword){
+        userService.changePassword(email,newPassword);
+        return new ResponseEntity<>("You have changed your password!",HttpStatus.OK);
     }
 
     @GetMapping("/users")

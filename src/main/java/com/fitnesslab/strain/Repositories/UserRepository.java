@@ -10,4 +10,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     User getUserByEmail(@NonNull String email);
 
     boolean existsByEmail(@NonNull String email);
+
+    void deleteByEmail(@NonNull String email);
 }

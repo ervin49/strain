@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm run vite\" \"npm run backend\"",
     "vite": "vite",
-    "backend": "cd .. && ./mvnw spring-boot:run"
+    "backend": "cd .. && ./gradlew bootRun"
   },
   "dependencies": {
     "react": "^19.2.5",
