@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,19 +25,28 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/admin")
+    public ResponseEntity<String> adminTest(){
+        return new ResponseEntity<>("Welcome admin!",HttpStatus.OK);
+    }
+
     @GetMapping("/")
     public ResponseEntity<String> home(){
         return new ResponseEntity<>("Welcome!",HttpStatus.OK);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user){
+    public ResponseEntity<String> register(@RequestBody User user){
+        if(userService.existsByEmail(user.getEmail())) {
+            return new ResponseEntity<>("User with this email already exists!", HttpStatus.BAD_REQUEST);
+        }
         userService.register(user);
-        return new ResponseEntity<>(user,HttpStatus.OK);
+        return new ResponseEntity<>(user.toString(), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(User user){
+    public ResponseEntity<User> login(@RequestBody User user){
+        userService.login(user);
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
