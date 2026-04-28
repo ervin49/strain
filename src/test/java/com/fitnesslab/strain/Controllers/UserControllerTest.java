@@ -1,5 +1,6 @@
 package com.fitnesslab.strain.Controllers;
 
+import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
 import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Repositories.UserRepository;
 import com.fitnesslab.strain.Security.JwtUtils;
@@ -7,6 +8,7 @@ import com.fitnesslab.strain.Services.UserService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,23 +32,20 @@ public class UserControllerTest{
     @LocalServerPort
     private Integer port;
 
-    private String jwt;
-
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final UserService userService;
 
     @Autowired
-    public UserControllerTest(UserRepository userRepository, UserService userService, JwtUtils jwtUtils){
-        this.jwtUtils = jwtUtils;
+    UserControllerTest(UserRepository userRepository, JwtUtils jwtUtils, UserService userService){
         this.userService = userService;
+        this.jwtUtils = jwtUtils;
         this.userRepository = userRepository;
     }
 
     @BeforeEach
     public void setUp(){
-        RestAssured.baseURI = "http://localhost:" + this.port;
-        RestAssured.defaultParser = Parser.JSON;
+        RestAssured.baseURI = "http://localhost:" + port;
         userRepository.deleteAll();
     }
 
@@ -176,15 +175,17 @@ public class UserControllerTest{
                 .password("Password!")
                 .build();
 
-        given()
+        String result = given()
                 .contentType(ContentType.JSON)
                 .body(user)
                 .port(port)
                 .when()
-                .post("/register")
+                .post("/login")
                 .then()
-                .statusCode(201)
-                .body(equalTo("Registration successful!"));
+                .statusCode(400)
+                .extract().response().path("error");
+
+        assertThat(result).isEqualTo("Wrong email or password!");
     }
 
     @Test
@@ -195,16 +196,26 @@ public class UserControllerTest{
                 .firstName("user")
                 .password("Password!")
                 .build();
+        userRepository.save(user);
 
-        given()
+        User userWithBadPass = User.builder()
+                .email("user@example.com")
+                .lastName("user")
+                .firstName("user")
+                .password("badPassword")
+                .build();
+
+        String result = given()
                 .contentType(ContentType.JSON)
-                .body(user)
+                .body(userWithBadPass)
                 .port(port)
                 .when()
-                .post("/register")
+                .post("/login")
                 .then()
-                .statusCode(201)
-                .body(equalTo("Registration successful!"));
+                .statusCode(400)
+                .extract().response().path("error");
+
+        assertThat(result).isEqualTo("Wrong email or password!");
     }
 
     @Test
@@ -215,19 +226,20 @@ public class UserControllerTest{
                 .firstName("user")
                 .password("Password!")
                 .build();
-        userRepository.save(user);
+        userService.register(user);
+
+        UserRequestDTO userRequestDTO = new UserRequestDTO("user@example.com", "Password!");
 
         String result = given()
                 .contentType(ContentType.JSON)
-                .body(user)
+                .body(userRequestDTO)
                 .port(port)
                 .when()
                 .post("/login")
                 .then()
                 .extract().response().path("jwt");
 
-        assertThat(jwtUtils.isValidJWT(result)).isEqualTo(true);
+        assertThat(jwtUtils.isJWT(result)).isEqualTo(true);
     }
 
-    
 }

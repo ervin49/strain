@@ -45,7 +45,7 @@ public class UserService {
             char curr = password.charAt(i);
             if(Character.isUpperCase(curr))
                 noOfUppercaseChars++;
-            if(!Character.isDigit(curr) && !Character.isLetter(curr)){
+            if(!Character.isLetter(curr) && !Character.isDigit(curr)){
                 noOfNonAlnumChars++;
             }
         }
