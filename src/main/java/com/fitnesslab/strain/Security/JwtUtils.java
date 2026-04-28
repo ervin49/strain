@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
-public class JwtUtil {
+public class JwtUtils {
     @Value("${jwt.secret}")
     private String jwtSecret;
     @Value("${jwt.expiration}")
@@ -23,11 +23,9 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String email, String firstName, String lastName){
+    public String generateToken(String email){
         return Jwts.builder()
                 .subject(email)
-                .claim("First Name",firstName)
-                .claim("Last Name",lastName)
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + jwtExpirationDate))
                 .signWith(key, Jwts.SIG.HS256)

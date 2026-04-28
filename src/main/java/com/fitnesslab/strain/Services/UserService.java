@@ -1,32 +1,29 @@
 package com.fitnesslab.strain.Services;
 
-import com.fitnesslab.strain.DTOs.UserDTO;
+import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
 import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Repositories.UserRepository;
+import com.fitnesslab.strain.Security.JwtUtils;
+import io.jsonwebtoken.Jwt;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
 import java.util.Date;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class UserService {
-    UserRepository userRepository;
-    PasswordEncoder encoder;
-    EmailService emailService;
-
-    public UserService(UserRepository userRepository, PasswordEncoder encoder,EmailService emailService){
-        this.userRepository = userRepository;
-        this.encoder = encoder;
-        this.emailService = emailService;
-    }
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
+    private final EmailService emailService;
+    private final JwtUtils jwtUtils;
 
     public List<User> getUsers(){
         return userRepository.findAll();
@@ -57,19 +54,22 @@ public class UserService {
         }
 
         user.setPassword(encoder.encode(password));
-        emailService.sendEmail(user.getEmail(),"Registration","You have registered successfully! Welcome to Strain!");
+//        emailService.sendEmail(user.getEmail(),"Registration","You have registered successfully! Welcome to Strain!");
         userRepository.save(user);
         return "success";
     }
 
-    public String login(String email, String password){
-        if(userRepository.existsByEmail(email)){
-            User user = userRepository.getUserByEmail(email);
-            if(user.getPassword().equals(password)){
-                return "Logged in";
-            }
+    public String login(UserRequestDTO userDTO){
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    userDTO.getEmail(),userDTO.getPassword()
+            ));
+            String email = userDTO.getEmail();
+
+            return jwtUtils.generateToken(email);
+        }catch (BadCredentialsException e){
+            return "Wrong email or password!";
         }
-        return "Wrong email or password";
     }
 
     public void changePassword(String email, String newPassword){
@@ -79,10 +79,6 @@ public class UserService {
         user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
         emailService.sendEmail(email,"Password changed", "Your password has been changed at: " + new Date());
-    }
-
-    public boolean existsByEmail(@NonNull String email) {
-        return userRepository.existsByEmail(email);
     }
 
     public User getByEmail(@NonNull String email) {

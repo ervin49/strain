@@ -1,14 +1,15 @@
 package com.fitnesslab.strain.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
-
 import java.util.*;
 
 @Entity
 @Data
 @Table(name = "users")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -22,6 +23,7 @@ public class User {
     @NonNull private String firstName;
     @NonNull private String password;
 
-    @ManyToMany
-    private Collection<Role> roles;
+    @JsonIgnore
+    @Builder.Default
+    private Role role = Role.USER;
 }
