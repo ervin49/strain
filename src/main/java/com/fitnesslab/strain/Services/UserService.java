@@ -1,10 +1,10 @@
 package com.fitnesslab.strain.Services;
 
+import com.fitnesslab.strain.Exceptions.ResourceNotFoundException;
 import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
 import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Repositories.UserRepository;
 import com.fitnesslab.strain.Security.JwtUtils;
-import io.jsonwebtoken.Jwt;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -73,7 +73,7 @@ public class UserService {
     }
 
     public void changePassword(String email, String newPassword){
-        User user = userRepository.getUserByEmail(email);
+        User user = userRepository.getUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Not found"));
 
         userRepository.deleteByEmail(email);
         user.setPassword(encoder.encode(newPassword));
@@ -82,6 +82,6 @@ public class UserService {
     }
 
     public User getByEmail(@NonNull String email) {
-        return userRepository.getUserByEmail(email);
+        return userRepository.getUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Not found"));
     }
 }

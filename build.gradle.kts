@@ -28,6 +28,8 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("org.modelmapper:modelmapper:3.2.6")
     implementation("org.json:json:20251224")
+    implementation("org.mapstruct:mapstruct:1.7.0.Beta1")
+    implementation("org.mapstruct:mapstruct-processor:1.7.0.Beta1")
 
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")

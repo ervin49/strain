@@ -6,12 +6,12 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 import java.util.*;
 
-@Entity
 @Data
-@Table(name = "users")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "users")
 public class User {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.RANDOM)
@@ -22,6 +22,7 @@ public class User {
     @NonNull private String lastName;
     @NonNull private String firstName;
     @NonNull private String password;
+    private int noOfWorkouts = 0;
 
     @JsonIgnore
     @Builder.Default

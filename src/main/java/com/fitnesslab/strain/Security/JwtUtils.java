@@ -38,14 +38,6 @@ public class JwtUtils {
                 .compact();
     }
 
-    public String getEmailFromToken(String token){
-        return Jwts.parser()
-                .verifyWith(key).build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-    }
-
     public <T> T extractClaim(String token, Function<Claims, T> claimsFunction){
         Claims claims = extractAllClaims(token);
         return claimsFunction.apply(claims);
