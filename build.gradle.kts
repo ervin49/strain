@@ -30,6 +30,8 @@ dependencies {
     implementation("org.json:json:20251224")
     implementation("org.mapstruct:mapstruct:1.7.0.Beta1")
     implementation("org.mapstruct:mapstruct-processor:1.7.0.Beta1")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.7.0.Beta1")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf:4.1.0-RC1")
 
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")

@@ -12,19 +12,19 @@ import java.util.List;
 @RestController
 public class MuscleController {
 
-    @GetMapping("/muscles")
-    public ResponseEntity<List<Muscle>> getMuscles(){
-
-    }
-
-    @PostMapping("/muscles")
-    public ResponseEntity<String> addMuscle(){
-
-    }
-
-    @DeleteMapping
-    public ResponseEntity<String> deleteMuscle(){
-
-    }
+//    @GetMapping("/muscles")
+//    public ResponseEntity<List<Muscle>> getMuscles(){
+//
+//    }
+//
+//    @PostMapping("/muscles")
+//    public ResponseEntity<String> addMuscle(){
+//
+//    }
+//
+//    @DeleteMapping
+//    public ResponseEntity<String> deleteMuscle(){
+//
+//    }
 
 }

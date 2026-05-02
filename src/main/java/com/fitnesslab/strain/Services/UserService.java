@@ -3,6 +3,7 @@ package com.fitnesslab.strain.Services;
 import com.fitnesslab.strain.Exceptions.ResourceNotFoundException;
 import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
 import com.fitnesslab.strain.Models.User;
+import com.fitnesslab.strain.Models.Workout;
 import com.fitnesslab.strain.Repositories.UserRepository;
 import com.fitnesslab.strain.Security.JwtUtils;
 import lombok.AllArgsConstructor;
@@ -12,9 +13,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -40,16 +43,16 @@ public class UserService {
         }
 
         int noOfUppercaseChars = 0;
-        int noOfNonAlnumChars = 0;
+        int noOfNonAlNumChars = 0;
         for(int i = 0; i < password.length(); i++){
             char curr = password.charAt(i);
             if(Character.isUpperCase(curr))
                 noOfUppercaseChars++;
             if(!Character.isLetter(curr) && !Character.isDigit(curr)){
-                noOfNonAlnumChars++;
+                noOfNonAlNumChars++;
             }
         }
-        if(noOfUppercaseChars == 0 || noOfNonAlnumChars == 0){
+        if(noOfUppercaseChars == 0 || noOfNonAlNumChars == 0){
             return "Password must have at least one uppercase letter and one special character!";
         }
 
@@ -58,6 +61,7 @@ public class UserService {
         userRepository.save(user);
         return "success";
     }
+
 
     public String login(UserRequestDTO userDTO){
         try {
@@ -81,7 +85,11 @@ public class UserService {
         emailService.sendEmail(email,"Password changed", "Your password has been changed at: " + new Date());
     }
 
-    public User getByEmail(@NonNull String email) {
+    public User getUserByEmail(@NonNull String email) {
         return userRepository.getUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Not found"));
     }
+    public void deleteById(UUID userId){
+        userRepository.deleteById(userId);
+    }
+
 }
