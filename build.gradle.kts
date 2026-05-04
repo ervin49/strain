@@ -22,9 +22,11 @@ dependencies {
     mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
 
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("io.swagger.core.v3:swagger-annotations:2.2.49")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("org.modelmapper:modelmapper:3.2.6")
     implementation("org.json:json:20251224")

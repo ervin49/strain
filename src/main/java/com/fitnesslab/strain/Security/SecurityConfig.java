@@ -23,7 +23,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthTokenFilter filter){
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/","/register","/login")
+                        .requestMatchers("/","/register","/login", "/swagger-ui.html","/swagger-ui/**","/v3/api-docs/**")
                         .permitAll()
                         .requestMatchers("/admin").hasRole("admin")
                         .anyRequest().authenticated()

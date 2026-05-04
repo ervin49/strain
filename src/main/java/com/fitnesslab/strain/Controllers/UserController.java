@@ -6,6 +6,7 @@ import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Security.JwtUtils;
 import com.fitnesslab.strain.Services.UserService;
 import com.fitnesslab.strain.Utils.UserMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpHeaders;
@@ -32,14 +33,17 @@ public class UserController {
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @GetMapping("/")
+    @Operation(summary = "index page")
     public String home(Model model, Principal principal){
         if(principal == null){
-
+            return "index";
         }
-        return "index";
+
+        return "dashboard";
     }
 
     @GetMapping("/users")
+    @Operation(summary = "Retrieves all users")
     public List<UserResponseDTO> getUsers(){
         return userService.getUsers()
                 .stream()
@@ -47,6 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/users/me")
+    @Operation(summary = "Retrieves details about currently logged in user")
     public ResponseEntity<UserResponseDTO> getPersonalAccount(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication != null && authentication.isAuthenticated()){
@@ -57,15 +62,21 @@ public class UserController {
         return new ResponseEntity<>((HttpHeaders) null, HttpStatus.BAD_REQUEST);
     }
 
+    @GetMapping("/register")
+    @Operation(summary = "Register form")
+    public String registerForm(Model model){
+        model.addAttribute("user", new User());
+        return "register";
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User user){
+    @Operation(summary = "Registers user")
+    public String registerUser(@ModelAttribute User user){
         String message = userService.register(user);
         if(!message.equals("success")){
-            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+            return
         }
-
-        return new ResponseEntity<>("Registration successful!", HttpStatus.CREATED);
+        return "redirect:/login";
     }
 
     @PostMapping("/login")
