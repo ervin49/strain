@@ -19,7 +19,7 @@ public class WorkoutService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void addWorkout(UUID userId, Workout workout){
+    public void create(UUID userId, Workout workout){
         workoutRepository.save(workout);
         User user = userRepository.getUserById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setNoOfWorkouts(user.getNoOfWorkouts() + 1);
@@ -27,5 +27,15 @@ public class WorkoutService {
 
     public List<Workout> getWorkoutsByUserId(UUID userId){
         return workoutRepository.findWorkoutsByUserId(userId);
+    }
+
+    public void delete(UUID workoutId) {
+        workoutRepository.deleteById(workoutId);
+    }
+
+    public void update(UUID workoutId, Workout workout) {
+        workoutRepository.getWorkoutById(workoutId).orElseThrow(() -> new ResourceNotFoundException("Workout not found"));
+        workoutRepository.deleteById(workoutId);
+        workoutRepository.save(workout);
     }
 }

@@ -36,7 +36,7 @@ public class UserController {
     @Operation(summary = "index page")
     public String home(Model model, Principal principal){
         if(principal == null){
-            return "index";
+            return "redirect:register";
         }
 
         return "dashboard";
@@ -74,7 +74,7 @@ public class UserController {
     public String registerUser(@ModelAttribute User user){
         String message = userService.register(user);
         if(!message.equals("success")){
-            return
+            return "register";
         }
         return "redirect:/login";
     }

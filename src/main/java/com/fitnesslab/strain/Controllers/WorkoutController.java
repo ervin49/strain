@@ -4,6 +4,7 @@ import com.fitnesslab.strain.Models.Workout;
 import com.fitnesslab.strain.Repositories.UserRepository;
 import com.fitnesslab.strain.Services.UserService;
 import com.fitnesslab.strain.Services.WorkoutService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,20 +23,13 @@ public class WorkoutController {
     private final WorkoutService workoutService;
 
     @PostMapping("/users/{userId}/workouts")
-    public ResponseEntity<String> addWorkout(@PathVariable UUID userId, @RequestBody Workout workout){
-        workoutService.addWorkout(userId,workout);
-        return new ResponseEntity<>("Success",HttpStatus.OK);
-    }
-
-    @PostMapping("/workouts")
-    public ResponseEntity<String> addWorkout(@RequestBody Workout workout, Principal principal){
-        String email = principal.getName();
-        UUID userId = userService.getUserByEmail(email).getId();
-        workoutService.addWorkout(userId,workout);
+    public ResponseEntity<String> createWorkout(@PathVariable UUID userId, @RequestBody Workout workout){
+        workoutService.create(userId,workout);
         return new ResponseEntity<>("Success",HttpStatus.OK);
     }
 
     @GetMapping("/users/{userId}/workouts")
+    @Operation(summary = "Returns all workouts of a user")
     public ResponseEntity<List<Workout>> getWorkouts(@PathVariable UUID userId){
         List<Workout> workouts = workoutService.getWorkoutsByUserId(userId);
         if(workouts.isEmpty()){
@@ -43,5 +37,20 @@ public class WorkoutController {
         }
 
         return new ResponseEntity<>(workouts, HttpStatus.OK);
+    }
+
+    @PutMapping("/workouts/{workoutId}")
+    @Operation(summary = "Updates a workout")
+    public ResponseEntity<String> updateWorkout(@PathVariable UUID workoutId,@RequestBody Workout workout)
+    {
+        workoutService.update(workoutId, workout);
+        return ResponseEntity.ok("Updated");
+    }
+
+    @DeleteMapping("/workouts/{workoutId}")
+    @Operation(summary = "Deletes a workout")
+    public ResponseEntity<String> deleteWorkout(@PathVariable UUID workoutId){
+        workoutService.delete(workoutId);
+        return ResponseEntity.ok("Deleted");
     }
 }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Strain</title>
+    <link  rel="stylesheet" th:href="@{/css/register.css}">
+</head>
+<body>
+<div class="main">
+    <span style="font-size: 32px">Sign up</span>
+    <form class="form1" th:action="@{/register}" th:object="${user}" method="post">
+        <label class="form-label" for="email">Email</label>
+        <input style="text-indent:10px; margin-bottom: 16px" class="form-input" id="email" th:field="*{email}">
+        <label class="form-label" for="password">Password</label>
+        <input style="text-indent:10px" type="password" class="form-input" id="password" th:field="*{password}">
+        <button type="submit" class="forgot-password">Forgot password?</button>
+        <button type="submit" class="sign-up-button">Sign up</button>
+    </form>
+    <button type="submit" class = "alr-have-acc" th:action="@{/login}">
+        <span>Already have an account?</span>
+        <span style="text-decoration: underline; color: dodgerblue">Login</span>
+    </button>
+</div>
+</body>
+</html>
