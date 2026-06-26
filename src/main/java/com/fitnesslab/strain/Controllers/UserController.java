@@ -7,9 +7,9 @@ import com.fitnesslab.strain.Security.JwtUtils;
 import com.fitnesslab.strain.Services.UserService;
 import com.fitnesslab.strain.Utils.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.mapstruct.factory.Mappers;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,11 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -33,8 +32,8 @@ public class UserController {
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @GetMapping("/")
-    @Operation(summary = "index page")
-    public String home(Model model, Principal principal){
+    @Operation(summary = "Index page")
+    public String home(Principal principal){
         if(principal == null){
             return "redirect:register";
         }
@@ -42,12 +41,16 @@ public class UserController {
         return "dashboard";
     }
 
+    @GetMapping("/dashboard")
+    public String dashboard(){
+        return "dashboard";
+    }
+
     @GetMapping("/users")
     @Operation(summary = "Retrieves all users")
-    public List<UserResponseDTO> getUsers(){
-        return userService.getUsers()
-                .stream()
-                .map(userMapper::toDTO).toList();
+    public String getUsers(Model model){
+        model.addAttribute("users",userService.getUsers());
+        return "users";
     }
 
     @GetMapping("/users/me")
@@ -59,7 +62,7 @@ public class UserController {
             User user = userService.getUserByEmail(email);
             return new ResponseEntity<>(userMapper.toDTO(user), HttpStatus.OK);
         }
-        return new ResponseEntity<>((HttpHeaders) null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/register")
@@ -71,22 +74,34 @@ public class UserController {
 
     @PostMapping("/register")
     @Operation(summary = "Registers user")
-    public String registerUser(@ModelAttribute User user){
-        String message = userService.register(user);
-        if(!message.equals("success")){
+    public String registerUser(@ModelAttribute @Valid User user, BindingResult result){
+        if(result.hasErrors()){
             return "register";
         }
-        return "redirect:/login";
+        userService.register(user);
+        return "login";
+    }
+
+    @GetMapping("/login")
+    @Operation(summary = "Logins user")
+    public String loginForm(Model model){
+        model.addAttribute("user",new UserRequestDTO());
+        return "login";
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String,String>> login(@RequestBody UserRequestDTO userDTO){
-        String result = userService.login(userDTO);
-        if(result.equals("Wrong email or password!")){
-            return new ResponseEntity<>(Map.of("error", result),HttpStatus.BAD_REQUEST);
+    public String loginUser(@ModelAttribute UserRequestDTO userDTO, Model model){
+        if(userService.existsByEmail(userDTO.getEmail())) {
+            if(userService.login(userDTO).equals("Wrong email or password!")) {
+                model.addAttribute("error","Password is wrong!");
+                return "login";
+            }
+
+            return "dashboard";
         }
 
-        return new ResponseEntity<>(Map.of("jwt", result),HttpStatus.OK);
+        model.addAttribute("error","Email is wrong!");
+        return "login";
     }
 
     @PostMapping("/logout")
@@ -95,9 +110,8 @@ public class UserController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody String email, @RequestBody String newPassword){
-        userService.changePassword(email,newPassword);
-        return new ResponseEntity<>("You have changed your password!",HttpStatus.OK);
+    public String changePassword(@RequestBody String email, String newPassword, Model model){
+        return "change-password";
     }
 
     @DeleteMapping("/users/{id}")

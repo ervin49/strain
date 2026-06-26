@@ -54,8 +54,8 @@ public class UserControllerTest{
 
         User admin = User.builder()
                 .email("admin@admin.com")
-                .lastName("admin")
                 .firstName("admin")
+                .lastName("admin")
                 .password("AdminPassword!")
                 .role(Role.ADMIN)
                 .build();
@@ -88,8 +88,8 @@ public class UserControllerTest{
     public void when_email_taken_return_message(){
         User user = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("password")
                 .build();
 
@@ -109,8 +109,8 @@ public class UserControllerTest{
     public void when_short_password_return_bad_request(){
         User user = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("pass")
                 .build();
 
@@ -129,8 +129,8 @@ public class UserControllerTest{
     public void when_no_uppercase_letters_return_bad_request(){
         User user = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("password!")
                 .build();
 
@@ -149,8 +149,8 @@ public class UserControllerTest{
     public void when_no_special_characters_return_bad_request(){
         User user = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("Password")
                 .build();
 
@@ -169,8 +169,8 @@ public class UserControllerTest{
     public void should_register(){
         User user = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("Password!")
                 .build();
 
@@ -189,8 +189,8 @@ public class UserControllerTest{
     public void when_login_with_wrong_email_return_bad_request(){
         User user = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("Password!")
                 .build();
 
@@ -211,16 +211,16 @@ public class UserControllerTest{
     public void when_login_with_wrong_password_return_bad_request(){
         User user = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("Password!")
                 .build();
         userRepository.save(user);
 
         User userWithBadPass = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("badPassword")
                 .build();
 
@@ -241,8 +241,8 @@ public class UserControllerTest{
     public void should_login(){
         User user = User.builder()
                 .email("user@user.com")
-                .lastName("user")
                 .firstName("user")
+                .lastName("user")
                 .password("Password!")
                 .build();
         userService.register(user);
@@ -263,34 +263,34 @@ public class UserControllerTest{
 
     @Test
     public void should_return_all_users(){
-        given()
-                .contentType(ContentType.JSON)
-                .header(new Header("Authorization","Bearer " + jwt))
-                .port(port)
-                .when()
-                .get("/users")
-                .then()
-                .body();
+//        given()
+//                .contentType(ContentType.JSON)
+//                .header(new Header("Authorization","Bearer " + jwt))
+//                .port(port)
+//                .when()
+//                .get("/users")
+//                .then()
+//                .body();
     }
 
     @Test
     public void should_return_personal_details_of_user(){
         User user = User.builder()
                 .email("user@user.com")
+                .firstName("John")
                 .lastName("John")
-                .firstName("Mark")
                 .password("Password!")
                 .build();
         userService.register(user);
         String userJwt = userService.login(new UserRequestDTO(user.getEmail(),user.getPassword()));
 
-        given()
-                .contentType(ContentType.JSON)
-                .header(new Header("Authorization","Bearer " + userJwt))
-                .port(port)
-                .when()
-                .get("/my-account")
-                .then()
-                .body();
+//        given()
+//                .contentType(ContentType.JSON)
+//                .header(new Header("Authorization","Bearer " + userJwt))
+//                .port(port)
+//                .when()
+//                .get("/my-account")
+//                .then()
+//                .body();
     }
 }

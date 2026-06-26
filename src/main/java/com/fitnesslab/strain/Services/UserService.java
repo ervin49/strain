@@ -63,13 +63,13 @@ public class UserService {
     }
 
 
-    public String login(UserRequestDTO userDTO){
+    public String login(UserRequestDTO user){
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    userDTO.getEmail(),userDTO.getPassword()
+                    user.getEmail(),user.getPassword()
             ));
-            String email = userDTO.getEmail();
 
+            String email = user.getEmail();
             return jwtUtils.generateToken(email);
         }catch (BadCredentialsException e){
             return "Wrong email or password!";
@@ -82,7 +82,7 @@ public class UserService {
         userRepository.deleteByEmail(email);
         user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
-        emailService.sendEmail(email,"Password changed", "Your password has been changed at: " + new Date());
+//        emailService.sendEmail(email,"Password changed", "Your password has been changed at: " + new Date());
     }
 
     public User getUserByEmail(@NonNull String email) {
@@ -92,4 +92,7 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }

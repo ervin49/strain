@@ -23,7 +23,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthTokenFilter filter){
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**","/js/**","/sattic/**","/","/register","/login", "/swagger-ui.html","/swagger-ui/**","/v3/api-docs/**")
+                        .requestMatchers("/dashboard","/css/**","/js/**","/static/**","/","/register","/login", "/swagger-ui.html","/swagger-ui/**","/v3/api-docs/**")
                         .permitAll()
                         .requestMatchers("/admin").hasRole("admin")
                         .anyRequest().authenticated()
@@ -54,13 +54,4 @@ public class SecurityConfig {
         provider.setPasswordEncoder(encoder);
         return new ProviderManager(provider);
     }
-
-/*    @Bean
-    public RoleHierarchy roleHierarchy(){
-        RoleHierarchyImpl roleHierarchy = new RoleHierarchy();
-        String hierarchy = "ROLE_ADMIN > ROLE_STAFF \n ROLE_STAFF > ROLE_USER";
-        roleHierarchy.setHierarchy(hierarchy);
-        return roleHierarchy;
-    }
- */
 }

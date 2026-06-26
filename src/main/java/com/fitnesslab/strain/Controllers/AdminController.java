@@ -12,4 +12,5 @@ public class AdminController {
     public ResponseEntity<String> adminTest(){
         return new ResponseEntity<>("Welcome admin!", HttpStatus.OK);
     }
+    
 }

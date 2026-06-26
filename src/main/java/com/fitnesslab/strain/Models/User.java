@@ -2,8 +2,14 @@ package com.fitnesslab.strain.Models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.*;
 
 @Data
@@ -14,14 +20,23 @@ import java.util.*;
 @Table(name = "users")
 public class User {
     @Id
-    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(unique = true)
-    @NonNull private String email;
-    @NonNull private String lastName;
-    @NonNull private String firstName;
-    @NonNull private String password;
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Must be a valid email.")
+    private String email;
+
+    @NotBlank(message = "First name is required.")
+    private String firstName;
+
+    @NotBlank(message = "Last name is required.")
+    private String lastName;
+
+    @NotBlank(message = "Password is required.")
+    private String password;
+
     @Builder.Default
     private int noOfWorkouts = 0;
 

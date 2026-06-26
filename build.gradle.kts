@@ -21,6 +21,7 @@ val mockitoAgent = configurations.create("mockitoAgent")
 dependencies {
     mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
 
+    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.5.RELEASE")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -38,7 +39,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
     runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("org.springframework.boot:spring-boot-devtools")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     compileOnly("org.projectlombok:lombok")
     testCompileOnly("org.projectlombok:lombok")
