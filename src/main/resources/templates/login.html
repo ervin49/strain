@@ -8,15 +8,26 @@
 <body>
 <div class="main">
     <span style="font-size: 32px">Sign in</span>
-    <form class="form1" th:action="@{/login}" th:object="${user}" method="post">
+    <tr th:each="error : ${#fields.errors()}">
+        <span th:text="${error}">
+
+        </span>
+    </tr>
+    <form th:action="@{/login}" th:object="${user}" method="post">
+        <div class="errors">
+            <tr th:each="error : ${#fields.allErrors()}">
+                <p th:text="'•' + ${error}"/>
+                </p>
+            </tr>
+        </div>
         <label class="form-label" for="email">Email</label>
         <input style="text-indent:10px; margin-bottom: 16px" class="form-input" id="email" th:field="*{email}">
 
         <label class="form-label" for="password">Password</label>
         <input style="text-indent:10px" type="password" class="form-input" id="password" th:field="*{password}">
 
-        <button type="submit" class="forgot-password">Forgot password?</button>
-        <button type="submit" class="sign-up-button">Sign in</button>
+        <input type="button" class="forgot-password" onclick="location.href='/change-password'" value="Forgot password?">
+        <button type="submit" class="sign-up-button">Sign in
     </form>
     <form th:action="@{register}" method="get">
         <button type="submit" class = "alr-have-acc">

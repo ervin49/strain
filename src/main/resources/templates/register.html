@@ -10,10 +10,10 @@
     <span style="font-size: 32px; margin-bottom: 50px ">Sign up</span>
     <form th:action="@{/register}" th:object="${user}" method="post">
         <div class="errors">
-            <tr th:each="error : ${#fields.allErrors()}">
-                <p th:text="|•${error}|"/>
+            <th:block th:if="${error} == null">
+                <p th:text="${error}">
                 </p>
-            </tr>
+            </th:block>
         </div>
 
         <div>

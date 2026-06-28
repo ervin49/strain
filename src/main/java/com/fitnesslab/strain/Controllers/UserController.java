@@ -93,14 +93,14 @@ public class UserController {
     public String loginUser(@ModelAttribute UserRequestDTO userDTO, Model model){
         if(userService.existsByEmail(userDTO.getEmail())) {
             if(userService.login(userDTO).equals("Wrong email or password!")) {
-                model.addAttribute("error","Password is wrong!");
+                model.addAttribute("passwordError","Password is wrong!");
                 return "login";
             }
 
             return "dashboard";
         }
 
-        model.addAttribute("error","Email is wrong!");
+        model.addAttribute("emailError","Email is wrong!");
         return "login";
     }
 
