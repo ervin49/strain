@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -18,22 +19,23 @@ import java.util.function.Function;
 
 @Service
 public class JwtUtils {
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-    @Value("${jwt.expiration}")
-    private int jwtExpirationDate;
+    private final JwtConfig jwtConfig;
     private SecretKey key;
+
+    public JwtUtils(JwtConfig jwtConfig){
+        this.jwtConfig = jwtConfig;
+    }
 
     @PostConstruct
     public void init(){
-        key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        key = Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String email){
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
-                .expiration(new Date(new Date().getTime() + jwtExpirationDate))
+                .expiration(new Date(new Date().getTime() + jwtConfig.getExpiration()))
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }

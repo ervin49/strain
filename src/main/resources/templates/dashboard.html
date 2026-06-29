@@ -6,8 +6,7 @@
 </head>
 <body>
 <div sec:authorize="isAuthenticated()">
-    <p>Welcome!</p>
-    <span sec:authentication="${name}"></span>
+    <div th:text="${@userService.getUserByEmail(#authentication.getName()).firstName}"></div>
 </div>
 </body>
 </html>

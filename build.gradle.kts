@@ -21,7 +21,7 @@ val mockitoAgent = configurations.create("mockitoAgent")
 dependencies {
     mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
 
-    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.5.RELEASE")
+    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")

@@ -3,14 +3,18 @@ package com.fitnesslab.strain.Controllers;
 import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
 import com.fitnesslab.strain.DTOs.responses.UserResponseDTO;
 import com.fitnesslab.strain.Models.User;
+import com.fitnesslab.strain.Security.JwtConfig;
 import com.fitnesslab.strain.Security.JwtUtils;
 import com.fitnesslab.strain.Services.UserService;
 import com.fitnesslab.strain.Utils.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.mapstruct.factory.Mappers;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -30,6 +34,8 @@ public class UserController {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    private final JwtConfig jwtConfig;
+
 
     @GetMapping("/")
     @Operation(summary = "Index page")
@@ -90,13 +96,21 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute UserRequestDTO userDTO, Model model){
+    public String loginUser(@ModelAttribute UserRequestDTO userDTO, HttpServletResponse response, Model model){
         if(userService.existsByEmail(userDTO.getEmail())) {
-            if(userService.login(userDTO).equals("Wrong email or password!")) {
+            String token = userService.login(userDTO);
+            if(token.equals("Wrong email or password!")) {
                 model.addAttribute("passwordError","Password is wrong!");
                 return "login";
             }
 
+            ResponseCookie cookie = ResponseCookie.from("token",token)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(jwtConfig.getExpiration())
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
             return "dashboard";
         }
 
