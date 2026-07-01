@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.UUID;
 
@@ -41,14 +42,21 @@ public class UserController {
     @Operation(summary = "Index page")
     public String home(Principal principal){
         if(principal == null){
-            return "redirect:register";
+            return "redirect:/register";
         }
 
         return "dashboard";
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(){
+    public String dashboard(Principal principal, Model model){
+        if(principal == null){
+            return "redirect:/register";
+        }
+
+        User user = userService.getUserByEmail(principal.getName());
+        model.addAttribute("user", user);
+        model.addAttribute("workouts", user.getWorkouts());
         return "dashboard";
     }
 
@@ -59,44 +67,54 @@ public class UserController {
         return "users";
     }
 
-    @GetMapping("/users/me")
+    @GetMapping("/my-account")
     @Operation(summary = "Retrieves details about currently logged in user")
-    public ResponseEntity<UserResponseDTO> getPersonalAccount(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null && authentication.isAuthenticated()){
-            String email = authentication.getName();
-            User user = userService.getUserByEmail(email);
-            return new ResponseEntity<>(userMapper.toDTO(user), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public String getPersonalAccount(Model model, Principal principal){
+        return "profile";
     }
 
     @GetMapping("/register")
     @Operation(summary = "Register form")
-    public String registerForm(Model model){
+    public String registerForm(Model model, Principal principal){
+        if(principal != null){
+            return "redirect:/dashboard";
+        }
+
         model.addAttribute("user", new User());
         return "register";
     }
 
     @PostMapping("/register")
     @Operation(summary = "Registers user")
-    public String registerUser(@ModelAttribute @Valid User user, BindingResult result){
-        if(result.hasErrors()){
+    public String registerUser(@ModelAttribute @Valid User user, BindingResult result, Model model){
+        String status = userService.register(user);
+        if(!status.equals("success")) {
+            model.addAttribute("errorMessage", status);
+        }
+        if(result.hasErrors() || !status.equals("success")) {
             return "register";
         }
-        userService.register(user);
+
         return "login";
     }
 
     @GetMapping("/login")
     @Operation(summary = "Logins user")
-    public String loginForm(Model model){
+    public String loginForm(Model model, Principal principal){
+        if(principal != null){
+            return "redirect:/dashboard";
+        }
+
         model.addAttribute("user",new UserRequestDTO());
         return "login";
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute UserRequestDTO userDTO, HttpServletResponse response, Model model){
+    public String loginUser(@ModelAttribute UserRequestDTO userDTO, HttpServletResponse response, Model model, Principal principal){
+        if(principal != null){
+            return "redirect:/dashboard";
+        }
+
         if(userService.existsByEmail(userDTO.getEmail())) {
             String token = userService.login(userDTO);
             if(token.equals("Wrong email or password!")) {

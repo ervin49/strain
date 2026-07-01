@@ -46,13 +46,11 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     testAnnotationProcessor("org.projectlombok:lombok")
 
-    testImplementation("org.testcontainers:testcontainers:2.0.5")
     implementation("org.springframework.boot:spring-boot-testcontainers:4.1.0-RC1")
     testImplementation("org.testcontainers:postgresql:1.21.4")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter:2.0.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    testImplementation("io.rest-assured:rest-assured:6.0.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 }

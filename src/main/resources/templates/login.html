@@ -16,8 +16,7 @@
     <form th:action="@{/login}" th:object="${user}" method="post">
         <div class="errors">
             <tr th:each="error : ${#fields.allErrors()}">
-                <p th:text="'•' + ${error}"/>
-                </p>
+                <td th:text="'•' + ${error}"/>
             </tr>
         </div>
         <label class="form-label" for="email">Email</label>

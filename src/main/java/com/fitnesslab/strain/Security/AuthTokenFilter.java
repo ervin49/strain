@@ -43,21 +43,24 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwt = tokenCookie.getValue();
-        String email = jwtUtils.extractClaim(jwt, Claims::getSubject);
+        try {
+            String jwt = tokenCookie.getValue();
+            String email = jwtUtils.extractClaim(jwt, Claims::getSubject);
 
-        if(!email.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            if (!email.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-            if (jwtUtils.isValidJWT(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+                if (jwtUtils.isValidJWT(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request,response);
     }
-
 }

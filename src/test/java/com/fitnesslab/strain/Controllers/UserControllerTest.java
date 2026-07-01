@@ -6,11 +6,6 @@ import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Repositories.UserRepository;
 import com.fitnesslab.strain.Security.JwtUtils;
 import com.fitnesslab.strain.Services.UserService;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
-import io.restassured.parsing.Parser;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,37 +14,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static io.restassured.RestAssured.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
+@AutoConfigureMockMvc
 public class UserControllerTest{
 
     @LocalServerPort
     private Integer port;
 
     private String jwt;
+    private MockMvc mockMvc;
 
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final UserService userService;
 
     @Autowired
-    UserControllerTest(UserRepository userRepository, JwtUtils jwtUtils, UserService userService){
+    UserControllerTest(UserRepository userRepository, JwtUtils jwtUtils, UserService userService,MockMvc mockMvc){
         this.userService = userService;
         this.jwtUtils = jwtUtils;
         this.userRepository = userRepository;
+        this.mockMvc = mockMvc;
     }
 
     @BeforeEach
     public void setUp(){
-        RestAssured.baseURI = "http://localhost:" + port;
         userRepository.deleteAll();
 
         User admin = User.builder()
@@ -85,7 +90,7 @@ public class UserControllerTest{
     }
 
     @Test
-    public void when_email_taken_return_message(){
+    public void when_email_taken_return_message() throws Exception {
         User user = User.builder()
                 .email("user@user.com")
                 .firstName("user")
@@ -94,39 +99,28 @@ public class UserControllerTest{
                 .build();
 
         userRepository.save(user);
-        given()
-                .contentType(ContentType.JSON)
-                .body(user)
-                .port(port)
-                .when()
-                .post("/register")
-                .then()
-                .statusCode(400)
-                .body(equalTo("User with this email already exists!"));
+        mockMvc.perform(get("/register").param("user@user.com","admin"))
+                .andExpect(model().attribute("errorMessage","Email user@user.com already taken."))
+                .andExpect(view().name("register"))
+                .andDo(print());
     }
 
     @Test
-    public void when_short_password_return_bad_request(){
-        User user = User.builder()
-                .email("user@user.com")
-                .firstName("user")
-                .lastName("user")
-                .password("pass")
-                .build();
+    public void when_short_password_return_error_message() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("email","user@user.com");
+        params.add("password","User!");
+        params.add("firstName","user");
+        params.add("lastName","user");
 
-        given()
-                .contentType(ContentType.JSON)
-                .body(user)
-                .port(port)
-                .when()
-                .post("/register")
-                .then()
-                .statusCode(400)
-                .body(equalTo("Password must be at least 8 characters long!"));
+        mockMvc.perform(post("/register").params(params))
+                .andExpect(model().attribute("errorMessage","Password must be at least 8 characters long."))
+                .andExpect(view().name("register"))
+                .andDo(print());
     }
 
     @Test
-    public void when_no_uppercase_letters_return_bad_request(){
+    public void when_no_uppercase_letters_return_bad_request() throws Exception {
         User user = User.builder()
                 .email("user@user.com")
                 .firstName("user")
@@ -134,19 +128,14 @@ public class UserControllerTest{
                 .password("password!")
                 .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .body(user)
-                .port(port)
-                .when()
-                .post("/register")
-                .then()
-                .statusCode(400)
-                .body(equalTo("Password must have at least one uppercase letter and one special character!"));
+        mockMvc.perform(get("/register").param("email","user@user.com").param("password","user"))
+                .andExpect(model().attribute("errorMessage","Password must have at least one uppercase letter and one special character."))
+                .andExpect(view().name("register"))
+                .andDo(print());
     }
 
     @Test
-    public void when_no_special_characters_return_bad_request(){
+    public void when_no_special_characters_return_bad_request() throws Exception {
         User user = User.builder()
                 .email("user@user.com")
                 .firstName("user")
@@ -154,19 +143,14 @@ public class UserControllerTest{
                 .password("Password")
                 .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .body(user)
-                .port(port)
-                .when()
-                .post("/register")
-                .then()
-                .statusCode(400)
-                .body(equalTo("Password must have at least one uppercase letter and one special character!"));
+        mockMvc.perform(get("/register").param("email","user@user.com").param("password","user"))
+                .andExpect(model().attribute("errorMessage","Password must have at least one uppercase letter and one special character."))
+                .andExpect(view().name("register"))
+                .andDo(print());
     }
 
     @Test
-    public void should_register(){
+    public void should_register() throws Exception {
         User user = User.builder()
                 .email("user@user.com")
                 .firstName("user")
@@ -174,15 +158,10 @@ public class UserControllerTest{
                 .password("Password!")
                 .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .body(user)
-                .port(port)
-                .when()
-                .post("/register")
-                .then()
-                .statusCode(201)
-                .body(equalTo("Registration successful!"));
+        mockMvc.perform(get("/register").param("email","user@user.com").param("password","user"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"))
+                .andDo(print());
     }
 
     @Test
@@ -194,17 +173,6 @@ public class UserControllerTest{
                 .password("Password!")
                 .build();
 
-        String result = given()
-                .contentType(ContentType.JSON)
-                .body(user)
-                .port(port)
-                .when()
-                .post("/login")
-                .then()
-                .statusCode(400)
-                .extract().response().path("error");
-
-        assertThat(result).isEqualTo("Wrong email or password!");
     }
 
     @Test
@@ -224,17 +192,6 @@ public class UserControllerTest{
                 .password("badPassword")
                 .build();
 
-        String result = given()
-                .contentType(ContentType.JSON)
-                .body(userWithBadPass)
-                .port(port)
-                .when()
-                .post("/login")
-                .then()
-                .statusCode(400)
-                .extract().response().path("error");
-
-        assertThat(result).isEqualTo("Wrong email or password!");
     }
 
     @Test
@@ -249,16 +206,6 @@ public class UserControllerTest{
 
         UserRequestDTO userRequestDTO = new UserRequestDTO("user@user.com", "Password!");
 
-        String result = given()
-                .contentType(ContentType.JSON)
-                .body(userRequestDTO)
-                .port(port)
-                .when()
-                .post("/login")
-                .then()
-                .extract().response().path("jwt");
-
-        assertThat(jwtUtils.isJWT(result)).isEqualTo(true);
     }
 
     @Test

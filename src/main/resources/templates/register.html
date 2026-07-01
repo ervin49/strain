@@ -10,10 +10,12 @@
     <span style="font-size: 32px; margin-bottom: 50px ">Sign up</span>
     <form th:action="@{/register}" th:object="${user}" method="post">
         <div class="errors">
-            <th:block th:if="${error} == null">
-                <p th:text="${error}">
-                </p>
+            <th:block th:if="${errorMessage} != null">
+                <p th:text="'•' + ${errorMessage}"/>
             </th:block>
+            <tr th:each="error : ${#fields.allErrors()}">
+                <td th:text="'•' + ${error}"/>
+            </tr>
         </div>
 
         <div>
@@ -23,7 +25,7 @@
             <input style="text-indent:10px" placeholder="First name" class="name-input" id="first-name" th:field="*{firstName}">
             <input style="text-indent:10px" placeholder="Last name" class="name-input" id="last-name" th:field="*{lastName}">
         </div>
-        <br></span>
+        <br>
 
         <label class="form-label" for="email">Email</label>
         <input style="text-indent:10px; margin-bottom: 16px" placeholder="Email" class="form-input" id="email" th:field="*{email}">

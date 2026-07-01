@@ -34,26 +34,16 @@ public class UserService {
 
     public String register(User user){
         if(userRepository.existsByEmail(user.getEmail())){
-            return "User with this email already exists!";
+            return "Email " + user.getEmail() + " already taken.";
         }
 
         String password = user.getPassword();
         if(password.length() < 8){
-            return "Password must be at least 8 characters long!";
+            return "Password must be at least 8 characters long.";
         }
 
-        int noOfUppercaseChars = 0;
-        int noOfNonAlNumChars = 0;
-        for(int i = 0; i < password.length(); i++){
-            char curr = password.charAt(i);
-            if(Character.isUpperCase(curr))
-                noOfUppercaseChars++;
-            if(!Character.isLetter(curr) && !Character.isDigit(curr)){
-                noOfNonAlNumChars++;
-            }
-        }
-        if(noOfUppercaseChars == 0 || noOfNonAlNumChars == 0){
-            return "Password must have at least one uppercase letter and one special character!";
+        if(password.equals(password.toLowerCase()) || password.matches("[A-Za-z0-9 ]*")){
+            return "Password must have at least one uppercase letter and one special character.";
         }
 
         user.setPassword(encoder.encode(password));

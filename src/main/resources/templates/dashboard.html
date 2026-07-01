@@ -2,11 +2,26 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Strain</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/sidenav.css}">
 </head>
 <body>
-<div sec:authorize="isAuthenticated()">
-    <div th:text="${@userService.getUserByEmail(#authentication.getName()).firstName}"></div>
+<div class="sidenav">
+    <a href="/dashboard">
+        <img src="/home.png" alt="Home" style="width: 50px"/>Home
+    </a>
+    <a href="/my-account">Profile</a>
+</div>
+<div sec:authorize="isAuthenticated()" class="main">
+    <h1 th:text="'Welcome, ' + ${user.firstName} + '!'"></h1>
+    <p th:text="'Your workouts:' "></p>
+    <table>
+        <tr th:each="workout : ${workouts}">
+            <td th:text="${workout.getExercises()}"></td>
+        </tr>
+    </table>
+    <input type="button" onclick="location.href='/workouts/new'" value="Create workout" class="create-workout"/>
 </div>
 </body>
 </html>
