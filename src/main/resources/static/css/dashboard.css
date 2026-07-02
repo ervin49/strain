@@ -12,14 +12,3 @@
     opacity: 0.9;
     background-color: #0f77de;
 }
-.logo {
-    max-width: 80%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
-.logo-container {
-    padding: 10px 16px;
-    margin-bottom: 20px;
-    text-align: center;
-}

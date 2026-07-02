@@ -6,12 +6,19 @@
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <link rel="stylesheet" th:href="@{/css/sidenav.css}">
 </head>
-<body>
+<body class="body">
 <div class="sidenav">
-    <a href="/dashboard">
-        <img src="/home.png" alt="Home" style="width: 50px"/>Home
+    <img src="/strain-logo.png" alt="strain" class="logo">
+    <a href="/dashboard" class="active-page">
+        <img src="/home-active.png" alt="Home" class="sidebar-home-img">Home
     </a>
-    <a href="/my-account">Profile</a>
+    <a href="/routines">
+        <img src="/routines.png" alt="Routines" class="sidebar-routines-img">Routines
+    </a>
+    <a href="/profile">
+        <img src="/profile.png" alt="Profile" class="sidebar-profile-img">Profile
+    </a>
+    <div th:text="|${user.firstName} ${user.lastName}|" class="sidebar-user-name"></div>
 </div>
 <div sec:authorize="isAuthenticated()" class="main">
     <h1 th:text="'Welcome, ' + ${user.firstName} + '!'"></h1>

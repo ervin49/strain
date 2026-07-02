@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Strain</title>
+    <link rel="stylesheet" th:href="@{/css/sidenav.css}">
+</head>
+<body class="body">
+<div class="sidenav">
+    <img src="/strain-logo.png" alt="strain" class="logo">
+    <a href="/dashboard">
+        <img src="/home.png" alt="Home" class="sidebar-home-img">Home
+    </a>
+    <a href="/routines" class="active-page">
+        <img src="/routines-active.png" alt="Routines" class="sidebar-routines-img">Routines
+    </a>
+    <a href="/profile">
+        <img src="/profile.png" alt="Profile" class="sidebar-profile-img">Profile
+    </a>
+    <div style="position: absolute; padding-bottom: 5px; bottom: 0; width:100%">
+        <hr style="border-top: 1px solid #222526; left:0; margin: 0; width: 100%">
+        <div class="sidebar-bottom">
+        <div th:text="|${user.firstName} ${user.lastName}|" class="sidebar-user-name"></div>
+        <input type="image" onclick="location.href='/logout'" class="logout-button" src="/logout-button.png" alt="logout">
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

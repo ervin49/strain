@@ -8,6 +8,8 @@ import com.fitnesslab.strain.Security.JwtUtils;
 import com.fitnesslab.strain.Services.UserService;
 import com.fitnesslab.strain.Utils.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -17,8 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,10 +33,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
     private final JwtConfig jwtConfig;
+    private final PasswordEncoder encoder;
 
 
     @GetMapping("/")
@@ -56,7 +57,6 @@ public class UserController {
 
         User user = userService.getUserByEmail(principal.getName());
         model.addAttribute("user", user);
-        model.addAttribute("workouts", user.getWorkouts());
         return "dashboard";
     }
 
@@ -67,10 +67,20 @@ public class UserController {
         return "users";
     }
 
-    @GetMapping("/my-account")
+    @GetMapping("/profile")
     @Operation(summary = "Retrieves details about currently logged in user")
     public String getPersonalAccount(Model model, Principal principal){
+        User user = userService.getUserByEmail(principal.getName());
+        model.addAttribute("user", user);
         return "profile";
+    }
+
+    @GetMapping("/routines")
+    @Operation(summary = "Retrieves user's routines")
+    public String getRoutines(Model model, Principal principal){
+        User user = userService.getUserByEmail(principal.getName());
+        model.addAttribute("user",user);
+        return "routines";
     }
 
     @GetMapping("/register")
@@ -110,13 +120,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute UserRequestDTO userDTO, HttpServletResponse response, Model model, Principal principal){
+    public String loginUser(@ModelAttribute UserRequestDTO user, HttpServletResponse response, Model model, Principal principal){
         if(principal != null){
             return "redirect:/dashboard";
         }
 
-        if(userService.existsByEmail(userDTO.getEmail())) {
-            String token = userService.login(userDTO);
+        if(userService.existsByEmail(user.getEmail())) {
+            String token = userService.login(user);
             if(token.equals("Wrong email or password!")) {
                 model.addAttribute("passwordError","Password is wrong!");
                 return "login";
@@ -136,13 +146,50 @@ public class UserController {
         return "login";
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<User> logout(@RequestBody User user){
-        return new ResponseEntity<>(user,HttpStatus.OK);
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, Principal principal){
+        if(principal == null){
+            return "redirect:/login";
+        }
+
+        Cookie[] cookies = request.getCookies();
+        for(Cookie cookie : cookies){
+            if(cookie.getName().equals("token")){
+                cookie.setMaxAge(0);
+                break;
+            }
+        }
+
+        return "redirect:/login";
+    }
+
+    @GetMapping("/change-password")
+    public String getChangePassowrd(Model model){
+        String email = "", oldPassword = "", newPassword = "";
+        model.addAttribute("email", email);
+        model.addAttribute("oldPassword", oldPassword);
+        model.addAttribute("newPassword", newPassword);
+        return "change-password";
     }
 
     @PostMapping("/change-password")
-    public String changePassword(@RequestBody String email, String newPassword, Model model){
+    public String changePassword(
+            @ModelAttribute String email,
+            @ModelAttribute String oldPassword,
+            @ModelAttribute String newPassword,
+            Model model){
+        if(userService.existsByEmail(email)){
+            User user = userService.getUserByEmail(email);
+            if(encoder.encode(oldPassword).equals(user.getPassword())){
+                userService.changePassword(email,newPassword);
+                return "change-password";
+            }
+
+            model.addAttribute("passwordError","The password you entered is incorrect.");
+            return "change-password";
+        }
+
+        model.addAttribute("emailError","The email you entered isn't connected to an account.");
         return "change-password";
     }
 
