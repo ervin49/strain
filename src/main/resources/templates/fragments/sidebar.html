@@ -2,32 +2,45 @@
 <head>
     <meta charset="UTF-8">
     <title>strain</title>
-    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
 <body>
-<div th:fragment="sidebar" class="sidebar">
-
-    <img src="/sidebar-icons/strain-logo.png" alt="strain" class="logo">
-
-    <a href="/dashboard" th:class="${currentURI == '/dashboard' ? 'active-page' : ''}">
-        <img th:src="${currentURI == '/dashboard' ? 'sidebar-icons/home-active.png' : 'sidebar-icons/home.png'}" alt="Home" class="sidebar-home-img">Home
+<main th:fragment="sidebar" class="d-flex flex-nowrap vh-100">
+<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width:256px">
+    <a href="/dashboard">
+    <img src="/sidebar-icons/strain-logo.png" alt="strain" width="150">
     </a>
+    <ul class="nav nav-pills flex-column mb-auto gap-2 d-flex">
+        <li class="nav-item">
+            <a href="/dashboard" class="nav-link text-white" th:classappend="${currentURI == '/dashboard' ? 'active' : ''}">
+                <img src="sidebar-icons/dashboard.png" alt="Home" width="28" height="24">Home
+            </a>
+        </li>
 
-    <a href="/routines" th:class="${currentURI == '/routines' ? 'active-page' : ''}">
-        <img th:src="${currentURI == '/routines' ? 'sidebar-icons/routines-active.png' : 'sidebar-icons/routines.png'}" alt="Routines" class="sidebar-routines-img">Routines
-    </a>
+        <li class="nav-item">
+            <a href="/routines" class="nav-link text-white" th:classappend="${currentURI == '/routines' ? 'active' : ''}">
+                <img src="sidebar-icons/routines.png" alt="Routines" width="22" height="20">Routines
+            </a>
+        </li>
 
-    <a href="/profile" th:class="${currentURI == '/profile' ? 'active-page' : ''}">
-        <img th:src="${currentURI == '/profile' ? 'sidebar-icons/profile-active.png' : 'sidebar-icons/profile.png'}" alt="Profile" class="sidebar-profile-img">Profile
-    </a>
+        <li class="nav-item">
+            <a href="/profile" class="nav-link text-white" th:classappend="${currentURI == '/profile' ? 'active' : ''}">
+                <img src="sidebar-icons/profile.png" alt="Profile" width="24" height="22">Profile
+            </a>
+        </li>
+    </ul>
 
-    <div style="position: absolute; padding-bottom: 5px; bottom: 0; width:100%">
-        <hr style="border-top: 1px solid #222526; left:0; margin: 0; width: 100%">
-        <div class="sidebar-bottom">
-            <div th:text="|${user?.firstName} ${user?.lastName}|" class="sidebar-user-name"></div>
-            <input type="image" onclick="location.href='/logout'" class="logout-button" src="/sidebar-icons/logout-button.png" alt="logout">
-        </div>
+    <hr>
+    <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2"> <strong th:text="|${user.firstName} ${user.lastName}|"></strong> </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" style="">
+            <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" th:href="@{/logout}">Sign out</a></li>
+        </ul>
     </div>
 </div>
+</main>
 </body>
 </html>

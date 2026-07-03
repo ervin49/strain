@@ -33,15 +33,7 @@ public class UserService {
     }
 
     public String register(User user){
-        if(userRepository.existsByEmail(user.getEmail())){
-            return "Email " + user.getEmail() + " already taken.";
-        }
-
         String password = user.getPassword();
-        if(password.length() < 8){
-            return "Password must be at least 8 characters long.";
-        }
-
         if(password.equals(password.toLowerCase()) || password.matches("[A-Za-z0-9 ]*")){
             return "Password must have at least one uppercase letter and one special character.";
         }

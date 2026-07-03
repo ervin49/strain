@@ -1,5 +1,6 @@
 package com.fitnesslab.strain.DTOs.requests;
 
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;

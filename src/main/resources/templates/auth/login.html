@@ -1,38 +1,42 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <title>Strain</title>
-    <link  rel="stylesheet" th:href="@{/css/register.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
-<body>
-<div class="main">
-    <span style="font-size: 32px">Sign in</span>
-    <tr th:each="error : ${#fields.errors()}">
-        <span th:text="${error}">
+<body class="min-vh-100 d-flex align-items-center justify-content-center p-3">
+<div class="container card shadow p-4" style="max-width: 500px">
+    <h2 class="mb-4 text-center">Sign in</h2>
 
-        </span>
-    </tr>
-    <form th:action="@{/login}" th:object="${user}" method="post">
-        <div class="errors">
-            <tr th:each="error : ${#fields.allErrors()}">
-                <td th:text="'•' + ${error}"/>
-            </tr>
+    <form th:action="@{/login}" th:object="${user}" method="post" class="gap-3 d-flex flex-column">
+        <span th:if="${emailError != null}" th:text="${emailError}"></span>
+
+        <th:block th:each="error : ${#fields.errors()}">
+            <span th:text="${error}"/>
+        </th:block>
+
+        <div>
+            <label class="form-label" for="email">Email</label>
+            <input placeholder="Email" class="form-control" id="email" th:field="*{email}" required>
         </div>
-        <label class="form-label" for="email">Email</label>
-        <input style="text-indent:10px; margin-bottom: 16px" class="form-input" id="email" th:field="*{email}">
 
-        <label class="form-label" for="password">Password</label>
-        <input style="text-indent:10px" type="password" class="form-input" id="password" th:field="*{password}">
+        <div>
+            <label class="form-label" for="password">Password</label>
+            <input placeholder="Password" type="password" class="form-control" id="password" th:field="*{password}">
+            <input type="button" class="btn" onclick="location.href='/change-password'" value="Forgot password?">
+        </div>
 
-        <input type="button" class="forgot-password" onclick="location.href='/change-password'" value="Forgot password?">
-        <button type="submit" class="sign-up-button">Sign in
-    </form>
-    <form th:action="@{register}" method="get">
-        <button type="submit" class = "alr-have-acc">
-            <span>Don't have an account yet?</span>
-            <span style="text-decoration: underline; color: dodgerblue">Register</span>
-        </button>
+            <div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100 rounded-4">Sign in</button>
+                </div>
+            </div>
+
+        <a href="/register" class="btn btn-secondary w-100 rounded-4">
+            Don't have an account yet? <span><u>Register</u></span>
+        </a>
     </form>
 </div>
 </body>

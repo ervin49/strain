@@ -3,38 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Strain - Profile</title>
-    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
-    <link rel="stylesheet" th:href="@{/css/profile.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
 <body>
-<div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
-<div class="main">
-    <div th:if="${successMessage != null}" th:text="${successMessage}"></div>
-    <div class="user-name" th:text="|${user?.firstName} ${user?.lastName}|"></div>
-    <form th:action="@{/upload}" id="upload-picture-form">
+<div class="container-fluid d-flex min-vh-100 p-0">
+    <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
+    <div class="flex-grow-1 d-flex align-items-center flex-column justify-content-center p-3">
+        <div class="w-100 p-4 border rounded shadow bg-white" style="max-width: 500px">
 
-        <label for="change-picture" class="change-picture-lbl">Change Picture</label>
-        <input type="file" accept="image/*" id="change-picture" style="display: none"/>
-    </form>
+            <div th:if="${successMessage != null}" class="alert alert-success" th:text="${successMessage}"></div>
 
-    <form th:action="@{/change-username}" id="change-name-form">
-        <div class="first-name-div">
-            <label for="change-first-name" th:placeholder="${user.firstName}" class="name-label">First Name</label>
-            <input id="change-first-name"/>
+            <form th:action="@{/update-profile}" method="POST" enctype="multipart/form-data">
+                <th:block th:text="${user.getAvatarPath()}"></th:block>
+                <img th:src="${user.getAvatarPath()}" alt="image">
+                <div class="mb-4 text-end">
+                    <label for="change-picture" class="btn btn-secondary rounded-3">Change Picture</label>
+                    <input type="file" accept="image/*" id="change-picture" style="display: none"/>
+                </div>
+
+                <div class="mb-3">
+                    <label for="change-first-name" class="form-label">First Name</label>
+                    <input id="change-first-name" class="form-control rounded-3" th:placeholder="${user.firstName}"/>
+                </div>
+
+                <div class="mb-4">
+                    <label for="change-last-name" class="form-label">Last Name</label>
+                    <input id="change-last-name" class="form-control rounded-3" th:placeholder="${user.lastName}"/>
+                </div>
+                <button class="btn btn-primary w-100 rounded-3" type="submit">Save changes</button>
+            </form>
         </div>
-
-        <div>
-            <label for="change-last-name" th:placeholder="${user.lastName}" class="name-label">Last Name</label>
-            <input id="change-last-name"/>
-        </div>
-
-    </form>
-    <button onclick="handleMultipleSubmit()" class="save-changes-btn">Save changes</button>
+    </div>
 </div>
 </body>
-<script>
-    function handleMultipleSubmit(){
-        document.getElementById("change-name-form").submit();
-        document.getElementById("upload-picture-form").submit();
-    }
-</script>

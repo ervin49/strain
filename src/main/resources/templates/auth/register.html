@@ -1,41 +1,51 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <title>Strain</title>
-    <link rel="stylesheet" th:href="@{/css/register.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
-<body>
-<div class="main">
-    <span style="font-size: 32px; margin-bottom: 50px ">Sign up</span>
-    <form th:action="@{/register}" th:object="${user}" method="post">
-        <div class="errors">
-            <th:block th:if="${errorMessage} != null">
-                <p th:text="'•' + ${errorMessage}"/>
+<body class="min-vh-100 d-flex align-items-center justify-content-center p-3">
+<div class="container card shadow p-4" style="max-width: 500px">
+    <h2 class="mb-4 text-center">Sign up</h2>
+
+    <form th:action="@{/register}" th:object="${user}" method="post" class="d-flex flex-column gap-3">
+
+        <div th:if="${#fields.hasErrors('*')}">
+            <th:block th:each="error : ${#fields.allErrors()}">
+                <div class="alert alert-danger py-2 mb-2" th:text="${error}"></div>
             </th:block>
-            <tr th:each="error : ${#fields.allErrors()}">
-                <td th:text="'•' + ${error}"/>
-            </tr>
+        </div>
+
+        <div class="row g-2">
+            <div class="col-6">
+                <label for="first-name" class="form-label">Name</label>
+                <input placeholder="First name" class="form-control" id="first-name" th:field="*{firstName}" required>
+            </div>
+            <div class="col-6">
+                <label for="last-name" class="form-label">Last Name</label>
+                <input placeholder="Last name" class="form-control" id="last-name" th:field="*{lastName}" required>
+            </div>
         </div>
 
         <div>
-            <label class="form-label" for="first-name">Name</label>
+            <label for="email" class="form-label">Email</label>
+            <input placeholder="Email" type="email" class="form-control" id="email" th:field="*{email}" required>
         </div>
-        <div style="display: flex; gap: 3% ">
-            <input style="text-indent:10px" placeholder="First name" class="name-input" id="first-name" th:field="*{firstName}">
-            <input style="text-indent:10px" placeholder="Last name" class="name-input" id="last-name" th:field="*{lastName}">
+
+        <div>
+            <label class="form-label" for="password">Password</label>
+            <input placeholder="Password" type="password" class="form-control" id="password" th:field="*{password}" required>
         </div>
-        <br>
 
-        <label class="form-label" for="email">Email</label>
-        <input style="text-indent:10px; margin-bottom: 16px" placeholder="Email" class="form-input" id="email" th:field="*{email}">
+        <div class="d-flex flex-column gap-2 mt-2">
+            <button class="btn btn-primary rounded-4 w-100" type="submit">Sign up</button>
+            <a href="/login" class="btn btn-secondary rounded-4 w-100">I already have an account</a>
+        </div>
 
-        <label class="form-label" for="password">Password</label>
-        <input style="text-indent:10px;margin-bottom: 69px" placeholder="Password" type="password" class="form-input" id="password" th:field="*{password}">
-
-        <button class="sign-up-button" type="submit">Sign up</button>
-        <input type="button" class="alr-have-acc" onclick="location.href='/login'" value="I already have an account"/>
     </form>
 </div>
+
 </body>
 </html>

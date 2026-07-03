@@ -20,8 +20,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.UUID;
 
@@ -97,15 +104,19 @@ public class UserController {
 
     @PostMapping("/register")
     @Operation(summary = "Registers user")
-    public String registerUser(@ModelAttribute @Valid User user, BindingResult result, Model model){
+    public String registerUser(@ModelAttribute @Valid User user, BindingResult result){
         String status = userService.register(user);
-        if(!status.equals("success")) {
-            model.addAttribute("errorMessage", status);
+        if(userService.existsByEmail(user.getEmail())){
+            result.addError(new FieldError("user","email","Email already taken."));
+            return "auth/register";
         }
         if(result.hasErrors() || !status.equals("success")) {
+            result.addError(new FieldError("user","password",status));
             return "auth/register";
         }
 
+        Path path = Paths.get("user-images","default-profile-picture.png");
+        user.setAvatarPath(path.toString());
         return "auth/login";
     }
 
@@ -121,7 +132,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute UserRequestDTO user, HttpServletResponse response, Model model, Principal principal){
+    public String loginUser(@ModelAttribute @Valid UserRequestDTO user, BindingResult result, HttpServletResponse response, Model model, Principal principal){
         if(principal != null){
             return "redirect:/dashboard";
         }
@@ -140,11 +151,6 @@ public class UserController {
                     .maxAge(jwtConfig.getExpiration())
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             return "users/dashboard";
         }
 
