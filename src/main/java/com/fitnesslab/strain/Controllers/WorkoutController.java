@@ -4,19 +4,12 @@ import com.fitnesslab.strain.Models.Workout;
 import com.fitnesslab.strain.Repositories.UserRepository;
 import com.fitnesslab.strain.Services.UserService;
 import com.fitnesslab.strain.Services.WorkoutService;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
-import java.util.List;
-import java.util.UUID;
 
 @AllArgsConstructor
 @Controller

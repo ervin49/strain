@@ -1,15 +1,15 @@
-.sidenav {
+.sidebar {
     height: 100%;
     width: 256px;
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: #161618;
+    background-color: #111313;
     overflow-x: hidden;
 }
 
-.sidenav a {
+.sidebar a {
     padding: 10px 10px 8px 16px;
     margin: 10px 10px 10px 10px;
     text-decoration: none;
@@ -34,27 +34,15 @@
     width: 20px;
 }
 
-.sidenav a:hover {
-    background-color: #191919;
+.sidebar a:hover {
+    background-color: #161819
 }
 
-.main {
-    margin-left: 256px;
-    padding: 0 10px;
-}
-.body {
-    background-color: #000000;
-}
-
-.sidenav a.active-page{
+.sidebar a.active-page{
     color:dodgerblue;
     background-color: #252525;
 }
 
-@media screen and (max-height: 450px) {
-    .sidenav {padding-top: 15px;}
-    .sidenav a {font-size: 18px;}
-}
 .logo {
     margin-right: 100px;
     max-width: 50%;
@@ -68,17 +56,15 @@
 }
 
 .logout-button {
-    height: 30px;
-    width: 30px;
+    height: 21px;
+    width: 21px;
     border: none;
     margin: 0;
     right: 0;
 }
 
 .sidebar-user-name{
-    padding: 15px 16px 0 16px;
-    margin-left: 15px;
-    margin-right: 15px;
+    margin-left: 20px;
     color: #ffffff;
     font-size: 17px;
 }

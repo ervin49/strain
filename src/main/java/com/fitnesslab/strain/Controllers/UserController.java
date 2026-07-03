@@ -1,12 +1,9 @@
 package com.fitnesslab.strain.Controllers;
 
 import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
-import com.fitnesslab.strain.DTOs.responses.UserResponseDTO;
 import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Security.JwtConfig;
-import com.fitnesslab.strain.Security.JwtUtils;
 import com.fitnesslab.strain.Services.UserService;
-import com.fitnesslab.strain.Utils.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +22,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.UUID;
 
@@ -34,7 +30,6 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
     private final JwtConfig jwtConfig;
     private final PasswordEncoder encoder;
 
@@ -46,7 +41,7 @@ public class UserController {
             return "redirect:/register";
         }
 
-        return "dashboard";
+        return "users/dashboard";
     }
 
     @GetMapping("/dashboard")
@@ -57,14 +52,20 @@ public class UserController {
 
         User user = userService.getUserByEmail(principal.getName());
         model.addAttribute("user", user);
-        return "dashboard";
+        return "users/dashboard";
+    }
+
+    @PostMapping("/change-username")
+    public String changeUsername(Model model){
+
+        return "users/profile";
     }
 
     @GetMapping("/users")
     @Operation(summary = "Retrieves all users")
     public String getUsers(Model model){
         model.addAttribute("users",userService.getUsers());
-        return "users";
+        return "admin/users";
     }
 
     @GetMapping("/profile")
@@ -72,7 +73,7 @@ public class UserController {
     public String getPersonalAccount(Model model, Principal principal){
         User user = userService.getUserByEmail(principal.getName());
         model.addAttribute("user", user);
-        return "profile";
+        return "users/profile";
     }
 
     @GetMapping("/routines")
@@ -80,7 +81,7 @@ public class UserController {
     public String getRoutines(Model model, Principal principal){
         User user = userService.getUserByEmail(principal.getName());
         model.addAttribute("user",user);
-        return "routines";
+        return "workout/routines";
     }
 
     @GetMapping("/register")
@@ -91,7 +92,7 @@ public class UserController {
         }
 
         model.addAttribute("user", new User());
-        return "register";
+        return "auth/register";
     }
 
     @PostMapping("/register")
@@ -102,10 +103,10 @@ public class UserController {
             model.addAttribute("errorMessage", status);
         }
         if(result.hasErrors() || !status.equals("success")) {
-            return "register";
+            return "auth/register";
         }
 
-        return "login";
+        return "auth/login";
     }
 
     @GetMapping("/login")
@@ -116,7 +117,7 @@ public class UserController {
         }
 
         model.addAttribute("user",new UserRequestDTO());
-        return "login";
+        return "auth/login";
     }
 
     @PostMapping("/login")
@@ -129,7 +130,7 @@ public class UserController {
             String token = userService.login(user);
             if(token.equals("Wrong email or password!")) {
                 model.addAttribute("passwordError","Password is wrong!");
-                return "login";
+                return "auth/login";
             }
 
             ResponseCookie cookie = ResponseCookie.from("token",token)
@@ -139,11 +140,16 @@ public class UserController {
                     .maxAge(jwtConfig.getExpiration())
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
-            return "dashboard";
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return "users/dashboard";
         }
 
         model.addAttribute("emailError","Email is wrong!");
-        return "login";
+        return "auth/login";
     }
 
     @GetMapping("/logout")
@@ -169,7 +175,7 @@ public class UserController {
         model.addAttribute("email", email);
         model.addAttribute("oldPassword", oldPassword);
         model.addAttribute("newPassword", newPassword);
-        return "change-password";
+        return "users/change-password";
     }
 
     @PostMapping("/change-password")
@@ -182,20 +188,20 @@ public class UserController {
             User user = userService.getUserByEmail(email);
             if(encoder.encode(oldPassword).equals(user.getPassword())){
                 userService.changePassword(email,newPassword);
-                return "change-password";
+                return "users/change-password";
             }
 
             model.addAttribute("passwordError","The password you entered is incorrect.");
-            return "change-password";
+            return "users/change-password";
         }
 
         model.addAttribute("emailError","The email you entered isn't connected to an account.");
-        return "change-password";
+        return "users/change-password";
     }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable UUID id){
-        userService.deleteById(id);
-        return new ResponseEntity<>("Success", HttpStatus.OK);
+    @DeleteMapping("/profile")
+    public String deleteUser(Principal principal){
+        userService.deleteByEmail(principal.getName());
+        return "users/profile";
     }
 }

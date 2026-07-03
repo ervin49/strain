@@ -1,0 +1,47 @@
+body {
+    background-color: #000000;
+}
+
+p {
+    color: #ffffff;
+}
+
+.main {
+    margin-left: 256px;
+    padding: 10vh 20vw 0 20vw;
+    border-width: 30px;
+}
+
+.user-name {
+    font-size: 20px;
+    color: #ffffff;
+}
+
+.change-picture-lbl {
+    width: 100px;
+    padding: 12px;
+    border-radius: 15px;
+    color: white;
+    background-color: #222526;
+}
+
+.save-changes-btn {
+    width: 100px;
+    padding: 12px;
+    background-color: #5B6266;
+    border-radius: 15px;
+    border: none;
+    color: white;
+}
+
+.save-changes-btn:hover {
+    background-color: #4f5355;
+}
+
+.name-label {
+    color: white;
+}
+
+.first-name-div {
+
+}

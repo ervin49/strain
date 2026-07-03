@@ -1,0 +1,13 @@
+body {
+    background-color: #000000;
+}
+
+p {
+    color: #ffffff;
+}
+
+.main {
+    margin-left: 256px;
+    padding: 0 10px;
+}
+

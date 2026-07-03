@@ -47,4 +47,6 @@ public class User {
     @JsonIgnore
     @Builder.Default
     private Role role = Role.USER;
+
+    private String avatarPath;
 }

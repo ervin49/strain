@@ -1,0 +1,33 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>strain</title>
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+</head>
+<body>
+<div th:fragment="sidebar" class="sidebar">
+
+    <img src="/sidebar-icons/strain-logo.png" alt="strain" class="logo">
+
+    <a href="/dashboard" th:class="${currentURI == '/dashboard' ? 'active-page' : ''}">
+        <img th:src="${currentURI == '/dashboard' ? 'sidebar-icons/home-active.png' : 'sidebar-icons/home.png'}" alt="Home" class="sidebar-home-img">Home
+    </a>
+
+    <a href="/routines" th:class="${currentURI == '/routines' ? 'active-page' : ''}">
+        <img th:src="${currentURI == '/routines' ? 'sidebar-icons/routines-active.png' : 'sidebar-icons/routines.png'}" alt="Routines" class="sidebar-routines-img">Routines
+    </a>
+
+    <a href="/profile" th:class="${currentURI == '/profile' ? 'active-page' : ''}">
+        <img th:src="${currentURI == '/profile' ? 'sidebar-icons/profile-active.png' : 'sidebar-icons/profile.png'}" alt="Profile" class="sidebar-profile-img">Profile
+    </a>
+
+    <div style="position: absolute; padding-bottom: 5px; bottom: 0; width:100%">
+        <hr style="border-top: 1px solid #222526; left:0; margin: 0; width: 100%">
+        <div class="sidebar-bottom">
+            <div th:text="|${user?.firstName} ${user?.lastName}|" class="sidebar-user-name"></div>
+            <input type="image" onclick="location.href='/logout'" class="logout-button" src="/sidebar-icons/logout-button.png" alt="logout">
+        </div>
+    </div>
+</div>
+</body>
+</html>

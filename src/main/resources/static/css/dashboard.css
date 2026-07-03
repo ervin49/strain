@@ -8,7 +8,16 @@
     color: white;
     background-color: dodgerblue;
 }
+
 .create-workout:hover {
     opacity: 0.9;
     background-color: #0f77de;
+}
+
+body {
+    background-color: #000000;
+}
+
+p {
+    color: #ffffff;
 }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Strain - Profile</title>
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/profile.css}">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
+<div class="main">
+    <div th:if="${successMessage != null}" th:text="${successMessage}"></div>
+    <div class="user-name" th:text="|${user?.firstName} ${user?.lastName}|"></div>
+    <form th:action="@{/upload}" id="upload-picture-form">
+
+        <label for="change-picture" class="change-picture-lbl">Change Picture</label>
+        <input type="file" accept="image/*" id="change-picture" style="display: none"/>
+    </form>
+
+    <form th:action="@{/change-username}" id="change-name-form">
+        <div class="first-name-div">
+            <label for="change-first-name" th:placeholder="${user.firstName}" class="name-label">First Name</label>
+            <input id="change-first-name"/>
+        </div>
+
+        <div>
+            <label for="change-last-name" th:placeholder="${user.lastName}" class="name-label">Last Name</label>
+            <input id="change-last-name"/>
+        </div>
+
+    </form>
+    <button onclick="handleMultipleSubmit()" class="save-changes-btn">Save changes</button>
+</div>
+</body>
+<script>
+    function handleMultipleSubmit(){
+        document.getElementById("change-name-form").submit();
+        document.getElementById("upload-picture-form").submit();
+    }
+</script>
