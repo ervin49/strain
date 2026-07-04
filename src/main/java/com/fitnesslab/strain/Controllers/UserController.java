@@ -158,23 +158,6 @@ public class UserController {
         return "auth/login";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request, Principal principal){
-        if(principal == null){
-            return "redirect:/login";
-        }
-
-        Cookie[] cookies = request.getCookies();
-        for(Cookie cookie : cookies){
-            if(cookie.getName().equals("token")){
-                cookie.setMaxAge(0);
-                break;
-            }
-        }
-
-        return "redirect:/login";
-    }
-
     @GetMapping("/change-password")
     public String getChangePassowrd(Model model){
         String email = "", oldPassword = "", newPassword = "";
