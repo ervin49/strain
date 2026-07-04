@@ -7,40 +7,50 @@
 </head>
 <body>
 <main th:fragment="sidebar" class="d-flex flex-nowrap vh-100">
-<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width:256px">
-    <a href="/dashboard">
-    <img src="/sidebar-icons/strain-logo.png" alt="strain" width="150">
-    </a>
-    <ul class="nav nav-pills flex-column mb-auto gap-2 d-flex">
-        <li class="nav-item">
-            <a href="/dashboard" class="nav-link text-white" th:classappend="${currentURI == '/dashboard' ? 'active' : ''}">
-                <img src="sidebar-icons/dashboard.png" alt="Home" width="28" height="24">Home
-            </a>
-        </li>
+    <div class="d-flex flex-column flex-shrink-0 p-3" style="width:256px; background-color: #111313">
+        <a href="/dashboard">
+            <img src="/sidebar-icons/strain-logo.png" alt="strain" width="150">
+        </a>
 
-        <li class="nav-item">
-            <a href="/routines" class="nav-link text-white" th:classappend="${currentURI == '/routines' ? 'active' : ''}">
-                <img src="sidebar-icons/routines.png" alt="Routines" width="22" height="20">Routines
-            </a>
-        </li>
+        <ul class="nav nav-pills flex-column mb-auto gap-2 d-flex">
+            <li class="nav-item">
+                <a href="/dashboard" class="nav-link d-flex align-items-center gap-1 text-white" th:classappend="${currentURI == '/dashboard' ? 'active' : ''}">
+                    <img th:src="${currentURI == '/dashboard' ? '/sidebar-icons/home-active.png' : '/sidebar-icons/home.png'}" alt="Home" width="20" height="20">Home
+                </a>
+            </li>
 
-        <li class="nav-item">
-            <a href="/profile" class="nav-link text-white" th:classappend="${currentURI == '/profile' ? 'active' : ''}">
-                <img src="sidebar-icons/profile.png" alt="Profile" width="24" height="22">Profile
-            </a>
-        </li>
-    </ul>
+            <li class="nav-item">
+                <a href="/routines" class="nav-link d-flex align-items-center gap-1 text-white" th:classappend="${currentURI == '/routines' ? 'active' : ''}">
+                    <img th:src="${currentURI == '/routines' ? '/sidebar-icons/routines-active.png' : '/sidebar-icons/routines.png'}" alt="Routines" width="16" height="20">Routines
+                </a>
+            </li>
 
-    <hr>
-    <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2"> <strong th:text="|${user.firstName} ${user.lastName}|"></strong> </a>
-        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" style="">
-            <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" th:href="@{/logout}">Sign out</a></li>
+            <li class="nav-item">
+                <a href="/profile" class="nav-link d-flex align-items-center gap-1 text-white" th:classappend="${currentURI == '/profile' ? 'active' : ''}">
+                    <img th:src="${currentURI == '/profile' ? '/sidebar-icons/profile-active.png' : '/sidebar-icons/profile.png'}" alt="Profile" width="18" height="20">Profile
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/settings" class="nav-link d-flex align-items-center gap-1 text-white" th:classappend="${currentURI == '/settings' ? 'active' : ''}">
+                    <img th:src="${currentURI == '/settings' ? '/sidebar-icons/settings-active.png' : '/sidebar-icons/settings.png'}" alt="Settings" width="20" height="20">Settings
+                </a>
+            </li>
         </ul>
+
+        <hr>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <img th:src="${principal.avatarPath}" alt="Profile picture" width="32" height="32" class="rounded-circle me-2">
+                <strong th:text="|${principal.firstName} ${principal.lastName}|"></strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" style="">
+                <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+                <li><hr class="dropdown-divider opacity-100"></li>
+                <li><a class="dropdown-item" th:href="@{/logout}">Sign out</a></li>
+            </ul>
+        </div>
     </div>
-</div>
 </main>
 </body>
 </html>

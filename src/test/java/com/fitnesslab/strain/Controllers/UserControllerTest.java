@@ -1,6 +1,6 @@
 package com.fitnesslab.strain.Controllers;
 
-import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
+import com.fitnesslab.strain.DTOs.requests.AuthRequest;
 import com.fitnesslab.strain.Models.Role;
 import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Repositories.UserRepository;
@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -25,7 +24,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -66,7 +64,7 @@ public class UserControllerTest{
                 .build();
         userService.register(admin);
 
-        UserRequestDTO adminDTO = UserRequestDTO.builder()
+        AuthRequest adminDTO = AuthRequest.builder()
                 .email("admin@admin.com")
                 .password("AdminPassword!")
                 .build();
@@ -204,7 +202,7 @@ public class UserControllerTest{
                 .build();
         userService.register(user);
 
-        UserRequestDTO userRequestDTO = new UserRequestDTO("user@user.com", "Password!");
+        AuthRequest authRequest = new AuthRequest("user@user.com", "Password!");
 
     }
 
@@ -229,7 +227,7 @@ public class UserControllerTest{
                 .password("Password!")
                 .build();
         userService.register(user);
-        String userJwt = userService.login(new UserRequestDTO(user.getEmail(),user.getPassword()));
+        String userJwt = userService.login(new AuthRequest(user.getEmail(),user.getPassword()));
 
 //        given()
 //                .contentType(ContentType.JSON)

@@ -25,5 +25,6 @@ public class InitialConfig implements CommandLineRunner {
                 .role(Role.ADMIN)
                 .build();
         userRepository.save(admin);
+        System.out.println(admin.getAvatarPath());
     }
 }

@@ -1,6 +1,5 @@
 package com.fitnesslab.strain.DTOs.requests;
 
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
@@ -10,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class UserRequestDTO {
+public class AuthRequest {
     private String email;
     private String password;
 }

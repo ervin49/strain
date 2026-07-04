@@ -11,10 +11,11 @@
     <h2 class="mb-4 text-center">Sign in</h2>
 
     <form th:action="@{/login}" th:object="${user}" method="post" class="gap-3 d-flex flex-column">
-        <span th:if="${emailError != null}" th:text="${emailError}"></span>
+
+        <span th:if="${emailError != null}" th:text="${emailError}" class="alert alert-danger"></span>
 
         <th:block th:each="error : ${#fields.errors()}">
-            <span th:text="${error}"/>
+            <span th:text="${error}" class="alert alert-danger"/>
         </th:block>
 
         <div>

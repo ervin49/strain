@@ -1,44 +1,35 @@
 package com.fitnesslab.strain.Controllers;
 
-import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
+import com.fitnesslab.strain.DTOs.requests.AuthRequest;
+import com.fitnesslab.strain.DTOs.requests.UpdateProfileRequest;
 import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Security.JwtConfig;
+import com.fitnesslab.strain.Services.ImageService;
 import com.fitnesslab.strain.Services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.mapstruct.factory.Mappers;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.UUID;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 
 @Controller
 @AllArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
     private final PasswordEncoder encoder;
+    private final ImageService imageService;
 
 
     @GetMapping("/")
@@ -48,7 +39,7 @@ public class UserController {
             return "redirect:/register";
         }
 
-        return "users/dashboard";
+        return "redirect:/dashboard";
     }
 
     @GetMapping("/dashboard")
@@ -57,8 +48,6 @@ public class UserController {
             return "redirect:/register";
         }
 
-        User user = userService.getUserByEmail(principal.getName());
-        model.addAttribute("user", user);
         return "users/dashboard";
     }
 
@@ -78,16 +67,45 @@ public class UserController {
     @GetMapping("/profile")
     @Operation(summary = "Retrieves details about currently logged in user")
     public String getPersonalAccount(Model model, Principal principal){
-        User user = userService.getUserByEmail(principal.getName());
-        model.addAttribute("user", user);
+        if(principal == null){
+            return "redirect:/register";
+        }
+
+        model.addAttribute("toEdit", new UpdateProfileRequest());
         return "users/profile";
+    }
+
+    @PostMapping("/update-profile")
+    public String updateProfile(@ModelAttribute("user") UpdateProfileRequest request,Principal principal){
+        User user = userService.getUserByEmail(principal.getName());
+        if(request.getFirstName() != null){
+            user.setFirstName(request.getFirstName());
+        }
+        if(request.getLastName() != null){
+            user.setLastName(request.getLastName());
+        }
+        if(request.getDateOfBirth() != null){
+            user.setDateOfBirth(request.getDateOfBirth());
+        }
+        if(request.getFile() != null){
+            imageService.storeImage(request.getFile(),user.getEmail());
+        }
+        return "users/profile";
+    }
+
+    @GetMapping("/settings")
+    public String settings(Model model){
+        model.addAttribute("user", new UpdateProfileRequest());
+        return "users/settings";
     }
 
     @GetMapping("/routines")
     @Operation(summary = "Retrieves user's routines")
     public String getRoutines(Model model, Principal principal){
-        User user = userService.getUserByEmail(principal.getName());
-        model.addAttribute("user",user);
+        if(principal == null){
+            return "redirect:/register";
+        }
+
         return "workout/routines";
     }
 
@@ -106,18 +124,15 @@ public class UserController {
     @Operation(summary = "Registers user")
     public String registerUser(@ModelAttribute @Valid User user, BindingResult result){
         String status = userService.register(user);
-        if(userService.existsByEmail(user.getEmail())){
-            result.addError(new FieldError("user","email","Email already taken."));
+        if(!status.equals("success")){
+            result.addError(new ObjectError("user", status));
             return "auth/register";
         }
-        if(result.hasErrors() || !status.equals("success")) {
-            result.addError(new FieldError("user","password",status));
+        if(result.hasErrors()) {
             return "auth/register";
         }
 
-        Path path = Paths.get("user-images","default-profile-picture.png");
-        user.setAvatarPath(path.toString());
-        return "auth/login";
+        return "redirect:/login";
     }
 
     @GetMapping("/login")
@@ -127,12 +142,12 @@ public class UserController {
             return "redirect:/dashboard";
         }
 
-        model.addAttribute("user",new UserRequestDTO());
+        model.addAttribute("user",new AuthRequest());
         return "auth/login";
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute @Valid UserRequestDTO user, BindingResult result, HttpServletResponse response, Model model, Principal principal){
+    public String loginUser(@ModelAttribute("user") @Valid AuthRequest user, BindingResult result, HttpServletResponse response, Model model, Principal principal){
         if(principal != null){
             return "redirect:/dashboard";
         }
@@ -140,7 +155,7 @@ public class UserController {
         if(userService.existsByEmail(user.getEmail())) {
             String token = userService.login(user);
             if(token.equals("Wrong email or password!")) {
-                model.addAttribute("passwordError","Password is wrong!");
+                model.addAttribute("passwordError","Password is wrong.");
                 return "auth/login";
             }
 
@@ -151,10 +166,10 @@ public class UserController {
                     .maxAge(jwtConfig.getExpiration())
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
-            return "users/dashboard";
+            return "redirect:/dashboard";
         }
 
-        model.addAttribute("emailError","Email is wrong!");
+        model.addAttribute("emailError","Email is wrong.");
         return "auth/login";
     }
 

@@ -10,6 +10,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Data
@@ -38,6 +39,8 @@ public class User {
     @Size(min = 8, message = "Password must be at least 8 characters long.")
     private String password;
 
+    private LocalDate dateOfBirth;
+
     @Builder.Default
     private int noOfWorkouts = 0;
 
@@ -48,5 +51,7 @@ public class User {
     @Builder.Default
     private Role role = Role.USER;
 
-    private String avatarPath;
+    @JsonIgnore
+    @Builder.Default
+    private String avatarPath = "user-images/default-profile-picture.png";
 }

@@ -55,12 +55,13 @@ public class ImageService {
 
         String filename = UUID.randomUUID() + "." + extension;
 
-        Path uploadDir = Paths.get("user-images");
+        Path uploadDir = Paths.get("/user-images");
         Path fullPath = uploadDir.resolve(filename);
+        System.out.println(fullPath);
 
         try {
             Files.createDirectories(uploadDir);
-            file.transferTo(fullPath.toFile());
+            file.transferTo(fullPath);
         } catch (IOException e) {
             throw new RuntimeException("Could not store image",e);
         }

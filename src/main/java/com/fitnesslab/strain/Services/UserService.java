@@ -1,9 +1,8 @@
 package com.fitnesslab.strain.Services;
 
 import com.fitnesslab.strain.Exceptions.ResourceNotFoundException;
-import com.fitnesslab.strain.DTOs.requests.UserRequestDTO;
+import com.fitnesslab.strain.DTOs.requests.AuthRequest;
 import com.fitnesslab.strain.Models.User;
-import com.fitnesslab.strain.Models.Workout;
 import com.fitnesslab.strain.Repositories.UserRepository;
 import com.fitnesslab.strain.Security.JwtUtils;
 import lombok.AllArgsConstructor;
@@ -13,9 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +30,10 @@ public class UserService {
     }
 
     public String register(User user){
+        if(existsByEmail(user.getEmail())){
+            return "Email already taken.";
+        }
+
         String password = user.getPassword();
         if(password.equals(password.toLowerCase()) || password.matches("[A-Za-z0-9 ]*")){
             return "Password must have at least one uppercase letter and one special character.";
@@ -45,7 +46,7 @@ public class UserService {
     }
 
 
-    public String login(UserRequestDTO user){
+    public String login(AuthRequest user){
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     user.getEmail(),user.getPassword()
