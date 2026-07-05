@@ -1,6 +1,7 @@
 package com.fitnesslab.strain.Controllers;
 
 import com.fitnesslab.strain.DTOs.requests.AuthRequest;
+import com.fitnesslab.strain.DTOs.requests.ChangePassRequest;
 import com.fitnesslab.strain.DTOs.requests.UpdateProfileRequest;
 import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Security.JwtConfig;
@@ -75,28 +76,17 @@ public class UserController {
         return "users/profile";
     }
 
-    @PostMapping("/update-profile")
-    public String updateProfile(@ModelAttribute("user") UpdateProfileRequest request,Principal principal){
-        User user = userService.getUserByEmail(principal.getName());
-        if(request.getFirstName() != null){
-            user.setFirstName(request.getFirstName());
-        }
-        if(request.getLastName() != null){
-            user.setLastName(request.getLastName());
-        }
-        if(request.getDateOfBirth() != null){
-            user.setDateOfBirth(request.getDateOfBirth());
-        }
-        if(request.getFile() != null){
-            imageService.storeImage(request.getFile(),user.getEmail());
-        }
-        return "users/profile";
+    @GetMapping("/settings")
+    public String settings(Model model,Principal principal){
+        System.out.println(userService.getUserByEmail(principal.getName()).getAvatarPath());
+        model.addAttribute("request", new UpdateProfileRequest());
+        return "users/settings";
     }
 
-    @GetMapping("/settings")
-    public String settings(Model model){
-        model.addAttribute("user", new UpdateProfileRequest());
-        return "users/settings";
+    @PostMapping("/update-profile")
+    public String updateProfile(@ModelAttribute("request") UpdateProfileRequest request, Principal principal){
+        userService.updateUserProfile(request, principal);
+        return "redirect:/settings";
     }
 
     @GetMapping("/routines")
@@ -173,21 +163,18 @@ public class UserController {
         return "auth/login";
     }
 
-    @GetMapping("/change-password")
+    @GetMapping("/settings/change-password")
     public String getChangePassowrd(Model model){
-        String email = "", oldPassword = "", newPassword = "";
-        model.addAttribute("email", email);
-        model.addAttribute("oldPassword", oldPassword);
-        model.addAttribute("newPassword", newPassword);
+        model.addAttribute("request",new ChangePassRequest());
         return "users/change-password";
     }
 
-    @PostMapping("/change-password")
-    public String changePassword(
-            @ModelAttribute String email,
-            @ModelAttribute String oldPassword,
-            @ModelAttribute String newPassword,
+    @PostMapping("/settings/change-password")
+    public String changePassword(@ModelAttribute @Valid ChangePassRequest request,
             Model model){
+        String email = request.getEmail(),
+                oldPassword = request.getOldPassword(),
+                newPassword = request.getNewPassword();
         if(userService.existsByEmail(email)){
             User user = userService.getUserByEmail(email);
             if(encoder.encode(oldPassword).equals(user.getPassword())){

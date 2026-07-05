@@ -1,5 +1,6 @@
 package com.fitnesslab.strain.Services;
 
+import com.fitnesslab.strain.DTOs.requests.UpdateProfileRequest;
 import com.fitnesslab.strain.Exceptions.ResourceNotFoundException;
 import com.fitnesslab.strain.DTOs.requests.AuthRequest;
 import com.fitnesslab.strain.Models.User;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +26,7 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final EmailService emailService;
     private final JwtUtils jwtUtils;
+    private final ImageService imageService;
 
     public List<User> getUsers(){
         return userRepository.findAll();
@@ -81,5 +84,21 @@ public class UserService {
 
     public void deleteByEmail(String email){
         userRepository.deleteByEmail(email);
+    }
+
+    public void updateUserProfile(UpdateProfileRequest request, Principal principal){
+        User user = getUserByEmail(principal.getName());
+        if(request.getFirstName() != null && !request.getFirstName().isEmpty()){
+            user.setFirstName(request.getFirstName());
+        }
+        if(request.getLastName() != null && !request.getLastName().isEmpty()){
+            user.setLastName(request.getLastName());
+        }
+        if(request.getDateOfBirth() != null){
+            user.setDateOfBirth(request.getDateOfBirth());
+        }
+        if(request.getFile() != null && !request.getFile().isEmpty()){
+            imageService.storeImage(request.getFile(),user.getEmail());
+        }
     }
 }

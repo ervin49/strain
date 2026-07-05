@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -39,6 +40,7 @@ public class User {
     @Size(min = 8, message = "Password must be at least 8 characters long.")
     private String password;
 
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate dateOfBirth;
 
     @Builder.Default

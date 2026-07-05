@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <title>Strain - Profile</title>
+    <title>Strain - Settings</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <style>
@@ -19,7 +19,7 @@
     <div class="flex-grow-1 d-flex align-items-center flex-column justify-content-center p-3" >
 
         <div class="w-100 p-4 border-black rounded shadow" style="max-width: 500px; background-color: #161819">
-            <form th:action="@{/update-profile}" th:object="${user}" method="POST" enctype="multipart/form-data">
+            <form th:action="@{/update-profile}" th:object="${request}" method="POST" enctype="multipart/form-data">
                 <div class="d-flex justify-content-between">
                     <strong>Profile</strong>
                     <button class="btn btn-primary rounded-3" style="width: 150px" type="submit">Save changes</button>
@@ -27,7 +27,7 @@
 
                 <div th:if="${successMessage != null}" class="alert alert-success" th:text="${successMessage}"></div>
                 <div class="mb-4 text-start">
-                    <img th:src="${principal.avatarPath}" width="100" height="100" alt="image">
+                    <img class="rounded-circle" th:src="${principal.avatarPath}" id="image-upload" width="100" height="100" alt="image">
                     <label for="change-picture" class="btn rounded-3 bg-dark ms-3">Change Picture</label>
                     <input th:field="*{file}" type="file" accept="image/*" id="change-picture" style="display: none"/>
                 </div>
@@ -42,12 +42,27 @@
                     <input th:field="*{lastName}" id="change-last-name" class="form-control rounded-3" th:placeholder="${principal.lastName}"/>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-5">
                     <label for="date-of-birth" class="form-label small">Date of birth</label>
-                    <input th:field="*{dateOfBirth}" type="date" id="date-of-birth" class="form-control rounded-3" th:placeholder="${principal.lastName}"/>
+                    <input th:field="*{dateOfBirth}" type="date" id="date-of-birth" class="form-control rounded-3"/>
+                </div>
+                <div>
+                    <input onclick="location.href='/settings/change-password'" type="button" class="btn btn-secondary rounded-3" th:value="'Change password'"/>
                 </div>
             </form>
         </div>
     </div>
 </div>
 </body>
+<script>
+    const reader = new FileReader();
+    reader.onload = function(r_event){
+        document.getElementById("image-upload").setAttribute("src",r_event.target.result);
+    }
+
+    document.querySelector('input[type="file"]').addEventListener("change",function (event) {
+        if(this.files && this.files[0]) {
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>

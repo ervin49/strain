@@ -32,8 +32,8 @@
             </li>
 
             <li class="nav-item">
-                <a href="/settings" class="nav-link d-flex align-items-center gap-1 text-white" th:classappend="${currentURI == '/settings' ? 'active' : ''}">
-                    <img th:src="${currentURI == '/settings' ? '/sidebar-icons/settings-active.png' : '/sidebar-icons/settings.png'}" alt="Settings" width="20" height="20">Settings
+                <a href="/settings" class="nav-link d-flex align-items-center gap-1 text-white" th:classappend="${currentURI == '/settings' || currentURI == '/settings/change-password' ? 'active' : ''}">
+                    <img th:src="${currentURI == '/settings' || currentURI == '/settings/change-password' ? '/sidebar-icons/settings-active.png' : '/sidebar-icons/settings.png'}" alt="Settings" width="20" height="20">Settings
                 </a>
             </li>
         </ul>

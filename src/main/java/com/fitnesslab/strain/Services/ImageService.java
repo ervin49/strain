@@ -3,6 +3,7 @@ package com.fitnesslab.strain.Services;
 import com.fitnesslab.strain.Models.User;
 import com.fitnesslab.strain.Repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,7 +56,8 @@ public class ImageService {
 
         String filename = UUID.randomUUID() + "." + extension;
 
-        Path uploadDir = Paths.get("/user-images");
+        String rootDir = new FileSystemResource("").getFile().getAbsolutePath();
+        Path uploadDir = Paths.get(rootDir, "user-images");
         Path fullPath = uploadDir.resolve(filename);
         System.out.println(fullPath);
 
@@ -67,6 +69,7 @@ public class ImageService {
         }
 
         User user = userRepository.getUserByEmail(email).orElseThrow();
-        user.setAvatarPath(filename);
+        user.setAvatarPath(fullPath.toString());
+        System.out.println(user.getAvatarPath());
     }
 }
