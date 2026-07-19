@@ -7,19 +7,53 @@ import SettingsPage from "./pages/SettingsPage.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import PrivateRoute from "./components/PrivateRoute.tsx";
+import {Logout} from "./components/Logout.tsx";
 
 export default function App() {
-  return (
-      <BrowserRouter>
-          <Routes>
-              <Route path="/" element={<Navigate to="/dashboard"/>} />
-              <Route path="/register" element={<RegisterPage/>} />
-              <Route path="/login" element={<LoginPage/>} />
-              <Route path="/dashboard" element={<DashboardPage/>} />
-              <Route path="/routines" element={<RoutinesPage/>} />
-              <Route path="/profile" element={<ProfilePage/>} />
-              <Route path="/settings" element={<SettingsPage/>} />
-          </Routes>
-      </BrowserRouter>
-  )
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Navigate to="/dashboard"/>} />
+                <Route path="/register" element={<RegisterPage/>} />
+                <Route path="/login" element={<LoginPage/>} />
+                <Route path="/logout" element={<Logout/>} />
+                <Route path="/dashboard"
+                       element={
+                           <PrivateRoute>
+                               <DashboardPage/>
+                           </PrivateRoute>
+                       }
+                />
+                <Route path="/routines"
+                       element={
+                           <PrivateRoute>
+                               <RoutinesPage/>
+                           </PrivateRoute>
+                       }
+                />
+                <Route path="/profile"
+                       element={
+                           <PrivateRoute>
+                               <ProfilePage/>
+                           </PrivateRoute>
+                       }
+                />
+                <Route path="/settings"
+                       element={
+                           <PrivateRoute>
+                               <SettingsPage/>
+                           </PrivateRoute>
+                       }
+                />
+                <Route path="/settings/change-password"
+                       element={
+                           <PrivateRoute>
+                               <SettingsPage/>
+                           </PrivateRoute>
+                       }
+                />
+            </Routes>
+        </BrowserRouter>
+    )
 }

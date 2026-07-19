@@ -2,10 +2,12 @@ package com.fitnesslab.strain.controller;
 
 import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
 import com.fitnesslab.strain.model.dtos.requests.ChangePassRequest;
+import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.dtos.requests.UpdateProfileRequest;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.security.JwtConfig;
+import com.fitnesslab.strain.security.JwtUtils;
 import com.fitnesslab.strain.service.ImageService;
 import com.fitnesslab.strain.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,22 +16,19 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @AllArgsConstructor
 public class UserController {
     private final UserService userService;
     private final JwtConfig jwtConfig;
+    private final JwtUtils jwtUtils;
     private final PasswordEncoder encoder;
     private final ImageService imageService;
 
@@ -77,13 +76,21 @@ public class UserController {
 
     @PostMapping("/register")
     @Operation(summary = "Registers user")
-    public ResponseEntity<List<String>> registerUser(@RequestBody @Valid User user){
-        String status = userService.register(user);
-        if(!status.equals("success")){
-            return ResponseEntity.badRequest().body(List.of(status));
+    public ResponseEntity<List<String>> registerUser(@Valid @RequestBody RegisterRequest user, HttpServletResponse response){
+        List<String> status = userService.register(user);
+        if(status.size() == 1 && jwtUtils.isJWT(status.getFirst())){
+            String token = status.getFirst();
+            ResponseCookie cookie = ResponseCookie.from("token",token)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(jwtConfig.getExpiration())
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
+            return ResponseEntity.ok(List.of("success"));
         }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.badRequest().body(status);
     }
 
     @PostMapping("/login")
@@ -108,13 +115,13 @@ public class UserController {
     }
 
     @PostMapping("/settings/change-password")
-    public ResponseEntity<String> changePassword(@ModelAttribute @Valid ChangePassRequest request){
+    public ResponseEntity<String> changePassword(@Valid ChangePassRequest request){
         String email = request.getEmail(),
                 oldPassword = request.getOldPassword(),
                 newPassword = request.getNewPassword();
         if(userService.existsByEmail(email)){
             User user = userService.getUserByEmail(email);
-            if(encoder.encode(oldPassword).equals(user.getPassword())){
+            if(Objects.equals(encoder.encode(oldPassword), user.getPassword())){
                 userService.changePassword(email,newPassword);
                 return ResponseEntity.ok("success");
             }

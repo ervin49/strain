@@ -1,51 +1,47 @@
 import {Link, useNavigate} from "react-router-dom";
-import {type SyntheticEvent, useState} from "react";
-import axios from "axios";
+import {type SyntheticEvent, useEffect, useState} from "react";
+import {api} from "../axios.tsx";
+import {useAuth} from "../AuthContext.tsx";
 
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-
     const [errors, setErrors] = useState<string[]>([]);
+    const {login} = useAuth();
     const navigate = useNavigate();
 
-    function handleSubmit(e: SyntheticEvent<HTMLFormElement>){
+    async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
         setErrors([]);
 
-        axios.post("http://localhost:8080/register", {
-            firstName,
-            lastName,
-            email,
-            password
-        })
-            .then((response) => {
-                console.log(response);
-                navigate("/login");
-            })
-            .catch(error => {
-                console.log("Registration error: ",error);
-                if(error.response && error.response.status === 400 && Array.isArray(error.response.data)){
-                    setErrors(error.response.data);
-                }
-                else {
-                    setErrors(["Unexpected error"]);
-                }
-            }).finally(() => {
-            console.log("done");
-        })
+        try {
+            const response = await api.post("/register", {
+                firstName,
+                lastName,
+                email,
+                password
+            });
+            console.log(response);
+            login();
+            navigate("/dashboard");
+        } catch (err: any) {
+            console.error("Registration error: ", err);
+            if (err.response && err.response.status === 400) {
+                setErrors(err.response.data)
+            }
+        }
     }
 
     return (
         <div className="min-vh-100 d-flex align-items-center justify-content-center p-3">
-            <div className="container card shadow p-4" style={{ maxWidth: 500 }}>
+            <div className="container card shadow p-4" style={{maxWidth: 500}}>
                 <h2 className="mb-4 text-center">Sign up</h2>
                 {errors.length > 0 && (
                     <div className="alert alert-danger rounded-3" role="alert">
                         <ul className="mb-0 ps-3">
-                            {errors.map((err,index) => (
+                            {errors.map((err, index) => (
                                 <li key={index}>{err}</li>
                             ))}
                         </ul>
@@ -127,4 +123,4 @@ export default function RegisterPage() {
             </div>
         </div>
     )
-};
+}

@@ -1,5 +1,6 @@
 package com.fitnesslab.strain.service;
 
+import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.dtos.requests.UpdateProfileRequest;
 import com.fitnesslab.strain.exception.ResourceNotFoundException;
 import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,20 +34,40 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public String register(User user){
-        if(existsByEmail(user.getEmail())){
-            return "Email already taken.";
+    public List<String> register(RegisterRequest request){
+        List<String> errors = new ArrayList<>();
+        if(existsByEmail(request.getEmail())){
+            errors.add("Email already taken.");
+            return errors;
         }
 
-        String password = user.getPassword();
+        String password = request.getPassword();
+        boolean hasError = false;
+        if(password.length() < 8){
+            errors.add("Password must be at least 8 characters long.");
+            hasError = true;
+        }
+
         if(password.equals(password.toLowerCase()) || password.matches("[A-Za-z0-9 ]*")){
-            return "Password must have at least one uppercase letter and one special character.";
+            errors.add("Password must have at least one uppercase letter and one special character.");
+            hasError = true;
         }
 
-        user.setPassword(encoder.encode(password));
-//        emailService.sendEmail(user.getEmail(),"Registration","You have registered successfully! Welcome to Strain!");
+        if(hasError){
+            return errors;
+        }
+
+        String unencodedPassword = request.getPassword();
+        User user = User.builder()
+                .email(request.getEmail())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .password(encoder.encode(request.getPassword()))
+                .build();
         userRepository.save(user);
-        return "success";
+//        emailService.sendEmail(user.getEmail(),"Registration","You have registered successfully! Welcome to Strain!");
+        String token = login(new AuthRequest(user.getEmail(), unencodedPassword));
+        return List.of(token);
     }
 
     public String login(AuthRequest user){

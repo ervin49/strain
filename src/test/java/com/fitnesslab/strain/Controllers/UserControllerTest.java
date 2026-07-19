@@ -1,11 +1,12 @@
 package com.fitnesslab.strain.Controllers;
 
 import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
-import com.fitnesslab.strain.model.entity.Role;
+import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.security.JwtUtils;
 import com.fitnesslab.strain.service.UserService;
+import io.restassured.http.Cookie;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static io.restassured.RestAssured.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,6 +38,7 @@ public class UserControllerTest{
     private Integer port;
 
     private String jwt;
+    private Cookie tokenCookie;
 
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
@@ -52,12 +55,11 @@ public class UserControllerTest{
     public void setUp(){
         userRepository.deleteAll();
 
-        User admin = User.builder()
+        RegisterRequest admin = RegisterRequest.builder()
                 .email("admin@admin.com")
                 .firstName("admin")
                 .lastName("admin")
                 .password("AdminPassword!")
-                .role(Role.ADMIN)
                 .build();
         userService.register(admin);
 
@@ -66,6 +68,8 @@ public class UserControllerTest{
                 .password("AdminPassword!")
                 .build();
         jwt = userService.login(adminDTO);
+
+        tokenCookie = new Cookie.Builder("token",jwt).build();
     }
 
     @Container
@@ -94,6 +98,7 @@ public class UserControllerTest{
                 .build();
 
         userRepository.save(user);
+        given().cookie(tokenCookie);
     }
 
     @Test
@@ -171,7 +176,7 @@ public class UserControllerTest{
 
     @Test
     public void should_login(){
-        User user = User.builder()
+        RegisterRequest user = RegisterRequest.builder()
                 .email("user@user.com")
                 .firstName("user")
                 .lastName("user")

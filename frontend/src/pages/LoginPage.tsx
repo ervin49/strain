@@ -1,38 +1,39 @@
 import {type FormEvent, type SyntheticEvent, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import axios, {AxiosError, type AxiosResponse} from "axios";
-
-const API = axios.create({
-    baseURL: "http://localhost:8080",
-    withCredentials: true
-});
+import {useAuth} from "../AuthContext.tsx";
+import {api} from "../axios.tsx";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const {login} = useAuth();
     const navigate = useNavigate();
 
-    function handleSubmit(e: SyntheticEvent<HTMLFormElement>){
+    async function handleSubmit(e: SyntheticEvent<HTMLFormElement>){
         e.preventDefault();
         setError("");
 
-        API.post("/login", {
-            email,
-            password
-        }).then((response: AxiosResponse) => {
+        try {
+            const response = await api.post("/login", {
+                email,
+                password
+            });
             console.log(response);
+            login();
             navigate("/dashboard");
-        }).catch((error: AxiosError<string>) => {
-            console.log(error);
-            if(error.response && error.response.status === 400){
-                setError(error.response.data);
+        } catch(err: any){
+            console.error(err);
+            if(err.response && err.response.status === 400){
+                setError(err.response.data);
             }
             else {
                 setError("Unexpected error");
             }
-        })
+        }
     }
+
     return (
         <div className="min-vh-100 d-flex align-items-center justify-content-center p-3">
             <div className="container card shadow p-4" style={{ maxWidth: 500 }}>
@@ -43,7 +44,7 @@ export default function LoginPage() {
                             <li >{error}</li>
                         </ul>
                     </div>
-                    )}
+                )}
                 <form
                     method="post"
                     className="d-flex flex-column gap-3"
