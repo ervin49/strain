@@ -1,14 +1,19 @@
 import {Link} from "react-router-dom";
+import {useEffect, useState} from "react";
+import axios from "axios";
+
+const API = axios.create({
+    baseURL: "http://localhost:8080",
+    withCredentials: true
+});
 
 function Item({pathName} : {pathName: string}){
     const currentURI: string = window.location.pathname;
     const isActive: boolean = currentURI === `/${pathName.toLowerCase()}`;
-    console.log(`currentURI:${currentURI}`)
     const path: string = "/src/assets/sidebar-icons/" + pathName.toLowerCase();
 
-    const src: string = isActive ? `${path}-active.png` : `${path}.png`;
+    const imageSrc: string = isActive ? `${path}-active.png` : `${path}.png`;
 
-    console.log(src);
     return (
         <>
             <li className="nav-item">
@@ -17,7 +22,7 @@ function Item({pathName} : {pathName: string}){
                     className={`nav-link d-flex align-items-center gap-1 text-white ${isActive ? 'active' : ''}`}
                 >
                     <img
-                        src={src}
+                        src={imageSrc}
                         alt={pathName}
                         width={20}
                         height={20}
@@ -29,7 +34,19 @@ function Item({pathName} : {pathName: string}){
     );
 }
 
-const Sidebar = () => {
+export default function Sidebar() {
+    const [image, setImage] = useState();
+    useEffect(() => {
+        const getProfilePicture = async () => {
+            try {
+                const response = await API.get("http://localhost:8080/profile-picture");
+                setImage(response.data)
+            }catch (error){
+                console.error(error)
+            }
+        }
+        getProfilePicture();
+    }, []);
     return (
         <>
             <aside className="d-flex flex-nowrap vh-100">
@@ -67,6 +84,7 @@ const Sidebar = () => {
                                 width={32}
                                 height={32}
                                 className="rounded-circle me-2"
+                                src={image}
                             />
                         </Link>
                         <ul
@@ -95,5 +113,3 @@ const Sidebar = () => {
         </>
     )
 }
-
-export default Sidebar;

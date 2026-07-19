@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -69,5 +70,15 @@ public class ImageService {
 
         User user = userRepository.getUserByEmail(email).orElseThrow();
         user.setAvatarPath(fullPath.toString());
+    }
+
+    public byte[] downloadImage(String email) throws IOException {
+        User user = userRepository.getUserByEmail(email).orElseThrow();
+        return Files.readAllBytes(new File(user.getAvatarPath()).toPath());
+    }
+
+    public String getContentTypeOfAvatar(String email) {
+        String avatarPath = userRepository.getUserByEmail(email).orElseThrow().getAvatarPath();
+        return "image/" + avatarPath.split("\\.")[1];
     }
 }

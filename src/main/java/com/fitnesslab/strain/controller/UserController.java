@@ -20,6 +20,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,12 +39,20 @@ public class UserController {
             return ResponseEntity.badRequest().body("Not logged in");
         }
 
-        return ResponseEntity.ok("Logged in");
+        return ResponseEntity.ok("Logged in as " + principal.getName());
     }
+
     @GetMapping("/users")
     @Operation(summary = "Retrieves all users")
     public ResponseEntity<List<User>> getUsers(){
         return ResponseEntity.ok(userService.getUsers());
+    }
+
+    @GetMapping("/profile-picture")
+    public ResponseEntity<byte[]> getProfilePicture(Principal principal) throws IOException {
+        byte[] image = imageService.downloadImage(principal.getName());
+        String contentType = imageService.getContentTypeOfAvatar(principal.getName());
+        return ResponseEntity.ok().contentType(MediaType.valueOf(contentType)).body(image);
     }
 
     @GetMapping("/profile")
@@ -53,17 +62,10 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/settings")
-    public String settings(Model model,Principal principal){
-        System.out.println(userService.getUserByEmail(principal.getName()).getAvatarPath());
-        model.addAttribute("request", new UpdateProfileRequest());
-        return "users/settings";
-    }
-
     @PostMapping("/update-profile")
-    public String updateProfile(@ModelAttribute("request") UpdateProfileRequest request, Principal principal){
+    public ResponseEntity<String> updateProfile(UpdateProfileRequest request, Principal principal){
         userService.updateUserProfile(request, principal);
-        return "redirect:/settings";
+        return ResponseEntity.ok("Success");
     }
 
     @GetMapping("/routines")

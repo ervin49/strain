@@ -2,17 +2,22 @@ import {type FormEvent, type SyntheticEvent, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import axios, {AxiosError, type AxiosResponse} from "axios";
 
+const API = axios.create({
+    baseURL: "http://localhost:8080",
+    withCredentials: true
+});
+
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    axios.defaults.baseURL = "http://localhost:8080";
     const navigate = useNavigate();
+
     function handleSubmit(e: SyntheticEvent<HTMLFormElement>){
         e.preventDefault();
         setError("");
 
-        axios.post("/login", {
+        API.post("/login", {
             email,
             password
         }).then((response: AxiosResponse) => {

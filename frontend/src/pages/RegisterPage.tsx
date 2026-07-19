@@ -23,6 +23,7 @@ export default function RegisterPage() {
         })
             .then((response) => {
                 console.log(response);
+                navigate("/login");
             })
             .catch(error => {
                 console.log("Registration error: ",error);

@@ -87,6 +87,9 @@ public class UserService {
 
     public void updateUserProfile(UpdateProfileRequest request, Principal principal){
         User user = getUserByEmail(principal.getName());
+        if(request.getFile() != null && !request.getFile().isEmpty()){
+            imageService.storeImage(request.getFile(),user.getEmail());
+        }
         if(request.getFirstName() != null && !request.getFirstName().isEmpty()){
             user.setFirstName(request.getFirstName());
         }
@@ -95,9 +98,6 @@ public class UserService {
         }
         if(request.getDateOfBirth() != null){
             user.setDateOfBirth(request.getDateOfBirth());
-        }
-        if(request.getFile() != null && !request.getFile().isEmpty()){
-            imageService.storeImage(request.getFile(),user.getEmail());
         }
     }
 }
