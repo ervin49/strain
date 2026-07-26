@@ -18,7 +18,7 @@ export const AuthProvider = ({ children } : {children: ReactNode} ) => {
         authenticated,
             login,
             logout
-    }),[authenticated])
+    }), [authenticated])
 
     return (
         <AuthContext.Provider value={contextValue}>

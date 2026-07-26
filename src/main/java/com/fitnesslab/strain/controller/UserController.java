@@ -11,6 +11,8 @@ import com.fitnesslab.strain.security.JwtUtils;
 import com.fitnesslab.strain.service.ImageService;
 import com.fitnesslab.strain.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -20,7 +22,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -114,6 +118,14 @@ public class UserController {
         return ResponseEntity.badRequest().body("Email is wrong.");
     }
 
+    @GetMapping("/my-details")
+    public ResponseEntity<Map<String,String>> myDetails(Principal principal){
+        Map<String, String> details = new HashMap<>();
+        User user = userService.getUserByEmail(principal.getName());
+        details.put("email",user.getEmail());
+        details.put("routines",user.getRoutines());
+    }
+
     @PostMapping("/settings/change-password")
     public ResponseEntity<String> changePassword(@Valid ChangePassRequest request){
         String email = request.getEmail(),
@@ -137,4 +149,5 @@ public class UserController {
         userService.deleteByEmail(principal.getName());
         return "users/profile";
     }
+
 }

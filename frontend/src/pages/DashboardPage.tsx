@@ -9,32 +9,13 @@ const API = axios.create({
 });
 
 export default function DashboardPage() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isLoading, setIsLoading] = useState(true)
     useEffect((): void => {
         document.title = "Strain";
-        const getDetails = async () => {
-            try {
-                const response = await API.get("/me");
-                console.log(response);
-                setIsLoggedIn(response.status === 200);
-            }catch (err) {
-                console.error(err)
-                setIsLoggedIn(false)
-            }finally {
-                setIsLoading(false)
-            }
-        }
-        getDetails()
     }, []);
 
-    if(isLoading) return null
-
-    return isLoggedIn ? (
+    return (
         <div className="container-fluid d-flex min-vh-100 p-0 bg-black">
             <Sidebar/>
         </div>
-    ) : (
-        <Navigate to="/login"/>
-    );
+    )
 }

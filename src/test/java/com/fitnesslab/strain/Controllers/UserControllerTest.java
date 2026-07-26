@@ -202,7 +202,7 @@ public class UserControllerTest{
 
     @Test
     public void should_return_personal_details_of_user(){
-        User user = User.builder()
+        RegisterRequest user = RegisterRequest.builder()
                 .email("user@user.com")
                 .firstName("John")
                 .lastName("John")
@@ -210,14 +210,15 @@ public class UserControllerTest{
                 .build();
         userService.register(user);
         String userJwt = userService.login(new AuthRequest(user.getEmail(),user.getPassword()));
+        Cookie cookie = new Cookie.Builder("token",userJwt).build();
 
-//        given()
-//                .contentType(ContentType.JSON)
-//                .header(new Header("Authorization","Bearer " + userJwt))
-//                .port(port)
-//                .when()
-//                .get("/my-account")
-//                .then()
-//                .body();
+        given()
+                .cookie(cookie)
+                .port(port)
+                .when()
+                .get("/profile")
+                .then()
+                .statusCode(200)
+                .body();
     }
 }
