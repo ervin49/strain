@@ -1,10 +1,10 @@
 HELP.md
+user-images/
 .gradle/
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-./user-images
 frontend/node_modules/
 
 ### STS ###
