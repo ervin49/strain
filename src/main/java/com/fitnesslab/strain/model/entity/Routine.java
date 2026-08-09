@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -20,8 +20,10 @@ public class Routine {
     @UuidGenerator
     private UUID id;
 
+    private String name;
+
     @ManyToMany
-    private Collection<Exercise> exercises;
+    private List<Exercise> exercises;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

@@ -4,11 +4,16 @@ import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.dtos.requests.UpdateProfileRequest;
 import com.fitnesslab.strain.exception.ResourceNotFoundException;
 import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
+import com.fitnesslab.strain.model.dtos.responses.ExerciseDto;
+import com.fitnesslab.strain.model.dtos.responses.MuscleDto;
+import com.fitnesslab.strain.model.dtos.responses.RoutineDto;
+import com.fitnesslab.strain.model.dtos.responses.UserProfileDto;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.security.JwtUtils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +24,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -92,6 +98,34 @@ public class UserService {
 //        emailService.sendEmail(email,"Password changed", "Your password has been changed at: " + new Date());
     }
 
+    public UserProfileDto getUserProfileByEmail(String email){
+        User user = getUserByEmail(email);
+        List<RoutineDto> routineDtos = user.getRoutines().stream()
+                .map(routine -> new RoutineDto(
+                        routine.getId(),
+                        routine.getName(),
+                        routine.getExercises().stream()
+                                .map(exercise -> new ExerciseDto(
+                                        exercise.getId(),
+                                        exercise.getName(),
+                                        exercise.getMuscles().stream()
+                                                .map(muscle -> new MuscleDto(
+                                                        muscle.getId(),
+                                                        muscle.getName()
+                                                )).collect(Collectors.toSet())
+                                )).toList()
+                )).toList();
+
+        return new UserProfileDto(
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getDateOfBirth(),
+                routineDtos,
+                user.getAvatarPath()
+        );
+    }
+
     public User getUserByEmail(@NonNull String email) {
         return userRepository.getUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Not found"));
     }
@@ -121,5 +155,7 @@ public class UserService {
         if(request.getDateOfBirth() != null){
             user.setDateOfBirth(request.getDateOfBirth());
         }
+
+        userRepository.save(user);
     }
 }

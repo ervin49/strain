@@ -50,7 +50,5 @@ public class User {
     @Builder.Default
     private Role role = Role.USER;
 
-    @JsonIgnore
-    @Builder.Default
-    private String avatarPath = "user-images/default-profile-picture.png";
+    private String avatarPath;
 }

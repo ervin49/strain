@@ -4,6 +4,10 @@ import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
 import com.fitnesslab.strain.model.dtos.requests.ChangePassRequest;
 import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.dtos.requests.UpdateProfileRequest;
+import com.fitnesslab.strain.model.dtos.responses.ExerciseDto;
+import com.fitnesslab.strain.model.dtos.responses.MuscleDto;
+import com.fitnesslab.strain.model.dtos.responses.RoutineDto;
+import com.fitnesslab.strain.model.dtos.responses.UserProfileDto;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.security.JwtConfig;
@@ -26,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -56,13 +61,6 @@ public class UserController {
         byte[] image = imageService.downloadImage(principal.getName());
         String contentType = imageService.getContentTypeOfAvatar(principal.getName());
         return ResponseEntity.ok().contentType(MediaType.valueOf(contentType)).body(image);
-    }
-
-    @GetMapping("/profile")
-    @Operation(summary = "Retrieves details about currently logged in user")
-    public ResponseEntity<User> getPersonalAccount(Principal principal){
-        User user = userService.getUserByEmail(principal.getName());
-        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/update-profile")
@@ -119,11 +117,8 @@ public class UserController {
     }
 
     @GetMapping("/my-details")
-    public ResponseEntity<Map<String,String>> myDetails(Principal principal){
-        Map<String, String> details = new HashMap<>();
-        User user = userService.getUserByEmail(principal.getName());
-        details.put("email",user.getEmail());
-        details.put("routines",user.getRoutines());
+    public ResponseEntity<UserProfileDto> myDetails(Principal principal){
+        return ResponseEntity.ok(userService.getUserProfileByEmail(principal.getName()));
     }
 
     @PostMapping("/settings/change-password")

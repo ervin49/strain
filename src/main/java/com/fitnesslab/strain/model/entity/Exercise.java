@@ -5,16 +5,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class Exercise {
     @Id
     @UuidGenerator
@@ -22,5 +25,5 @@ public class Exercise {
     private String name;
 
     @ManyToMany
-    private Collection<Muscle> muscles;
+    private Set<Muscle> muscles;
 }

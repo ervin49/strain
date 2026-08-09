@@ -9,6 +9,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @Component
 @AllArgsConstructor
 public class InitialConfig implements CommandLineRunner {
@@ -19,8 +22,8 @@ public class InitialConfig implements CommandLineRunner {
     public void run(String @NonNull ...args){
         User admin = User.builder()
                 .email("admin@admin.com")
-                .firstName("admin")
-                .lastName("admin")
+                .firstName("firstName")
+                .lastName("lastName")
                 .password(encoder.encode("admin"))
                 .role(Role.ADMIN)
                 .build();

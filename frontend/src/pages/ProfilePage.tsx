@@ -1,9 +1,21 @@
 import Sidebar from "../components/Sidebar.tsx";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
+import {api} from "../axios.tsx";
 
 export default function ProfilePage() {
+    const [profileDetails, setProfileDetails] = useState<string[]>([]);
     useEffect(() => {
         document.title = "Strain - Profile";
+
+        const details = async () => {
+            try {
+                const response = await api.get("/my-details");
+                console.log(response.data);
+                setProfileDetails(response.data);
+            } catch (err){
+                console.error(err);
+            }
+        }
     }, []);
 
     return (

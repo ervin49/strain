@@ -1,11 +1,8 @@
 import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
-import axios from "axios";
-
-const API = axios.create({
-    baseURL: "http://localhost:8080",
-    withCredentials: true
-});
+import {useUser} from "../UserProvider.tsx";
+import {api} from "../axios.tsx";
+import defaultAvatar from "../assets/default-profile-picture.png"
 
 function Item({pathName} : {pathName: string}){
     const currentURI: string = window.location.pathname;
@@ -35,18 +32,9 @@ function Item({pathName} : {pathName: string}){
 }
 
 export default function Sidebar() {
-    const [image, setImage] = useState();
-    useEffect(() => {
-        const getProfilePicture = async () => {
-            try {
-                const response = await API.get("http://localhost:8080/profile-picture");
-                setImage(response.data)
-            }catch (error){
-                console.error(error)
-            }
-        }
-        getProfilePicture();
-    }, []);
+    const {user} = useUser();
+    const avatarPath = user?.avatarPath;
+    const firstName = user?.firstName;
     return (
         <>
             <aside className="d-flex flex-nowrap vh-100">
@@ -84,17 +72,18 @@ export default function Sidebar() {
                                 width={32}
                                 height={32}
                                 className="rounded-circle me-2"
-                                src={image}
+                                src={avatarPath ? `http://localhost:8080/user-images/${avatarPath}` : defaultAvatar}
                             />
+                            <span>{firstName}</span>
                         </Link>
                         <ul
                             className="dropdown-menu dropdown-menu-dark text-small shadow"
                             style={{}}
                         >
                             <li>
-                                <a className="dropdown-item">
+                                <Link to="/profile" className="dropdown-item">
                                     Profile
-                                </a>
+                                </Link>
                             </li>
                             <li>
                                 <hr className="dropdown-divider opacity-100"/>

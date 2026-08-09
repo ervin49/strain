@@ -69,7 +69,7 @@ public class ImageService {
         }
 
         User user = userRepository.getUserByEmail(email).orElseThrow();
-        user.setAvatarPath(fullPath.toString());
+        user.setAvatarPath(filename);
     }
 
     public byte[] downloadImage(String email) throws IOException {
