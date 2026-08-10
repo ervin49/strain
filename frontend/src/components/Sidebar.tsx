@@ -61,8 +61,7 @@ export default function Sidebar() {
                     </ul>
                     <hr/>
                     <div className="dropdown">
-                        <Link
-                            to="#"
+                        <a
                             className="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
@@ -75,7 +74,7 @@ export default function Sidebar() {
                                 src={avatarPath ? `http://localhost:8080/user-images/${avatarPath}` : defaultAvatar}
                             />
                             <span>{firstName}</span>
-                        </Link>
+                        </a>
                         <ul
                             className="dropdown-menu dropdown-menu-dark text-small shadow"
                             style={{}}

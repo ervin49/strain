@@ -4,16 +4,22 @@ import {type ChangeEvent, type SyntheticEvent, useEffect, useState} from "react"
 import {api} from "../axios.tsx";
 import {useUser} from "../UserProvider.tsx";
 import defaultAvatar from "../assets/default-profile-picture.png"
+import Modal from "../components/Modal.tsx";
+import {Check, X} from "lucide-react";
 
 export default function SettingsPage() {
     const {user, loading, refreshUser} = useUser();
     const [file, setFile] = useState<File | null>(null);
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+    const [firstName, setFirstName] = useState<string | undefined>("");
+    const [lastName, setLastName] = useState<string | undefined>("");
     const avatarPath = user?.avatarPath;
     const [dateOfBirth, setDateOfBirth] = useState("");
 
     const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("")
+    const [previewUrl, setPreviewUrl] = useState("");
+    const imageSrc = previewUrl ? previewUrl : (avatarPath ? `http://localhost:8080/user-images/${avatarPath}` : defaultAvatar);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         document.title = "Strain - Settings";
@@ -22,7 +28,7 @@ export default function SettingsPage() {
     useEffect(() => {
         setTimeout(() => {
             setSuccessMessage("");
-        },5000);
+        },2000);
     },[successMessage])
 
     useEffect(() => {
@@ -43,6 +49,9 @@ export default function SettingsPage() {
     function handleFileChange(e: ChangeEvent<HTMLInputElement>){
         if(e.target.files){
             setFile(e.target.files[0]);
+            const objectUrl = URL.createObjectURL(e.target.files[0]);
+            setPreviewUrl(objectUrl);
+
         }
     }
 
@@ -51,14 +60,26 @@ export default function SettingsPage() {
         if(!edited){
             return;
         }
+        if(firstName?.length === 0){
+            setErrorMessage("First name has to be at least one character long.");
+            setTimeout(() => {setErrorMessage("")},2000);
+            setFirstName(user?.firstName);
+            return;
+        }
+        if(lastName?.length === 0){
+            setErrorMessage("Last name has to be at least one character long.");
+            setTimeout(() => {setErrorMessage("")},2000);
+            setLastName(user?.lastName);
+            return;
+        }
         try {
             const formData = new FormData();
             if(file) {
                 formData.append("file", file);
             }
-            formData.append("firstName",firstName ?? '');
-            formData.append("lastName",lastName ?? '');
-            formData.append("dateOfBirth",dateOfBirth ?? '');
+            formData.append("firstName", firstName ?? '');
+            formData.append("lastName", lastName ?? '');
+            formData.append("dateOfBirth", dateOfBirth ?? '');
             const response = await api.post("/update-profile", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
@@ -79,12 +100,18 @@ export default function SettingsPage() {
 
     return (
         <>
+            {isModalOpen && <Modal onClose={() => setIsModalOpen(false)}/>}
             <div className="container-fluid d-flex min-vh-100 p-0 bg-black">
                 <Sidebar/>
                 <div className="flex-grow-1 d-flex align-items-center flex-column justify-content-center">
+                    {errorMessage &&
+                        <p className="p-2 bg-danger bg-gradient rounded-3"><X/>{errorMessage}
+                        </p>
+                    }
                     {successMessage &&
-                        <p className="p-2 bg-success rounded-3">{successMessage}
-                        </p>}
+                        <p className="p-2 bg-success bg-gradient rounded-3"><Check/>{successMessage}
+                        </p>
+                    }
                     <div
                         className="w-100 p-4 border-black rounded shadow"
                         style={{ maxWidth: 500, backgroundColor: "#161819" }}
@@ -106,7 +133,7 @@ export default function SettingsPage() {
                             <div className="mb-4 text-start">
                                 <img
                                     className="rounded-circle"
-                                    src={avatarPath ? `http://localhost:8080/user-images/${avatarPath}` : defaultAvatar}
+                                    src={imageSrc}
                                     id="image-upload"
                                     width={100}
                                     height={100}
@@ -152,11 +179,13 @@ export default function SettingsPage() {
                                     onChange={e => setDateOfBirth(e.target.value)}
                                 />
                             </div>
-                            <div>
+                            <div className="justify-content-between d-flex">
                                 <Link
                                     to="/settings/change-password"
-                                    className="btn btn-secondary rounded-3"
-                                >Change password</Link>
+                                    className="btn btn-outline-secondary rounded-3">
+                                    Change password
+                                </Link>
+                                <button className="btn btn-outline-danger" onClick={e => {setIsModalOpen(!isModalOpen)}}>Delete account</button>
                             </div>
                         </form>
                     </div>
