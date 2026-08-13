@@ -46,10 +46,10 @@ public class User {
     private Integer noOfWorkouts = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Routine> routines;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Workout> workouts;
 
     @JsonIgnore
     @Builder.Default

@@ -4,10 +4,7 @@ import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.dtos.requests.UpdateProfileRequest;
 import com.fitnesslab.strain.exception.ResourceNotFoundException;
 import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
-import com.fitnesslab.strain.model.dtos.responses.ExerciseDto;
-import com.fitnesslab.strain.model.dtos.responses.MuscleDto;
-import com.fitnesslab.strain.model.dtos.responses.RoutineDto;
-import com.fitnesslab.strain.model.dtos.responses.UserProfileDto;
+import com.fitnesslab.strain.model.dtos.responses.*;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.security.JwtUtils;
@@ -98,6 +95,23 @@ public class UserService {
 
     public UserProfileDto getUserProfileByEmail(String email){
         User user = getUserByEmail(email);
+        List<WorkoutDto> workoutDtos = user.getWorkouts().stream()
+                .map(workout -> new WorkoutDto(
+                        workout.getId(),
+                        workout.getDate(),
+                        workout.getNotes(),
+                        workout.getExercises().stream()
+                                .map(exercise -> new ExerciseDto(
+                                        exercise.getId(),
+                                        exercise.getName(),
+                                        exercise.getMuscles().stream()
+                                                .map(muscle -> new MuscleDto(
+                                                        muscle.getId(),
+                                                        muscle.getName()
+                                                )).collect(Collectors.toSet())
+                                )).toList()
+                )).toList();
+
         List<RoutineDto> routineDtos = user.getRoutines().stream()
                 .map(routine -> new RoutineDto(
                         routine.getId(),
@@ -119,6 +133,7 @@ public class UserService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getDateOfBirth(),
+                workoutDtos,
                 routineDtos,
                 user.getAvatarPath()
         );

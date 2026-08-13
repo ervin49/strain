@@ -1,12 +1,12 @@
 import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
 import {api} from "./axios.tsx";
-import defaultAvatar from "./assets/default-profile-picture.png";
 
 interface UserProfile {
     firstName: string;
     lastName: string;
     email: string;
     dateOfBirth: string;
+    workouts: string[];
     routines: string[];
     avatarPath: string;
 }

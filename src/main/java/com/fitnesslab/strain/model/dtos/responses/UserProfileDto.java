@@ -16,6 +16,7 @@ public class UserProfileDto {
     private String email;
     private String firstName, lastName;
     private LocalDate dateOfBirth;
+    private List<WorkoutDto> workouts;
     private List<RoutineDto> routines;
     private String avatarPath;
 }
