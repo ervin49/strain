@@ -4,8 +4,9 @@ import {type ChangeEvent, type SyntheticEvent, useEffect, useState} from "react"
 import {api} from "../axios.tsx";
 import {useUser} from "../UserProvider.tsx";
 import defaultAvatar from "../assets/default-profile-picture.png"
-import Modal from "../components/Modal.tsx";
+import DeletePageModal from "../components/DeletePageModal.tsx";
 import {Check, X} from "lucide-react";
+import ChangePasswordModal from "../components/ChangePasswordModal.tsx";
 
 export default function SettingsPage() {
     const {user, loading, refreshUser} = useUser();
@@ -19,7 +20,8 @@ export default function SettingsPage() {
     const [errorMessage, setErrorMessage] = useState("")
     const [previewUrl, setPreviewUrl] = useState("");
     const imageSrc = previewUrl ? previewUrl : (avatarPath ? `http://localhost:8080/user-images/${avatarPath}` : defaultAvatar);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isChangePassModalOpen, setIsChangePassModalOpen] = useState(false);
 
     useEffect(() => {
         document.title = "Strain - Settings";
@@ -51,11 +53,11 @@ export default function SettingsPage() {
             setFile(e.target.files[0]);
             const objectUrl = URL.createObjectURL(e.target.files[0]);
             setPreviewUrl(objectUrl);
-
         }
     }
 
     const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
+        let error = false;
         e.preventDefault();
         if(!edited){
             return;
@@ -64,18 +66,22 @@ export default function SettingsPage() {
             setErrorMessage("First name has to be at least one character long.");
             setTimeout(() => {setErrorMessage("")},2000);
             setFirstName(user?.firstName);
-            return;
+            error = true;
         }
         if(lastName?.length === 0){
             setErrorMessage("Last name has to be at least one character long.");
             setTimeout(() => {setErrorMessage("")},2000);
             setLastName(user?.lastName);
+            error = true;
+        }
+        if(error){
             return;
         }
         try {
             const formData = new FormData();
             if(file) {
                 formData.append("file", file);
+                setFile(null);
             }
             formData.append("firstName", firstName ?? '');
             formData.append("lastName", lastName ?? '');
@@ -100,7 +106,8 @@ export default function SettingsPage() {
 
     return (
         <>
-            {isModalOpen && <Modal onClose={() => setIsModalOpen(false)}/>}
+            {isDeleteModalOpen && <DeletePageModal onClose={() => setIsDeleteModalOpen(false)}/>}
+            {isChangePassModalOpen && <ChangePasswordModal onClose={() => setIsChangePassModalOpen(false)}/>}
             <div className="container-fluid d-flex min-vh-100 p-0 bg-black">
                 <Sidebar/>
                 <div className="flex-grow-1 d-flex align-items-center flex-column justify-content-center">
@@ -113,7 +120,7 @@ export default function SettingsPage() {
                         </p>
                     }
                     <div
-                        className="w-100 p-4 border-black rounded shadow"
+                        className="w-100 p-4 rounded"
                         style={{ maxWidth: 500, backgroundColor: "#161819" }}
                     >
                         <form
@@ -180,12 +187,12 @@ export default function SettingsPage() {
                                 />
                             </div>
                             <div className="justify-content-between d-flex">
-                                <Link
-                                    to="/settings/change-password"
+                                <button
+                                    onClick={() => setIsChangePassModalOpen(!isChangePassModalOpen)}
                                     className="btn btn-outline-secondary rounded-3">
                                     Change password
-                                </Link>
-                                <button className="btn btn-outline-danger" onClick={e => {setIsModalOpen(!isModalOpen)}}>Delete account</button>
+                                </button>
+                                <button className="btn btn-outline-danger" onClick={e => {setIsDeleteModalOpen(!isDeleteModalOpen)}}>Delete account</button>
                             </div>
                         </form>
                     </div>

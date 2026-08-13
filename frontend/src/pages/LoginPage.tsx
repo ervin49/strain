@@ -1,10 +1,12 @@
-import {type FormEvent, type SyntheticEvent, useState} from "react";
+import {type SyntheticEvent, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import axios, {AxiosError, type AxiosResponse} from "axios";
 import {useAuth} from "../AuthContext.tsx";
 import {api} from "../axios.tsx";
+import {useUser} from "../UserProvider.tsx";
 
 export default function LoginPage() {
+    const {refreshUser} = useUser();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -22,6 +24,7 @@ export default function LoginPage() {
             });
             console.log(response);
             login();
+            await refreshUser();
             navigate("/dashboard");
         } catch(err: any){
             console.error(err);

@@ -46,13 +46,6 @@ export default function App() {
                            </PrivateRoute>
                        }
                 />
-                <Route path="/settings/change-password"
-                       element={
-                           <PrivateRoute>
-                               <SettingsPage/>
-                           </PrivateRoute>
-                       }
-                />
             </Routes>
         </BrowserRouter>
     )

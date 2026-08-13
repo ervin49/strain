@@ -1,7 +1,8 @@
 import {Link, useNavigate} from "react-router-dom";
-import {type SyntheticEvent, useEffect, useState} from "react";
+import {type SyntheticEvent, useState} from "react";
 import {api} from "../axios.tsx";
 import {useAuth} from "../AuthContext.tsx";
+import { useUser } from "../UserProvider.tsx";
 
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState("")
@@ -11,6 +12,7 @@ export default function RegisterPage() {
     const [errors, setErrors] = useState<string[]>([]);
     const {login} = useAuth();
     const navigate = useNavigate();
+    const {refreshUser} = useUser();
 
     async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -25,6 +27,7 @@ export default function RegisterPage() {
             });
             console.log(response);
             login();
+            await refreshUser();
             navigate("/dashboard");
         } catch (err: any) {
             console.error("Registration error: ", err);

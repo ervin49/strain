@@ -13,17 +13,16 @@ import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.security.JwtUtils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,7 +91,6 @@ public class UserService {
     public void changePassword(String email, String newPassword){
         User user = userRepository.getUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Not found"));
 
-        userRepository.deleteByEmail(email);
         user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
 //        emailService.sendEmail(email,"Password changed", "Your password has been changed at: " + new Date());
@@ -129,16 +127,15 @@ public class UserService {
     public User getUserByEmail(@NonNull String email) {
         return userRepository.getUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Not found"));
     }
-    public void deleteById(UUID userId){
-        userRepository.deleteById(userId);
-    }
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
+    @Transactional
     public void deleteByEmail(String email){
-        userRepository.deleteByEmail(email);
+        User user = userRepository.getUserByEmail(email).orElseThrow();
+        userRepository.delete(user);
     }
 
     public void updateUserProfile(UpdateProfileRequest request, Principal principal){

@@ -1,12 +1,9 @@
 package com.fitnesslab.strain.controller;
 
 import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
-import com.fitnesslab.strain.model.dtos.requests.ChangePassRequest;
+import com.fitnesslab.strain.model.dtos.requests.ChangePasswordDto;
 import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.dtos.requests.UpdateProfileRequest;
-import com.fitnesslab.strain.model.dtos.responses.ExerciseDto;
-import com.fitnesslab.strain.model.dtos.responses.MuscleDto;
-import com.fitnesslab.strain.model.dtos.responses.RoutineDto;
 import com.fitnesslab.strain.model.dtos.responses.UserProfileDto;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
@@ -15,8 +12,6 @@ import com.fitnesslab.strain.security.JwtUtils;
 import com.fitnesslab.strain.service.ImageService;
 import com.fitnesslab.strain.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -26,11 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -121,28 +113,26 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserProfileByEmail(principal.getName()));
     }
 
-    @PostMapping("/settings/change-password")
-    public ResponseEntity<String> changePassword(@Valid ChangePassRequest request){
-        String email = request.getEmail(),
-                oldPassword = request.getOldPassword(),
-                newPassword = request.getNewPassword();
-        if(userService.existsByEmail(email)){
-            User user = userService.getUserByEmail(email);
-            if(Objects.equals(encoder.encode(oldPassword), user.getPassword())){
-                userService.changePassword(email,newPassword);
-                return ResponseEntity.ok("success");
-            }
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            @RequestBody ChangePasswordDto request,
+            Principal principal) {
+        String email = principal.getName();
+        User user = userService.getUserByEmail(email);
+        String currentPassword = request.getCurrentPassword();
+        String newPassword = request.getNewPassword();
 
-            return ResponseEntity.badRequest().body("The password you entered is incorrect.");
+        if (encoder.matches(currentPassword, user.getPassword())) {
+            userService.changePassword(email, newPassword);
+            return ResponseEntity.ok("Password changed successfully.");
         }
 
-        return ResponseEntity.badRequest().body("The email you entered isn't connected to an account.");
+        return ResponseEntity.badRequest().body("The password you entered is incorrect.");
     }
 
-    @DeleteMapping("/profile")
-    public String deleteUser(Principal principal){
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteUser(Principal principal){
         userService.deleteByEmail(principal.getName());
-        return "users/profile";
+        return ResponseEntity.noContent().build();
     }
-
 }
