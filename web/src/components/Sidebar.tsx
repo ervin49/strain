@@ -23,6 +23,7 @@ function Item({pathName} : {pathName: string}){
                         alt={pathName}
                         width={20}
                         height={20}
+                        className="me-1"
                     />
                     {pathName}
                 </Link>

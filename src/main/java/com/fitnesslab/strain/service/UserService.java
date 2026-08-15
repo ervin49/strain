@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -28,7 +27,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
-    private final EmailService emailService;
+    //private final EmailService emailService;
     private final JwtUtils jwtUtils;
     private final ImageService imageService;
 
@@ -95,46 +94,13 @@ public class UserService {
 
     public UserProfileDto getUserProfileByEmail(String email){
         User user = getUserByEmail(email);
-        List<WorkoutDto> workoutDtos = user.getWorkouts().stream()
-                .map(workout -> new WorkoutDto(
-                        workout.getId(),
-                        workout.getDate(),
-                        workout.getNotes(),
-                        workout.getExercises().stream()
-                                .map(exercise -> new ExerciseDto(
-                                        exercise.getId(),
-                                        exercise.getName(),
-                                        exercise.getMuscles().stream()
-                                                .map(muscle -> new MuscleDto(
-                                                        muscle.getId(),
-                                                        muscle.getName()
-                                                )).collect(Collectors.toSet())
-                                )).toList()
-                )).toList();
-
-        List<RoutineDto> routineDtos = user.getRoutines().stream()
-                .map(routine -> new RoutineDto(
-                        routine.getId(),
-                        routine.getName(),
-                        routine.getExercises().stream()
-                                .map(exercise -> new ExerciseDto(
-                                        exercise.getId(),
-                                        exercise.getName(),
-                                        exercise.getMuscles().stream()
-                                                .map(muscle -> new MuscleDto(
-                                                        muscle.getId(),
-                                                        muscle.getName()
-                                                )).collect(Collectors.toSet())
-                                )).toList()
-                )).toList();
-
         return new UserProfileDto(
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getDateOfBirth(),
-                workoutDtos,
-                routineDtos,
+                user.getWorkouts(),
+                user.getRoutines(),
                 user.getAvatarPath()
         );
     }

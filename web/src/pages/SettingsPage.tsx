@@ -120,7 +120,7 @@ export default function SettingsPage() {
                         </p>
                     }
                     <div
-                        className="w-100 p-4 rounded"
+                        className="w-100 p-4 rounded-4"
                         style={{ maxWidth: 500, backgroundColor: "#161819" }}
                     >
                         <form

@@ -1,17 +1,53 @@
 import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
 import {api} from "./axios.tsx";
+import { useNavigate } from "react-router-dom";
 
-interface UserProfile {
+export interface Muscle {
+    id: string;
+    name: string;
+}
+
+export interface ExerciseSet {
+    id: string;
+    setNumber: number;
+    reps: number;
+    weight: number;
+}
+
+export interface Exercise {
+    id: string;
+    name: string;
+    muscles: Muscle[];
+    sets: ExerciseSet[];
+}
+
+export interface Workout {
+    id: string;
+    date: string;
+    notes: string;
+    durationMinutes: number;
+    exercises: Exercise[];
+}
+
+export interface Routine {
+    id: string;
+    date: string;
+    notes: string;
+    exercises: Exercise[];
+}
+
+export interface UserProfile {
+    id: string;
     firstName: string;
     lastName: string;
     email: string;
     dateOfBirth: string;
-    workouts: string[];
-    routines: string[];
+    workouts: Workout[];
+    routines: Routine[];
     avatarPath: string;
 }
 
-interface UserContextType{
+export interface UserContextType{
     user: UserProfile | null;
     setUser: (user: UserProfile | null) => void;
     loading: boolean;

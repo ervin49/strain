@@ -12,10 +12,17 @@ export default function ProfilePage() {
     const avatarPath = user?.avatarPath;
     const firstName= user?.firstName;
     const lastName= user?.lastName;
-    const noOfWorkouts = user?.workouts?.length;
+    const noOfWorkouts = user?.workouts?.length || 0;
+    const workouts = user?.workouts || [];
+
     useEffect(() => {
         document.title = "Strain - Profile";
     }, []);
+
+    let duration = 0;
+    for(let i = 0; i < noOfWorkouts; i++){
+        duration += workouts[i].durationMinutes;
+    }
 
     return (
         <>
@@ -35,22 +42,22 @@ export default function ProfilePage() {
                         <div className="mt-3 d-flex">
                             <div>
                                 <span style={{ fontSize: 22 }} className="fw-bold">{firstName} {lastName}</span>
-                                <p style={{ fontSize: 15 }} className="text-muted">{firstName}</p>
+                                <p style={{ fontSize: 15, top: -3 }} className="text-muted position-relative">{firstName}</p>
                             </div>
                             <Link to="/settings" className="btn rounded-3 mt-2 h-75" style={{backgroundColor: "#2a2e2f", marginLeft: 80}}>Edit Profile</Link>
                         </div>
-                        <div className="d-flex">
+                        <div className="d-flex position-relative" style={{ top: -10}}>
                             <div>
                                 <span className="text-muted" style={{fontSize: 11}}>Workouts</span>
-                                <p>{noOfWorkouts}</p>
+                                <p className="position-relative" style={{ top: -5}}>{noOfWorkouts}</p>
                             </div>
-                            <div className="ms-4">
+                            <div style={{ marginLeft: 41}}>
                                 <span className="text-muted" style={{fontSize: 11}}>Followers</span>
-                                <p>0</p>
+                                <p className="position-relative" style={{ top: -5}}>0</p>
                             </div>
-                            <div className="ms-4">
+                            <div style={{ marginLeft: 41}}>
                                 <span className="text-muted" style={{fontSize: 11}}>Following</span>
-                                <p>0</p>
+                                <p className="position-relative" style={{ top: -5}}>0</p>
                             </div>
                         </div>
                     </div>
@@ -59,6 +66,12 @@ export default function ProfilePage() {
                              style={{ width: 625, height: 360, backgroundColor: "#111313"}}
                         >
                             <span style={{ fontSize: 16 }} className="fw-bold">Statistics</span>
+                            <p className="mt-4 position-relative" style={{ left: -10}}>Duration</p>
+                            <div className="position-relative w-100" style={{ left: -20, height: 1, backgroundColor: "#2C2C2E"}}/>
+                            <div className="d-flex mt-3">
+                                <p style={{ fontSize: 25 }}>{duration}m</p>
+                                <span style={{ fontSize: 12, bottom: -15 }} className="text-muted ms-2 position-relative">This week</span>
+                            </div>
                         </div>
                         <div className="rounded-4 mt-4 p-4"
                              style={{ width: 375,  backgroundColor: "#111313"}}

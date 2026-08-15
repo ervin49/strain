@@ -20,7 +20,7 @@ public class RoutineController {
     private final RoutineService routineService;
 
     @PostMapping("/new")
-    public String createWorkout(@ModelAttribute @Valid Routine routine, BindingResult result, Model model){
+    public String createRoutine(@ModelAttribute @Valid Routine routine, BindingResult result, Model model){
         if(result.hasErrors()){
             model.addAttribute("errors",result.getAllErrors());
         }

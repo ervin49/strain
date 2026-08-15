@@ -6,7 +6,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 user-images
-frontend/node_modules/
+web/node_modules/
+mobile/node_modules/
 
 ### STS ###
 .apt_generated
