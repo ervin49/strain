@@ -1,31 +1,31 @@
 package com.fitnesslab.strain.controller;
 
 import com.fitnesslab.strain.model.entity.Routine;
+import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.service.RoutineService;
 import com.fitnesslab.strain.service.UserService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Controller;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-@AllArgsConstructor
+import java.security.Principal;
+
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/workouts")
 public class RoutineController {
     private final UserRepository userRepository;
     private final UserService userService;
     private final RoutineService routineService;
 
-    @PostMapping("/new")
-    public String createRoutine(@ModelAttribute @Valid Routine routine, BindingResult result, Model model){
-        if(result.hasErrors()){
-            model.addAttribute("errors",result.getAllErrors());
-        }
-
-        return "dashboard";
+    @PostMapping("/routines")
+    public ResponseEntity<Routine> createRoutine(@RequestBody Routine routine, Principal principal){
+        User user = userService.getUserByEmail(principal.getName());
+        Routine savedRoutine = routineService.create(user.getId(), routine);
+        return ResponseEntity.status(201).body(savedRoutine);
     }
 //    @PostMapping("/users/{userId}/workouts",)
 //    public ResponseEntity<String> createWorkout(@PathVariable UUID userId, @RequestBody Workout workout){

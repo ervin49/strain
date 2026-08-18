@@ -20,6 +20,10 @@ public class InitialConfig implements CommandLineRunner {
 
     @Override
     public void run(String @NonNull ...args){
+        if(userRepository.existsByEmail("admin@admin.com")){
+            return;
+        }
+
         User admin = User.builder()
                 .email("admin@admin.com")
                 .firstName("firstName")

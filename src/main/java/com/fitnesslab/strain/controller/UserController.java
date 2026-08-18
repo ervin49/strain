@@ -9,28 +9,25 @@ import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.security.JwtConfig;
 import com.fitnesslab.strain.security.JwtUtils;
-import com.fitnesslab.strain.service.ImageService;
 import com.fitnesslab.strain.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final JwtConfig jwtConfig;
     private final JwtUtils jwtUtils;
     private final PasswordEncoder encoder;
-    private final ImageService imageService;
 
     @GetMapping("/me")
     public ResponseEntity<String> me(Principal principal){
@@ -45,13 +42,6 @@ public class UserController {
     @Operation(summary = "Retrieves all users")
     public ResponseEntity<List<User>> getUsers(){
         return ResponseEntity.ok(userService.getUsers());
-    }
-
-    @GetMapping("/profile-picture")
-    public ResponseEntity<byte[]> getProfilePicture(Principal principal) throws IOException {
-        byte[] image = imageService.downloadImage(principal.getName());
-        String contentType = imageService.getContentTypeOfAvatar(principal.getName());
-        return ResponseEntity.ok().contentType(MediaType.valueOf(contentType)).body(image);
     }
 
     @PostMapping("/update-profile")

@@ -5,24 +5,31 @@ import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.repository.RoutineRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class RoutineService {
     private final RoutineRepository routineRepository;
     private final UserRepository userRepository;
 
     @Transactional
-    public void create(UUID userId, Routine routine){
-        routineRepository.save(routine);
-        User user = userRepository.getUserById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        user.setNoOfWorkouts(user.getNoOfWorkouts() + 1);
+    public Routine create(UUID userId, Routine routine){
+        User user = userRepository.getUserById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        routine.setUser(user);
+
+        int currentNoOfWorkouts = user.getNoOfWorkouts() != null ? user.getNoOfWorkouts() : 0;
+        user.setNoOfWorkouts(currentNoOfWorkouts + 1);
+
+        return routineRepository.save(routine);
     }
 
     public List<Routine> getWorkoutsByUserId(UUID userId){

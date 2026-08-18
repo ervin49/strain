@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,17 +18,19 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Builder
+@Table(name = "workouts")
 public class Workout {
     @Id
     @UuidGenerator
     private UUID id;
 
-    private LocalDate date;
+    private LocalDateTime startedAt;
+    private LocalDateTime endedAt;
 
     private String notes;
 
-    @ManyToMany
-    private List<Exercise> exercises;
+    @OneToMany(mappedBy = "workout")
+    private List<WorkoutExercise> exercises;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
