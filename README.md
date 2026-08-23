@@ -12,13 +12,33 @@ Spring Boot project for managing a workout tracking application.
 - Swagger for API documentation
 - Lombok
 - Dockerized PostgreSQL
-- React for frontend
+- React for web frontend
+- React for mobile frontend
 - Axios for fetching data from API
-- Bootstrap for CSS styling
+- Bootstrap for web styling
+- Nativewind for mobile styling
 
 ## Build & Run
 
+### Backend
+
+```bash
+docker compose up -d 
+./gradlew bootRun
 ```
-docker compose up -d && ./gradlew bootRun
-cd ./frontend/ && npm run dev
+
+
+### Web
+
+```bash
+
+cd ./web/ && npm run dev
+```
+
+
+### Mobile
+
+```bash
+
+cd ./mobile/ && npx expo start
 ```

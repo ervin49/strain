@@ -1,6 +1,6 @@
 import Sidebar from "../components/Sidebar";
 import {useEffect} from "react";
-import { useUser } from "../UserProvider";
+import { useUser } from "../../../shared/UserProvider.tsx";
 import { Link } from "react-router-dom";
 
 export default function DashboardPage() {

@@ -1,7 +1,7 @@
 import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
-import {useUser} from "../UserProvider.tsx";
-import {api} from "../axios.tsx";
+import {useUser} from "../../../shared/UserProvider.tsx";
+import {api} from "../../../shared/axios.tsx";
 import defaultAvatar from "../assets/default-profile-picture.png"
 
 function Item({pathName} : {pathName: string}){

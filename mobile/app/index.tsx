@@ -1,10 +1,5 @@
-import {SafeAreaView} from "react-native-safe-area-context";
-import { Text } from 'react-native'
+import {Redirect} from "expo-router";
 
-export default function HomeScreen() {
-    return (
-        <SafeAreaView style={{ flex: 0}}>
-            <Text style={{ fontSize: 20}}>ceva</Text>
-        </SafeAreaView>
-    )
+export default function Index(){
+    return <Redirect href="/(auth)"/>
 }

@@ -1,6 +1,6 @@
 import Sidebar from "../components/Sidebar.tsx";
 import {useEffect} from "react";
-import { useUser } from "../UserProvider.tsx";
+import { useUser } from "../../../shared/UserProvider.tsx";
 
 export default function RoutinesPage() {
     const { user } = useUser();

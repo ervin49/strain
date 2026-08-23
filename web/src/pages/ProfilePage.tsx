@@ -1,7 +1,7 @@
 import Sidebar from "../components/Sidebar.tsx";
 import {useEffect, useState} from "react";
-import {api} from "../axios.tsx";
-import { useUser } from "../UserProvider.tsx";
+import {api} from "../../../shared/axios.tsx";
+import { useUser } from "../../../shared/UserProvider.tsx";
 import {Link} from "react-router-dom";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';

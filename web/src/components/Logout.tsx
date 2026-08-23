@@ -1,7 +1,7 @@
 import {useAuth} from "../AuthContext.tsx";
 import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
-import {api} from "../axios.tsx";
+import {api} from "../../../shared/axios.tsx";
 
 export const Logout = () => {
     const {logout}  = useAuth();
