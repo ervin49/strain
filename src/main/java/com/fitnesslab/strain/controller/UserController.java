@@ -70,7 +70,7 @@ public class UserController {
                     .maxAge(jwtConfig.getExpiration())
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
-            return ResponseEntity.ok(List.of("success"));
+            return ResponseEntity.ok(List.of(token));
         }
 
         return ResponseEntity.badRequest().body(status);
@@ -99,6 +99,9 @@ public class UserController {
 
     @GetMapping("/my-details")
     public ResponseEntity<UserProfileDto> myDetails(Principal principal){
+        if(principal == null){
+            return ResponseEntity.badRequest().body(null);
+        }
         return ResponseEntity.ok(userService.getUserProfileByEmail(principal.getName()));
     }
 

@@ -1,5 +1,5 @@
 import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
-import {api} from "./axios.tsx";
+import {api} from "./axios";
 import { useNavigate } from "react-router-dom";
 
 export interface Muscle {
@@ -65,7 +65,7 @@ export default function UserProvider({children} : {children: ReactNode}): ReactN
             const response = await api.get("/my-details");
             setUser(response.data);
             console.log(response.data);
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
             setUser(null);
         } finally {

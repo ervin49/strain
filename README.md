@@ -13,7 +13,7 @@ Spring Boot project for managing a workout tracking application.
 - Lombok
 - Dockerized PostgreSQL
 - React for web frontend
-- React for mobile frontend
+- React Native for mobile frontend
 - Axios for fetching data from API
 - Bootstrap for web styling
 - Nativewind for mobile styling

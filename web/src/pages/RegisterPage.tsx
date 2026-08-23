@@ -58,7 +58,7 @@ export default function RegisterPage() {
                     <div className="row g-2">
                         <div className="col-6">
                             <label htmlFor="first-name" className="form-label">
-                                Name
+                                First Name
                             </label>
                             <input
                                 placeholder="First name"
