@@ -26,7 +26,7 @@ export default function Index(){
                                className="mt-3">
                         <Icon sf="mail"/>
                     </AppButton>
-                <Pressable onPress={() => console.log("aklsjdf")}>
+                <Pressable onPress={() => router.push("/login")} className="active:opacity-30">
                     <View className="flex-row justify-center py-5">
                         <Text className="text-white">Already have an account? </Text>
                         <Text className="text-[#0189F9]">Log in</Text>

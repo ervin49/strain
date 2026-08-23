@@ -70,7 +70,7 @@ public class UserController {
                     .maxAge(jwtConfig.getExpiration())
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
-            return ResponseEntity.ok(List.of(token));
+            return ResponseEntity.ok(List.of("token",token));
         }
 
         return ResponseEntity.badRequest().body(status);

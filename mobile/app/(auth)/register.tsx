@@ -3,15 +3,32 @@ import AppText from "@/components/AppText";
 import AppTextInput from "@/components/AppTextInput";
 import AppButton from "@/components/AppButton";
 import {Controller, useForm} from "react-hook-form";
+import {api} from "@/shared/axios";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
+import * as SecureStore from "expo-secure-store"
+
+type RegisterFormValues = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+};
 
 export default function RegisterScreen() {
     const { control,
         handleSubmit,
-        formState: { errors }
-    } = useForm();
+        formState: { errors, isValid }
+    } = useForm<RegisterFormValues>({
+        mode: 'onChange'
+    });
 
-    const onSubmit = (data) => {
-        console.log(data)
+    const onSubmit = async (data) => {
+        try{
+            const response = await api.post("/register",data);
+            console.log(response.data);
+        } catch (err){
+            console.error(err);
+        }
         console.log(errors)
     }
 
@@ -31,42 +48,66 @@ export default function RegisterScreen() {
                                 placeholder="First name"
                                 onChangeText={field.onChange}
                                 onBlur={field.onBlur}
+                                value={field.value}
                                 className="mt-3 mb-1"
                             />
                         )}
                     />
-                    {errors.firstName &&
-                        <View>
-                            <Text>{errors.firstName.message}</Text>
-                        </View>}
                     <View className="h-px bg-gray-900"/>
+                    {errors.firstName &&
+                        <View className="flex-row items-center">
+                            <MaterialCommunityIcons
+                                name="alert-circle-outline"
+                                size={18}
+                                className="me-2"
+                                color="#f87171"
+                            />
+                            <AppText className="bg-red-950 text-red-400 rounded">
+                                {errors.firstName.message}
+                            </AppText>
+                        </View>
+                    }
                     <AppText className="mt-5">Last Name</AppText>
                     <Controller
                         control={control}
                         name="lastName"
                         rules={{
-                            required: true
+                            required: "Last name is required"
                         }}
                         render={({field}) => (
                             <AppTextInput
                                 placeholder="Last name"
                                 onChangeText={field.onChange}
                                 onBlur={field.onBlur}
+                                value={field.value}
                                 className="mt-3"
                             />
                         )}/>
                 </View>
                 <View className="h-px bg-gray-900"/>
+                {errors.lastName &&
+                    <View className="flex-row items-center">
+                        <MaterialCommunityIcons
+                            name="alert-circle-outline"
+                            size={18}
+                            className="me-2"
+                            color="#f87171"
+                        />
+                        <AppText className="bg-red-950 text-red-400 rounded">
+                            {errors.lastName.message}
+                        </AppText>
+                    </View>
+                }
                 <View className="mt-5 mb-1">
                     <AppText>Email</AppText>
                     <Controller
                         control={control}
                         name="email"
                         rules={{
-                            required: true,
+                            required: "Email is required",
                             pattern: {
                                 value: /\S+@\S+\.\S+/,
-                                message: "Email is not valid."
+                                message: "Email is not valid"
                             }
                         }}
                         render={({field}) => (
@@ -74,18 +115,41 @@ export default function RegisterScreen() {
                                 placeholder="Email"
                                 onChangeText={field.onChange}
                                 onBlur={field.onBlur}
+                                value={field.value}
                                 className="mt-3"
                             />
                         )}/>
+                    <View className="h-px bg-gray-900"/>
+                    {errors.email &&
+                        <View className="flex-row items-center">
+                            <MaterialCommunityIcons name="alert-circle-outline"
+                                                    size={18}
+                                                    className="me-2"
+                                                    color="#f87171"
+                            />
+                            <AppText className="bg-red-950 text-red-400 rounded">
+                                {errors.email.message}
+                            </AppText>
+                        </View>
+                    }
                 </View>
-                <View className="h-px bg-gray-900"/>
                 <View className="mt-5 mb-1">
                     <AppText>Password</AppText>
                     <Controller
                         control={control}
                         name="password"
                         rules={{
-                            required: true
+                            required: "Password is required",
+                            minLength: {
+                                value: 8,
+                                message: "Password must be at least 8 characters long."
+                            },
+                            validate: {
+                                hasUppercase: (val: string) => /[A-Z]/.test(val) ||
+                                    "Password must have at least one uppercase letter",
+                                hasSpecialChar: (val: string) => /[^A-Za-z0-9 ]/.test(val) ||
+                                    "Password must have at least one special character",
+                            }
                         }}
                         render={({field}) => (
                             <AppTextInput
@@ -93,19 +157,37 @@ export default function RegisterScreen() {
                                 placeholder="Password"
                                 onChangeText={field.onChange}
                                 onBlur={field.onBlur}
+                                value={field.value}
                                 className="mt-3"
                                 secureTextEntry={true}
                             />
                         )}/>
                 </View>
                 <View className="h-px bg-gray-900"/>
-                <AppText className="mt-5 text-gray-500">By creating an account, you agree to Strain's</AppText>
+                {errors.password &&
+                    <View className="flex-row items-center me-10">
+                        <MaterialCommunityIcons
+                            name="alert-circle-outline"
+                            size={18}
+                            className="me-2"
+                            color="#f87171"
+                        />
+                        <AppText className="bg-red-950 text-red-400 rounded ">
+                            {errors.password.message}
+                        </AppText>
+                    </View>
+                }
+                <AppText className="mt-5 text-gray-500 text-base">By creating an account, you agree to Strain's</AppText>
                 <View className="flex-row mb-3">
-                    <AppText className="underline text-gray-500">terms & conditions </AppText>
-                    <AppText className="text-gray-500">and </AppText>
-                    <AppText className="underline text-gray-500">privacy policy.</AppText>
+                    <AppText className="underline text-gray-500 text-base">terms & conditions </AppText>
+                    <AppText className="text-gray-500 text-base">and </AppText>
+                    <AppText className="underline text-gray-500 text-base">privacy policy.</AppText>
                 </View>
-                <AppButton title={"Continue"} onPress={handleSubmit(onSubmit)}/>
+                <AppButton
+                    title={"Continue"}
+                    onPress={handleSubmit(onSubmit)}
+                    disabled={!isValid}
+                />
             </View>
         </View>
     )
