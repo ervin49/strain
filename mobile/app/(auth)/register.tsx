@@ -1,4 +1,4 @@
-import {View, Text} from "react-native";
+import {View} from "react-native";
 import AppText from "@/components/AppText";
 import AppTextInput from "@/components/AppTextInput";
 import AppButton from "@/components/AppButton";
@@ -22,7 +22,7 @@ export default function RegisterScreen() {
         mode: 'onChange'
     });
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: any) => {
         try{
             const response = await api.post("/register",data);
             console.log(response.data);
