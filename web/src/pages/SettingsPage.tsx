@@ -1,8 +1,8 @@
 import Sidebar from "../components/Sidebar.tsx";
 import {Link} from "react-router-dom";
 import {type ChangeEvent, type SyntheticEvent, useEffect, useState} from "react";
-import {api} from "../../../shared/axios.tsx";
-import {useUser} from "../../../shared/UserProvider.tsx";
+import {api} from "../constants/axios.tsx";
+import {useUser} from "../../../mobile/components/UserProvider.tsx";
 import defaultAvatar from "../assets/default-profile-picture.png"
 import DeletePageModal from "../components/DeletePageModal.tsx";
 import {Check, X} from "lucide-react";

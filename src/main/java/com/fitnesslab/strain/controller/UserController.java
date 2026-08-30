@@ -91,7 +91,7 @@ public class UserController {
                     .maxAge(jwtConfig.getExpiration())
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
-            return ResponseEntity.ok("success");
+            return ResponseEntity.ok(token);
         }
 
         return ResponseEntity.badRequest().body("Email is wrong.");

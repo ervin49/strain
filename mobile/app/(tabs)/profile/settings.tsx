@@ -1,28 +1,39 @@
 import {SafeAreaView} from "react-native-safe-area-context";
-import {Pressable} from "react-native";
+import {ActivityIndicator, Pressable, View} from "react-native";
 import AppText from "@/components/AppText";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import {api} from "@/shared/axios";
+import {api} from "@/constants/axios";
 import {router} from "expo-router";
+import * as SecureStore from "expo-secure-store"
+import {useState} from "react";
 
 export default function SettingsScreen(){
-    api.interceptors.request.use(config => {
-        console.log(config.method, config.url);
-        return config;
-    });
+    const [loading, setLoading] = useState(false);
     const onLogout = async () => {
+        setLoading(true);
         try {
             await api.post("/logout");
+            await SecureStore.deleteItemAsync("token");
         } catch (err){
             console.error(err);
         } finally {
+            setLoading(false);
             router.replace("/");
         }
     };
+
+    if(loading){
+        return (
+            <View className="bg-black items-center justify-center" style={{ flex: 1}}>
+                <ActivityIndicator size="large" className="relative bottom-20"/>
+            </View>
+        )
+    }
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "black"}}>
             <Pressable className="flex-row gap-5 p-3 border-5 bg-gray-600 active:opacity-30"
-            onPress={onLogout}>
+                       onPress={onLogout}>
                 <MaterialCommunityIcons name="logout" color="white" size={20}/>
                 <AppText>Logout</AppText>
             </Pressable>

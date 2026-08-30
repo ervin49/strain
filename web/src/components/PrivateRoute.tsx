@@ -1,7 +1,7 @@
 import { useAuth } from "../AuthContext.tsx";
 import { Navigate, Route } from "react-router-dom";
 import type {JSX} from "react";
-import {api} from "../../../shared/axios.tsx";
+import {api} from "../constants/axios.tsx";
 
 const PrivateRoute = ({children} : {children: JSX.Element}) => {
     const { authenticated } = useAuth();

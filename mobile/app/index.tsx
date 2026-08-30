@@ -1,21 +1,34 @@
-import {Redirect} from "expo-router";
-import {useUser} from "@/shared/UserProvider";
-import {View} from "react-native";
-import AppText from "@/components/AppText";
+import {Redirect, router, Stack} from "expo-router";
+import {ActivityIndicator, View} from "react-native";
+import {useEffect, useState} from "react";
+import * as SecureStore from "expo-secure-store";
 
 export default function Index(){
-    const {user, loading} = useUser();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function checkAuth() {
+            const token = await SecureStore.getItemAsync("token");
+
+            if(token){
+                router.replace("/(tabs)/dashboard");
+            } else {
+                router.replace("/(auth)");
+            }
+
+            setLoading(false);
+        }
+
+        checkAuth();
+    })
+
     if(loading){
-        return (
-            <View className="flex justify-center items-center">
-                <AppText>Loading...</AppText>
+        return(
+            <View className="bg-black items-center justify-center" style={{ flex: 1}}>
+                <ActivityIndicator size="large" className="relative bottom-20"/>
             </View>
-        );
+        )
     }
 
-    if(user){
-        return <Redirect href="/(tabs)"/>
-    }
-
-    return <Redirect href="/(auth)"/>
+    return null;
 }

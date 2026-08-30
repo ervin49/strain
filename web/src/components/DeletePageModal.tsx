@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import {api} from "../../../shared/axios.tsx";
+import {api} from "../constants/axios.tsx";
 import {useNavigate} from "react-router-dom";
 
 export default function DeletePageModal({onClose}) {

@@ -5,7 +5,7 @@ import {GlassView} from "expo-glass-effect/src";
 import AppText from "@/components/AppText";
 import AppHeader from "@/components/AppHeader";
 import { createScreenOptions } from "@/components/ScreenOptions";
-import {useUser} from "@/shared/UserProvider";
+import {useUser} from "@/components/UserProvider";
 
 export default function ProfileLayout(){
     const {user} = useUser();

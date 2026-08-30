@@ -25,26 +25,30 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null || cookies.length == 0) {
-            filterChain.doFilter(request, response);
-            return;
+        String jwt = null;
+        String authorizationHeader = request.getHeader("Authorization");
+        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
+            jwt = authorizationHeader.substring(7);
         }
+        else {
+            Cookie[] cookies = request.getCookies();
 
-        Cookie tokenCookie = null;
-        for(Cookie cookie : cookies) {
-            if(cookie.getName().equals("token")) {
-                tokenCookie = cookie;
-                break;
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("token")) {
+                        jwt = cookie.getValue();
+                        break;
+                    }
+                }
             }
         }
-        if(tokenCookie == null) {
-            filterChain.doFilter(request, response);
+
+        if(jwt == null) {
+            filterChain.doFilter(request,response);
             return;
         }
 
         try {
-            String jwt = tokenCookie.getValue();
             String email = jwtUtils.extractClaim(jwt, Claims::getSubject);
 
             if (!email.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {

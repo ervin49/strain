@@ -1,11 +1,12 @@
-import {View} from "react-native";
+import {ActivityIndicator, View} from "react-native";
 import AppText from "@/components/AppText";
 import AppTextInput from "@/components/AppTextInput";
 import AppButton from "@/components/AppButton";
 import {Controller, useForm} from "react-hook-form";
-import {api} from "@/shared/axios";
+import {api} from "@/constants/axios";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store"
+import {useState} from "react";
 
 type RegisterFormValues = {
     firstName: string;
@@ -22,14 +23,27 @@ export default function RegisterScreen() {
         mode: 'onChange'
     });
 
+    const [loading, setLoading] = useState(false);
+
     const onSubmit = async (data: any) => {
+        setLoading(true);
         try{
             const response = await api.post("/register",data);
+            await SecureStore.setItemAsync("token",response.data.token);
             console.log(response.data);
         } catch (err){
-            console.error(err);
+            console.log(err);
+        } finally {
+            setLoading(false);
         }
-        console.log(errors)
+    }
+
+    if(loading){
+        return(
+            <View className="bg-black items-center justify-center" style={{ flex: 1}}>
+                <ActivityIndicator size="large" className="relative bottom-20"/>
+            </View>
+        )
     }
 
     return (

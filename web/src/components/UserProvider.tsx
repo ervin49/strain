@@ -1,6 +1,5 @@
 import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
-import {api} from "./axios";
-import { useNavigate } from "react-router-dom";
+import {api} from "../constants/axios";
 
 export interface Muscle {
     id: string;
