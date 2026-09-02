@@ -5,7 +5,8 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {api} from "@/constants/axios";
 import {router} from "expo-router";
 import * as SecureStore from "expo-secure-store"
-import {useState} from "react";
+import {useLayoutEffect, useState} from "react";
+import {useUser} from "@/components/UserProvider";
 
 export default function SettingsScreen(){
     const [loading, setLoading] = useState(false);
@@ -13,14 +14,20 @@ export default function SettingsScreen(){
         setLoading(true);
         try {
             await api.post("/logout");
-            await SecureStore.deleteItemAsync("token");
         } catch (err){
             console.error(err);
         } finally {
+            await SecureStore.deleteItemAsync("token");
             setLoading(false);
             router.replace("/");
         }
     };
+
+    const {user, refreshUser} = useUser();
+
+    useLayoutEffect(() => {
+        refreshUser();
+    }, []);
 
     if(loading){
         return (

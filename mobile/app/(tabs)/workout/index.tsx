@@ -15,10 +15,10 @@ export default function WorkoutScreen(){
     return (
         <View
             style={{flex: 1, backgroundColor: "black"}}
-            className="p-4"
+            className="px-4 py-2"
         >
             <Pressable
-                className="p-3 bg-gray-800 rounded-xl flex-row items-center active:opacity-30"
+                className="p-3  bg-[#161618] rounded-xl flex-row items-center active:opacity-30"
             >
                 <MaterialCommunityIcons name="plus" color="white" size={26}/>
                 <AppText
@@ -33,7 +33,7 @@ export default function WorkoutScreen(){
             </AppText>
             <View className="flex-row gap-3">
                 <Pressable
-                    className="mt-4 p-3 bg-gray-800 rounded-xl flex-row items-center flex-1 active:opacity-30"
+                    className="mt-4 p-3 bg-[#161618] rounded-xl flex-row items-center flex-1 active:opacity-30"
                     onPress={() => router.push("/routines")}
                 >
                     <MaterialCommunityIcons name="book" color="white" size={26} className="ms-3"/>
@@ -44,7 +44,7 @@ export default function WorkoutScreen(){
                     </AppText>
                 </Pressable>
                 <Pressable
-                    className="mt-4 p-3 bg-gray-800 rounded-xl flex-row items-center flex-1 active:opacity-30"
+                    className="mt-4 p-3 bg-[#161618] rounded-xl flex-row items-center flex-1 active:opacity-30"
                 >
                     <MaterialCommunityIcons name="magnify" color="white" size={26} className="ms-3"/>
                     <AppText
@@ -54,13 +54,15 @@ export default function WorkoutScreen(){
                     </AppText>
                 </Pressable>
             </View>
-            <Text
-                className="text-gray-500 text-lg mt-4"
-            >
-                My Routines({noOfRoutines})</Text>
-            {noOfRoutines === 0 &&
-                <View className="flex-row items-center justify-center mt-5">
-                    <AppText className="text-center text-xl">You don't have any routine! Create a routine now.</AppText>
+            {noOfRoutines !== 0 &&
+                <View>
+                    <Text
+                        className="text-gray-500 text-lg mt-4"
+                    >
+                        My Routines({noOfRoutines})</Text>
+                    <View className="flex-row items-center justify-center mt-5">
+                        <AppText className="text-center text-xl"></AppText>
+                    </View>
                 </View>
             }
         </View>

@@ -1,4 +1,4 @@
-import {ActivityIndicator, View} from "react-native";
+import {ActivityIndicator, Text, View} from "react-native";
 import AppText from "@/components/AppText";
 import AppTextInput from "@/components/AppTextInput";
 import AppButton from "@/components/AppButton";
@@ -7,6 +7,7 @@ import {api} from "@/constants/axios";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store"
 import {useState} from "react";
+import {AxiosError} from "axios";
 
 type RegisterFormValues = {
     firstName: string;
@@ -24,15 +25,17 @@ export default function RegisterScreen() {
     });
 
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string>("");
 
     const onSubmit = async (data: any) => {
         setLoading(true);
         try{
             const response = await api.post("/register",data);
-            await SecureStore.setItemAsync("token",response.data.token);
+            await SecureStore.setItemAsync("token",JSON.stringify(response.data));
             console.log(response.data);
-        } catch (err){
+        } catch (err: any){
             console.log(err);
+            setError(err.data);
         } finally {
             setLoading(false);
         }
@@ -50,6 +53,11 @@ export default function RegisterScreen() {
         <View className="flex-1 bg-black">
             <View className="mt-8 px-5">
                 <View className="mb-1">
+                    {error &&
+                        <View className="bg-red-800">
+                            <Text className="text-red-400">{error}</Text>
+                        </View>
+                    }
                     <AppText>First Name</AppText>
                     <Controller
                         control={control}
@@ -131,6 +139,7 @@ export default function RegisterScreen() {
                                 onBlur={field.onBlur}
                                 value={field.value}
                                 className="mt-3"
+                                keyboardType="email-address"
                             />
                         )}/>
                     <View className="h-px bg-gray-900"/>

@@ -20,25 +20,17 @@ export default function ProfileLayout(){
                                   small: false
                               }),
                               headerRight: () => (
-                                  <View className="gap-5 flex-row px-3">
-                                      <GlassView
-                                          className="border-0"
+                                  <View className="gap-4 flex-row px-2">
+                                      <Pressable
+                                          onPress={() => router.push("/profile/edit")}
                                       >
-                                          <Pressable
-                                              className="border-0"
-                                              onPress={() => router.push("/profile/edit")}
-                                          >
-                                              <MaterialCommunityIcons name="pencil-outline" size={26} color="white"
-                                                                      className="border-0"
-                                              />
-                                          </Pressable>
-                                      </GlassView>
-                                      <GlassView>
-                                          <Pressable
-                                              onPress={() => router.push("/profile/settings")}>
-                                              <MaterialCommunityIcons name="cog-outline" size={26} color="white"/>
-                                          </Pressable>
-                                      </GlassView>
+                                          <MaterialCommunityIcons name="pencil-outline" size={26} color="white"
+                                          />
+                                      </Pressable>
+                                      <Pressable
+                                          onPress={() => router.push("/profile/settings")}>
+                                          <MaterialCommunityIcons name="cog-outline" size={26} color="white"/>
+                                      </Pressable>
                                   </View>
                               ),
                           }}/>
