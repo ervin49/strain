@@ -61,23 +61,13 @@ export default function UserProvider({children} : {children: ReactNode}): ReactN
     const [loading, setLoading] = useState<boolean>(true);
 
     const refreshUser = async () => {
-        api.interceptors.request.use(async (config) => {
-            const token = await SecureStore.getItemAsync("token");
-
-            if(token){
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-
-            return config;
-        })
-
-        export default api;
         try {
             const response = await api.get("/my-details");
+            console.log("dupa request");
             setUser(response.data);
             console.log(response.data);
         } catch (err: any) {
-            console.error(err);
+            console.log(err);
             setUser(null);
         } finally {
             setLoading(false);

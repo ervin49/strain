@@ -23,12 +23,6 @@ export default function SettingsScreen(){
         }
     };
 
-    const {user, refreshUser} = useUser();
-
-    useLayoutEffect(() => {
-        refreshUser();
-    }, []);
-
     if(loading){
         return (
             <View className="bg-black items-center justify-center" style={{ flex: 1}}>

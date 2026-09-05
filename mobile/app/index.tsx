@@ -1,4 +1,4 @@
-import {Redirect, router, Stack} from "expo-router";
+import {router} from "expo-router";
 import {ActivityIndicator, View} from "react-native";
 import {useEffect, useState} from "react";
 import * as SecureStore from "expo-secure-store";
@@ -20,7 +20,7 @@ export default function Index(){
         }
 
         checkAuth();
-    })
+    },[]);
 
     if(loading){
         return(

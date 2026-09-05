@@ -7,6 +7,7 @@ import {api} from "@/constants/axios";
 import {useState} from "react";
 import {router} from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import {useUser} from "@/components/UserProvider";
 
 export default function LoginScreen() {
     const { control,
@@ -16,12 +17,14 @@ export default function LoginScreen() {
 
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false);
+    const {refreshUser} = useUser();
     const onSubmit = async (data: any) => {
         setLoading(true);
         try {
             const response = await api.post("/login", data);
             console.log(response.data);
-            await SecureStore.setItemAsync("token",JSON.stringify(response.data));
+            await SecureStore.setItemAsync("token", response.data);
+            await refreshUser();
             router.replace("/home");
         } catch (err) {
             setError("Invalid email or password");
