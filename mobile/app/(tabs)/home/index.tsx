@@ -25,7 +25,10 @@ export default function HomeScreen() {
 
     return (
         <>
-            <View style={{ flex: 1, backgroundColor: "black"}}>
+            <View
+                style={{ flex: 1, backgroundColor: "black"}}
+                className="px-4 py-2"
+            >
                 {noOfWorkouts === 0 &&
                     <View className="flex-row items-center justify-center mt-5">
                         <AppText className="text-center text-xl">You don't have any workout! Add a workout now.</AppText>

@@ -1,6 +1,6 @@
 import {router, Stack} from "expo-router";
 import {createScreenOptions} from "@/components/ScreenOptions";
-import {Pressable} from "react-native";
+import {Pressable, Text} from "react-native";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {useUser} from "@/components/UserProvider";
 
@@ -21,10 +21,37 @@ export default function RoutinesLayout(){
                             }
                         }}
                         hitSlop={10}
-                        className="h-10 w-10 justify-center items-center">
-                        <MaterialCommunityIcons name="arrow-left" color="white" size={26}/>
+                        className="justify-center items-center">
+                        <Text
+                            className="px-4 text-[#0479DA] text-lg"
+                        >
+                            Cancel
+                        </Text>
                     </Pressable>
                 ),
+            }}/>
+            <Stack.Screen name="add-exercise" options={{
+                ...createScreenOptions({
+                    title: 'Add Exercise'
+                }),
+                headerLeft: () => (
+                    <Pressable
+                        onPress={() => {
+                            if(router.canGoBack()) {
+                                router.back()
+                            } else {
+                                router.replace("/")
+                            }
+                        }}
+                        hitSlop={10}
+                        className="justify-center items-center">
+                        <Text
+                            className="px-4 text-[#0479DA] text-lg"
+                        >
+                            Cancel
+                        </Text>
+                    </Pressable>
+                )
             }}/>
         </Stack>
     )

@@ -2,7 +2,7 @@ import {Pressable, Text} from "react-native";
 import {ReactNode} from "react";
 
 interface ButtonProps{
-    title: string;
+    title?: string;
     onPress: () => void;
     variant?: 'primary' | 'secondary'
     children?: ReactNode;

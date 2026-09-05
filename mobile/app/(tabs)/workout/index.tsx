@@ -1,4 +1,4 @@
-import {View, Text, Pressable, Image} from "react-native";
+import {View, Text, Pressable, Image, ScrollView} from "react-native";
 import AppText from "@/components/AppText";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {useUser} from "@/components/UserProvider";
@@ -13,9 +13,9 @@ export default function WorkoutScreen(){
     const noOfRoutines = routines.length
 
     return (
-        <View
+        <ScrollView
             style={{flex: 1, backgroundColor: "black"}}
-            className="px-4 py-2"
+            contentContainerClassName="px-4 py-2"
         >
             <Pressable
                 className="p-3  bg-[#161618] rounded-xl flex-row items-center active:opacity-30"
@@ -65,6 +65,6 @@ export default function WorkoutScreen(){
                     </View>
                 </View>
             }
-        </View>
+        </ScrollView>
     )
 }
