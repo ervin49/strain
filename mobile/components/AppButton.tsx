@@ -17,8 +17,8 @@ export default function AppButton({
     disabled = false,
                                    className = ''
                                } : ButtonProps){
-    const bgStyle = variant === 'primary' ? 'bg-[#0189F9]' : 'bg-white';
-    const textStyle = variant === 'primary' ? 'text-white' : 'text-gray';
+    const bgStyle = variant === 'primary' ? 'bg-[#0189F9]' : 'bg-gray-500';
+    const textStyle = variant === 'primary' ? 'text-white' : 'text-white';
     return (
         <Pressable
             onPress={onPress}

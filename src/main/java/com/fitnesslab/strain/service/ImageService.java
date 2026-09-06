@@ -81,4 +81,19 @@ public class ImageService {
         String avatarPath = userRepository.getUserByEmail(email).orElseThrow().getAvatarPath();
         return "image/" + avatarPath.split("\\.")[1];
     }
+
+    public void deleteAvatarFromFileSystem(String email){
+        User user = userRepository.getUserByEmail(email).orElseThrow();
+        String avatarPath = user.getAvatarPath();
+
+        String rootDir = new FileSystemResource("").getFile().getAbsolutePath();
+        Path uploadDir = Paths.get(rootDir, "user-images");
+        Path fullPath = uploadDir.resolve(avatarPath);
+
+        try{
+            Files.delete(fullPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

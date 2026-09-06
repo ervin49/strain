@@ -140,6 +140,7 @@ public class UserService {
     @Transactional
     public void deleteProfilePictureByEmail(String email) {
         User user = userRepository.getUserByEmail(email).orElseThrow();
+        imageService.deleteAvatarFromFileSystem(email);
         user.setAvatarPath(null);
     }
 }

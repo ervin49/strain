@@ -46,8 +46,7 @@ export default function ProfileLayout(){
                             router.replace("/profile");
                         }
                     }}
-                               hitSlop={10}
-                               className="h-10 w-10 justify-center items-center">
+                               hitSlop={10}>
                         <MaterialCommunityIcons name="arrow-left" color="white" size={26}/>
                     </Pressable>
                 )
@@ -64,8 +63,43 @@ export default function ProfileLayout(){
                             router.replace("/profile");
                         }
                     }}
+                               hitSlop={10}>
+                        <MaterialCommunityIcons name="arrow-left" color="white" size={26}/>
+                    </Pressable>
+                )
+            }}/>
+            <Stack.Screen name="account" options={{
+                ...createScreenOptions({
+                    title: "Account Settings"
+                }),
+                headerLeft: () => (
+                    <Pressable onPress={() => {
+                        if(router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace("/profile");
+                        }
+                    }}
                                hitSlop={10}
-                               className="h-10 w-10 justify-center items-center">
+                               >
+                        <MaterialCommunityIcons name="arrow-left" color="white" size={26}/>
+                    </Pressable>
+                )
+            }}/>
+            <Stack.Screen name="update-password" options={{
+                ...createScreenOptions({
+                    title: "Update Password"
+                }),
+                headerLeft: () => (
+                    <Pressable onPress={() => {
+                        if(router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace("/profile");
+                        }
+                    }}
+                               hitSlop={10}
+                    >
                         <MaterialCommunityIcons name="arrow-left" color="white" size={26}/>
                     </Pressable>
                 )

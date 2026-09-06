@@ -40,14 +40,22 @@ export default function SettingsScreen(){
                     </AppText>
                 </View>
                 <Pressable
-                    className="flex-row gap-5 px-3 py-4 border-5 bg-[#2C2C2E] active:opacity-30 items-center"
+                    className="flex-row p-5 px-3 py-4  bg-[#2C2C2E] active:opacity-30 items-center"
                     onPress={() => router.push("/profile/edit")}
                 >
                     <MaterialCommunityIcons name="account" color="white" size={30}/>
                     <AppText>Profile</AppText>
                 </Pressable>
+                <View className="h-px bg-gray-900"/>
                 <Pressable
-                    className="flex-row gap-5 px-3 py-4 border-5 bg-[#2C2C2E] active:opacity-30 justify-center"
+                    className="flex-row p-5 px-3 py-4  bg-[#2C2C2E] active:opacity-30 items-center"
+                    onPress={() => router.push("/profile/account")}
+                >
+                    <MaterialCommunityIcons name="lock-outline" color="white" size={30}/>
+                    <AppText>Account</AppText>
+                </Pressable>
+                <Pressable
+                    className="flex-row px-3 py-4 mt-5 bg-[#2C2C2E] active:opacity-30 justify-center"
                     onPress={onLogout}
                 >
                     <AppText

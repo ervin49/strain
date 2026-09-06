@@ -2,23 +2,19 @@ import {
     View,
     Image,
     Pressable,
-    Keyboard,
     ScrollView,
-    Button,
-    TouchableOpacity,
-    Alert,
     useWindowDimensions
 } from "react-native";
 import {useUser} from "@/components/UserProvider";
 import * as ImagePicker from "expo-image-picker"
 import AppTextInput from "@/components/AppTextInput";
 import {useEffect, useState} from "react";
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {router, Stack} from "expo-router";
 import AppText from "@/components/AppText";
 import {api} from "@/constants/axios";
 import Modal from "react-native-modal"
 import {MaterialCommunityIcons} from "@expo/vector-icons";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
 
 export default function EditProfileScreen(){
     const {user, refreshUser} = useUser();
@@ -74,27 +70,32 @@ export default function EditProfileScreen(){
     const onSelectLibraryPhoto = async () => {
         try{
             const result = await ImagePicker.launchImageLibraryAsync({mediaTypes: 'images'})
-            if(!result.canceled){
-                const formData = new FormData();
-                const asset = result.assets[0]
-                formData.append("file", {
-                    uri: asset.uri,
-                    name: asset.fileName ?? 'profile.jpg',
-                    type: asset.mimeType ?? 'image/jpeg'
-                })
-                const response = await api.post("/update-profile", formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data"
-                    }
-                });
-
-                await refreshUser();
-                console.log(response.data);
-            }
-            console.log(result);
+            updateProfilePicture(result)
         } catch (err){
             console.log(err);
         }
+    }
+
+    async function updateProfilePicture(result){
+        if(!result.canceled){
+            const formData = new FormData();
+            const asset = result.assets[0]
+            formData.append("file", {
+                uri: asset.uri,
+                name: asset.fileName ?? 'profile.jpg',
+                type: asset.mimeType ?? 'image/jpeg'
+            })
+            const response = await api.post("/update-profile", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+
+            await refreshUser();
+            console.log(response.data);
+        }
+
+
     }
 
     const onTakePhoto = async () => {
@@ -109,25 +110,9 @@ export default function EditProfileScreen(){
                     return;
                 }
             }
+
             const result = await ImagePicker.launchCameraAsync()
-            if(!result.canceled){
-                const formData = new FormData();
-                const asset = result.assets[0]
-                formData.append("file", {
-                    uri: asset.uri,
-                    name: asset.fileName ?? 'profile.jpg',
-                    type: asset.mimeType ?? 'image/jpeg'
-                })
-                const response = await api.post("/update-profile", formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data"
-                    }
-                });
-
-                await refreshUser();
-                console.log(response.data);
-            }
-
+            updateProfilePicture(result)
         } catch (err){
             console.log(err);
         }
@@ -309,8 +294,9 @@ export default function EditProfileScreen(){
             <View className="flex-row mt-3">
                 <AppText>Birthday</AppText>
                 <View className="ms-5">
-                    <DateTimePicker
+                    <RNDateTimePicker
                         value={dateOfBirth}
+                        onValueChange={(event, date) => setDateOfBirth(date)}
                     />
                 </View>
             </View>
