@@ -2,7 +2,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {type SyntheticEvent, useState} from "react";
 import {api} from "../constants/axios.tsx";
 import {useAuth} from "../AuthContext.tsx";
-import { useUser } from "../../../mobile/components/UserProvider.tsx";
+import {useUser} from "../components/UserProvider.tsx";
 
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState("")

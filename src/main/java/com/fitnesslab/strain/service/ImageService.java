@@ -28,7 +28,7 @@ public class ImageService {
         if(file.isEmpty()){
             throw new IllegalArgumentException("No file received");
         }
-        if(file.getSize() > 2 * 1024 * 1024){
+        if(file.getSize() > 10 * 1024 * 1024){
             throw new IllegalArgumentException("Image is too large");
         }
         String contentType = file.getContentType();

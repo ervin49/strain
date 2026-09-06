@@ -1,11 +1,10 @@
 import Sidebar from "../components/Sidebar.tsx";
 import {useEffect, useState} from "react";
-import {api} from "../constants/axios.tsx";
-import { useUser } from "../../../mobile/components/UserProvider.tsx";
 import {Link} from "react-router-dom";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import '../assets/styles/calendar.css'
+import {useUser} from "../components/UserProvider.tsx";
 
 export default function ProfilePage() {
     const { user } = useUser();

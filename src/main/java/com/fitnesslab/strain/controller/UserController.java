@@ -105,6 +105,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserProfileByEmail(principal.getName()));
     }
 
+    @DeleteMapping("/profile-picture")
+    public ResponseEntity<UserProfileDto> deleteProfilePicture(Principal principal){
+        if(principal == null){
+            return ResponseEntity.badRequest().body(null);
+        }
+        userService.deleteProfilePictureByEmail(principal.getName());
+        return ResponseEntity.ok(userService.getUserProfileByEmail(principal.getName()));
+    }
+
+
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(
             @RequestBody ChangePasswordDto request,

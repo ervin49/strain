@@ -1,8 +1,6 @@
 import {Link} from "react-router-dom";
-import {useEffect, useState} from "react";
-import {useUser} from "../../../mobile/components/UserProvider.tsx";
-import {api} from "../constants/axios.tsx";
 import defaultAvatar from "../assets/default-profile-picture.png"
+import {useUser} from "./UserProvider.tsx";
 
 function Item({pathName} : {pathName: string}){
     const currentURI: string = window.location.pathname;

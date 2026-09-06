@@ -1,7 +1,7 @@
 import Sidebar from "../components/Sidebar";
 import {useEffect} from "react";
-import { useUser } from "../../../mobile/components/UserProvider.tsx";
 import { Link } from "react-router-dom";
+import {useUser} from "../components/UserProvider.tsx";
 
 export default function DashboardPage() {
     const { user } = useUser();

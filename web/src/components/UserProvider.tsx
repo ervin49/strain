@@ -1,5 +1,5 @@
 import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
-import {api} from "../constants/axios";
+import {api} from "../constants/axios"
 
 export interface Muscle {
     id: string;

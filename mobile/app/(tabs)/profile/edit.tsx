@@ -44,20 +44,15 @@ export default function EditProfileScreen(){
     const isFirstNameChanged = firstName !== (user?.firstName || "")
     const isLastNameChanged = lastName !== (user?.lastName || "")
     const isDateOfBirthChanged = user?.dateOfBirth === null ? false : dateOfBirth.toISOString().slice(0, 10) !== user?.dateOfBirth
-    const isFileSelected = file !== null
 
-    const isFormEdited = isFirstNameChanged || isLastNameChanged || isDateOfBirthChanged || isFileSelected
+    const isFormEdited = isFirstNameChanged || isLastNameChanged || isDateOfBirthChanged
 
     const onSubmit = async () => {
         console.log('first name changed' + isFirstNameChanged);
         console.log('last name changed' + isLastNameChanged);
         console.log('date changed' + isDateOfBirthChanged);
-        console.log('file selected' + isFileSelected);
 
         const formData = new FormData();
-        if(file){
-            formData.append("file",file);
-        }
         formData.append("firstName",firstName ?? '');
         formData.append("lastName",lastName ?? '');
         formData.append("dateOfBirth",dateOfBirth.toISOString().slice(0, 10) ?? '');
@@ -78,12 +73,25 @@ export default function EditProfileScreen(){
 
     const onSelectLibraryPhoto = async () => {
         try{
-            const permissionResult = await ImagePicker.getMediaLibraryPermissionsAsync()
-            if(!permissionResult.granted) {
-                Alert.alert('Permission required','Permission to access the media library is required.')
-                return;
+            const result = await ImagePicker.launchImageLibraryAsync({mediaTypes: 'images'})
+            if(!result.canceled){
+                const formData = new FormData();
+                const asset = result.assets[0]
+                formData.append("file", {
+                    uri: asset.uri,
+                    name: asset.fileName ?? 'profile.jpg',
+                    type: asset.mimeType ?? 'image/jpeg'
+                })
+                const response = await api.post("/update-profile", formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+
+                await refreshUser();
+                console.log(response.data);
             }
-            await ImagePicker.launchImageLibraryAsync()
+            console.log(result);
         } catch (err){
             console.log(err);
         }
@@ -104,7 +112,10 @@ export default function EditProfileScreen(){
 
     const onDeleteProfilePicture = async () => {
         try{
-            Alert.alert("aklsdjfklasdjfkl")
+            const response = await api.delete("/profile-picture");
+            console.log(response.data);
+            await refreshUser();
+            setIsConfirmationModalVisible(false)
         } catch (err){
             console.log(err);
         }
@@ -139,8 +150,9 @@ export default function EditProfileScreen(){
                 }}
             />
             <View className="items-center mt-2">
-                <Image source={avatarPath ? {uri: `http://192.168.1.200:8080/${avatarPath}`} : require(`@/assets/images/default-profile-picture.png`)}
+                <Image source={avatarPath ? {uri: `http://192.168.1.200:8080/user-images/${avatarPath}`} : require(`@/assets/images/default-profile-picture.png`)}
                        style={{ width: 80, height: 80}}
+                       className="rounded-full"
                 />
                 <Pressable
                     className="mt-5 active:opacity-30"
@@ -229,6 +241,7 @@ export default function EditProfileScreen(){
                     >Are you sure you want to delete your profile picture?</AppText>
                     <Pressable
                         className="bg-[#2C2C2E] w-full mt-5 p-2 rounded-xl items-center"
+                        onPress={onDeleteProfilePicture}
                     >
                         <AppText
                             className="text-red-500"

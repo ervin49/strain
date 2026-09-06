@@ -1,9 +1,8 @@
 import {type SyntheticEvent, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
-import axios, {AxiosError, type AxiosResponse} from "axios";
 import {useAuth} from "../AuthContext.tsx";
 import {api} from "../constants/axios.tsx";
-import {useUser} from "../../../mobile/components/UserProvider.tsx";
+import {useUser} from "../components/UserProvider.tsx";
 
 export default function LoginPage() {
     const {refreshUser} = useUser();

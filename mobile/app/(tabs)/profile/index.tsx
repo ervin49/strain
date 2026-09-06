@@ -27,12 +27,14 @@ export default function ProfileScreen() {
             >
                 <Pressable
                     className="active:opacity-30"
+                    onPress={() => router.push("/profile/edit")}
                 >
                     <Image source={ avatarPath ?
-                        { uri: `http://192.168.1.187:8080/${avatarPath}`} :
+                        { uri: `http://192.168.1.200:8080/user-images/${avatarPath}`} :
                         require('@/assets/images/default-profile-picture.png')
                     }
                            style={{ width: 80, height: 80}}
+                           className="rounded-full"
                     />
                 </Pressable>
                 <View className="flex-1 mt-2 ms-4 me-3">

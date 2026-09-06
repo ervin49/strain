@@ -136,4 +136,10 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    @Transactional
+    public void deleteProfilePictureByEmail(String email) {
+        User user = userRepository.getUserByEmail(email).orElseThrow();
+        user.setAvatarPath(null);
+    }
 }

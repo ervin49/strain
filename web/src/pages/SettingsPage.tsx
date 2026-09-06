@@ -1,12 +1,11 @@
 import Sidebar from "../components/Sidebar.tsx";
-import {Link} from "react-router-dom";
 import {type ChangeEvent, type SyntheticEvent, useEffect, useState} from "react";
 import {api} from "../constants/axios.tsx";
-import {useUser} from "../../../mobile/components/UserProvider.tsx";
 import defaultAvatar from "../assets/default-profile-picture.png"
 import DeletePageModal from "../components/DeletePageModal.tsx";
 import {Check, X} from "lucide-react";
 import ChangePasswordModal from "../components/ChangePasswordModal.tsx";
+import {useUser} from "../components/UserProvider.tsx";
 
 export default function SettingsPage() {
     const {user, loading, refreshUser} = useUser();
@@ -38,6 +37,8 @@ export default function SettingsPage() {
             setFirstName(user.firstName);
             setLastName(user.lastName);
             setDateOfBirth(user.dateOfBirth || "");
+            console.log("avatarPath:", avatarPath);
+            console.log("imageSrc:", imageSrc);
         }
     },[user]);
 
