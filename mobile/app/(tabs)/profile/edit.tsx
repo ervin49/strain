@@ -100,11 +100,34 @@ export default function EditProfileScreen(){
     const onTakePhoto = async () => {
         try{
             const permissionResult = await ImagePicker.getCameraPermissionsAsync()
+
             if(!permissionResult.granted) {
-                Alert.alert('Permission required','Permission to access the camera is required.')
-                return;
+                const cameraPermissionResult =
+                    await ImagePicker.requestCameraPermissionsAsync();
+
+                if(!cameraPermissionResult.granted){
+                    return;
+                }
             }
-            await ImagePicker.launchCameraAsync()
+            const result = await ImagePicker.launchCameraAsync()
+            if(!result.canceled){
+                const formData = new FormData();
+                const asset = result.assets[0]
+                formData.append("file", {
+                    uri: asset.uri,
+                    name: asset.fileName ?? 'profile.jpg',
+                    type: asset.mimeType ?? 'image/jpeg'
+                })
+                const response = await api.post("/update-profile", formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+
+                await refreshUser();
+                console.log(response.data);
+            }
+
         } catch (err){
             console.log(err);
         }
@@ -112,8 +135,7 @@ export default function EditProfileScreen(){
 
     const onDeleteProfilePicture = async () => {
         try{
-            const response = await api.delete("/profile-picture");
-            console.log(response.data);
+            await api.delete("/profile-picture");
             await refreshUser();
             setIsConfirmationModalVisible(false)
         } catch (err){
