@@ -1,14 +1,14 @@
 import {View, Image, Pressable, Keyboard, ScrollView} from "react-native";
 import {useUser} from "@/components/UserProvider";
 import AppTextInput from "@/components/AppTextInput";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {router, Stack} from "expo-router";
 import AppText from "@/components/AppText";
-import {Gesture, GestureDetector, GestureHandlerRootView} from "react-native-gesture-handler";
+import {api} from "@/constants/axios";
 
 export default function EditProfileScreen(){
-    const {user} = useUser();
+    const {user, refreshUser} = useUser();
     const avatarPath = user?.avatarPath
 
     const [firstName, setFirstName] = useState<string | undefined>("")
@@ -26,18 +26,37 @@ export default function EditProfileScreen(){
 
     const isFirstNameChanged = firstName !== (user?.firstName || "")
     const isLastNameChanged = lastName !== (user?.lastName || "")
-    const isDateOfBirthChanged = dateOfBirth.toISOString().slice(0,10) !== user?.dateOfBirth;
+    const isDateOfBirthChanged = user?.dateOfBirth === null ? false : dateOfBirth.toISOString().slice(0, 10) !== user?.dateOfBirth
     const isFileSelected = file !== null
 
     const isFormEdited = isFirstNameChanged || isLastNameChanged || isDateOfBirthChanged || isFileSelected
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
         console.log('first name changed' + isFirstNameChanged);
         console.log('last name changed' + isLastNameChanged);
         console.log('date changed' + isDateOfBirthChanged);
         console.log('file selected' + isFileSelected);
 
         const formData = new FormData();
+        if(file){
+            formData.append("file",file);
+        }
+        formData.append("firstName",firstName ?? '');
+        formData.append("lastName",lastName ?? '');
+        formData.append("dateOfBirth",dateOfBirth.toISOString().slice(0, 10) ?? '');
+        const response = await api.post("/update-profile", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+
+        await refreshUser();
+        if(router.canGoBack()){
+            router.back();
+        } else {
+            router.replace("/");
+        }
+        console.log(response.data)
     }
 
     return (
@@ -53,11 +72,11 @@ export default function EditProfileScreen(){
                             disabled={!isFormEdited}
                             onPress={onSubmit}
                             hitSlop={10}
-                            className={`justify-center items-center 
+                            className={`justify-center items-center
                             `}
                         >
                             <AppText
-                                className={`px-4 text-[#0479DA] text-lg
+                                className={`text-[#0479DA] text-lg px-4
                                 ${isFormEdited ? 'text-[#008CFF]' : 'text-[#EFEFEF]'}
                                 `}
                             >
@@ -107,9 +126,11 @@ export default function EditProfileScreen(){
             <View className="h-px bg-gray-900 mt-5"/>
             <View className="flex-row mt-3">
                 <AppText>Birthday</AppText>
-                <DateTimePicker
-                    value={dateOfBirth}
-                />
+                <View className="ms-5">
+                    <DateTimePicker
+                        value={dateOfBirth}
+                    />
+                </View>
             </View>
         </ScrollView>
     )
