@@ -1,5 +1,5 @@
 import {router, Stack} from "expo-router";
-import {createScreenOptions} from "@/components/ScreenOptions";
+import {createScreenOptions} from "@/constants/ScreenOptions";
 import {Pressable, Text} from "react-native";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {useUser} from "@/components/UserProvider";

@@ -1,6 +1,6 @@
 import {router, Stack} from "expo-router";
 import AppHeader from "@/components/AppHeader";
-import {createScreenOptions} from "@/components/ScreenOptions";
+import {createScreenOptions} from "@/constants/ScreenOptions";
 
 export default function WorkoutLayout(){
     return (

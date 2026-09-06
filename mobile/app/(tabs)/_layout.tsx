@@ -1,5 +1,5 @@
 import "../../global.css"
-import {Icon, Label, NativeTabs} from 'expo-router/unstable-native-tabs';
+import {NativeTabs} from 'expo-router/unstable-native-tabs';
 import {useUser} from "@/components/UserProvider";
 import {ActivityIndicator, View} from "react-native";
 
@@ -15,16 +15,16 @@ export default function TabsLayout() {
     return (
         <NativeTabs>
             <NativeTabs.Trigger name="home">
-                <Label>Home</Label>
-                <Icon sf="house"/>
+                <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+                <NativeTabs.Trigger.Icon sf="house"/>
             </NativeTabs.Trigger>
             <NativeTabs.Trigger name="workout">
-                <Label>Workout</Label>
-                <Icon sf="dumbbell"/>
+                <NativeTabs.Trigger.Label>Workout</NativeTabs.Trigger.Label>
+                <NativeTabs.Trigger.Icon sf="dumbbell"/>
             </NativeTabs.Trigger>
             <NativeTabs.Trigger name="profile">
-                <Label>Profile</Label>
-                <Icon sf="person"/>
+                <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+                <NativeTabs.Trigger.Icon sf="person"/>
             </NativeTabs.Trigger>
         </NativeTabs>
     );

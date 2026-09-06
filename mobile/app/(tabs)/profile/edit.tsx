@@ -1,20 +1,37 @@
-import {View, Image, Pressable, Keyboard, ScrollView} from "react-native";
+import {
+    View,
+    Image,
+    Pressable,
+    Keyboard,
+    ScrollView,
+    Button,
+    TouchableOpacity,
+    Alert,
+    useWindowDimensions
+} from "react-native";
 import {useUser} from "@/components/UserProvider";
+import * as ImagePicker from "expo-image-picker"
 import AppTextInput from "@/components/AppTextInput";
 import {useEffect, useState} from "react";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {router, Stack} from "expo-router";
 import AppText from "@/components/AppText";
 import {api} from "@/constants/axios";
+import Modal from "react-native-modal"
+import {MaterialCommunityIcons} from "@expo/vector-icons";
 
 export default function EditProfileScreen(){
     const {user, refreshUser} = useUser();
     const avatarPath = user?.avatarPath
+    const {height, width} = useWindowDimensions();
 
     const [firstName, setFirstName] = useState<string | undefined>("")
     const [lastName, setLastName] = useState<string | undefined>("")
     const [dateOfBirth, setDateOfBirth] = useState<Date>(new Date())
     const [file, setFile] = useState<File | null>(null);
+    const [isPictureModalVisible, setIsPictureModalVisible] = useState(false);
+    const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
+
     useEffect(() => {
         if(user){
             setFirstName(user.firstName)
@@ -59,6 +76,40 @@ export default function EditProfileScreen(){
         console.log(response.data)
     }
 
+    const onSelectLibraryPhoto = async () => {
+        try{
+            const permissionResult = await ImagePicker.getMediaLibraryPermissionsAsync()
+            if(!permissionResult.granted) {
+                Alert.alert('Permission required','Permission to access the media library is required.')
+                return;
+            }
+            await ImagePicker.launchImageLibraryAsync()
+        } catch (err){
+            console.log(err);
+        }
+    }
+
+    const onTakePhoto = async () => {
+        try{
+            const permissionResult = await ImagePicker.getCameraPermissionsAsync()
+            if(!permissionResult.granted) {
+                Alert.alert('Permission required','Permission to access the camera is required.')
+                return;
+            }
+            await ImagePicker.launchCameraAsync()
+        } catch (err){
+            console.log(err);
+        }
+    }
+
+    const onDeleteProfilePicture = async () => {
+        try{
+            Alert.alert("aklsdjfklasdjfkl")
+        } catch (err){
+            console.log(err);
+        }
+    }
+
     return (
         <ScrollView
             style={{ backgroundColor: "black", flex: 1 }}
@@ -93,12 +144,108 @@ export default function EditProfileScreen(){
                 />
                 <Pressable
                     className="mt-5 active:opacity-30"
+                    onPress={() => setIsPictureModalVisible(!isPictureModalVisible)}
                 >
                     <AppText
                         className="text-[#008CFF]"
                     >Change Picture</AppText>
                 </Pressable>
             </View>
+            <Modal
+                isVisible={isPictureModalVisible}
+                swipeDirection="down"
+                animationIn="slideInUp"
+                onSwipeComplete={() => setIsPictureModalVisible(false)}
+                onBackdropPress={() => setIsPictureModalVisible(false)}
+                style={{
+                    justifyContent: "flex-end",
+                    margin: 0
+                }}
+            >
+                <View className="bg-[#161618] px-5 rounded-4xl pb-15">
+                    <View className="w-full items-center">
+                        <View style={{width: width * 0.15}}
+                              className="items-center bg-gray-500 mt-2 h-1.5 rounded-2xl"
+                        />
+                    </View>
+                    <View className="bg-[#2C2C2E] p-5 rounded-t-2xl mt-7">
+                        <Pressable
+                            className="flex-row"
+                            onPress={onTakePhoto}
+                        >
+                            <MaterialCommunityIcons name="camera-outline" color="white" size={26}/>
+                            <AppText className="ms-3">Take Photo</AppText>
+                        </Pressable>
+                    </View>
+                    <View className="h-px bg-gray-950"/>
+                    <View className={`bg-[#2C2C2E] p-5 ${avatarPath ? '' : 'rounded-b-2xl'}`}>
+                        <Pressable
+                            className={`flex-row`}
+                            onPress={onSelectLibraryPhoto}
+                        >
+                            <MaterialCommunityIcons name="image-outline" color="white" size={26}/>
+                            <AppText className="ms-3">Select Library Photo</AppText>
+                        </Pressable>
+                    </View>
+                    {avatarPath &&
+                        <>
+                            <View className="h-px bg-gray-950"/>
+                            <View className="bg-[#2C2C2E] p-5 rounded-b-2xl">
+                                <Pressable
+                                    className="flex-row"
+                                    onPress={() => {
+                                        setIsPictureModalVisible(false)
+                                        setTimeout(() => {
+                                            setIsConfirmationModalVisible(true)
+                                        },500)
+                                    }}
+                                >
+                                    <MaterialCommunityIcons name="delete-outline" color="red" size={26}/>
+                                    <AppText
+                                        className="text-red-700 ms-3"
+                                    >Delete Profile Picture</AppText>
+                                </Pressable>
+                            </View>
+                        </>
+                    }
+                </View>
+            </Modal>
+            <Modal
+                isVisible={isConfirmationModalVisible}
+                animationIn="fadeIn"
+                className="items-center justify-center"
+            >
+                <View style={{ height: height * 0.28,
+                    width: width * 0.85,
+                    backgroundColor: '#161618'
+                }}
+                      className="p-5 items-center rounded-2xl"
+                >
+                    <AppText
+                        className="font-semibold text-xl"
+                    >Delete Profile Picture</AppText>
+                    <AppText
+                        className="mt-5 text-center"
+                    >Are you sure you want to delete your profile picture?</AppText>
+                    <Pressable
+                        className="bg-[#2C2C2E] w-full mt-5 p-2 rounded-xl items-center"
+                    >
+                        <AppText
+                            className="text-red-500"
+                        >
+                            Delete Profile Picture
+                        </AppText>
+                    </Pressable>
+                    <Pressable
+                        className="bg-[#2C2C2E] mt-5 w-full p-2 rounded-xl items-center"
+                        onPress={() => setIsConfirmationModalVisible(false)}
+                    >
+                        <AppText>
+                            Cancel
+                        </AppText>
+                    </Pressable>
+                </View>
+            </Modal>
             <AppText
                 className="text-[#5C5C5E] mt-5"
             >
