@@ -11,7 +11,7 @@ export default function AccountScreen(){
                 onPress={() => router.push("/profile/update-password")}
             >
                 <MaterialCommunityIcons name="lock-outline" color="white" size={30}/>
-                <AppText>Update Password</AppText>
+                <AppText className="ms-2">Update Password</AppText>
             </Pressable>
         </View>
     )

@@ -44,7 +44,7 @@ export default function SettingsScreen(){
                     onPress={() => router.push("/profile/edit")}
                 >
                     <MaterialCommunityIcons name="account" color="white" size={30}/>
-                    <AppText>Profile</AppText>
+                    <AppText className="ms-2">Profile</AppText>
                 </Pressable>
                 <View className="h-px bg-gray-900"/>
                 <Pressable
@@ -52,7 +52,7 @@ export default function SettingsScreen(){
                     onPress={() => router.push("/profile/account")}
                 >
                     <MaterialCommunityIcons name="lock-outline" color="white" size={30}/>
-                    <AppText>Account</AppText>
+                    <AppText className="ms-2">Account</AppText>
                 </Pressable>
                 <Pressable
                     className="flex-row px-3 py-4 mt-5 bg-[#2C2C2E] active:opacity-30 justify-center"

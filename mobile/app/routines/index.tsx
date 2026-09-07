@@ -46,7 +46,7 @@ export default function CreateRoutine(){
             <View
                 className="items-center justify-center mt-35 px-5"
             >
-                <AppText>Get started by adding an exercise to your routine.</AppText>
+                <AppText className="text-center">Get started by adding an exercise to your routine.</AppText>
             </View>
             <AppButton
                 className="flex-row mt-8"

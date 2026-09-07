@@ -1,9 +1,6 @@
 import {router, Stack} from "expo-router";
 import {Pressable, View} from "react-native";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import {GlassView} from "expo-glass-effect/src";
-import AppText from "@/components/AppText";
-import AppHeader from "@/components/AppHeader";
 import { createScreenOptions } from "@/constants/ScreenOptions";
 import {useUser} from "@/components/UserProvider";
 

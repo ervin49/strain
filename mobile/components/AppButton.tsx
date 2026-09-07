@@ -23,7 +23,8 @@ export default function AppButton({
         <Pressable
             onPress={onPress}
             className={`w-full py-3 justify-center items-center active:opacity-80 ${bgStyle} rounded-xl ${className} ${disabled ? 'bg-gray-500' : ''}`}
-            disabled={disabled}>
+            disabled={disabled}
+        >
             <Text className={`font-semibold text-lg ${textStyle}`}>{title}</Text>
             {children}
         </Pressable>

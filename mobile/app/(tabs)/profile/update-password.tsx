@@ -25,14 +25,14 @@ export default function UpdatePasswordScreen(){
 
     const handleSubmit = async () => {
         try {
-            const response = await api.post("/change-password",{
+            await api.post("/change-password",{
                 currentPassword, newPassword
             })
             router.dismissTo({
                 pathname: "/profile",
                 params: { success: "true"}
             })
-        } catch (err){
+        } catch (err: any){
             setErrorMessage(err.response?.data?.message || err.response?.data || "An unexpected error occured.");
             console.log(err)
         }
