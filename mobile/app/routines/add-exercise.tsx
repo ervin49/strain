@@ -8,12 +8,13 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import ExpoHaptics from "expo-haptics/src/ExpoHaptics";
 import * as Haptics from "expo-haptics"
 import lunr from "lunr"
+import {router} from "expo-router";
 
-interface Muscle {
+export interface Muscle {
     id: string;
     name: string;
 }
-interface Exercise {
+export interface Exercise {
     id: string;
     name: string;
     equipment: string;
@@ -23,11 +24,11 @@ interface Exercise {
 export default function AddExercise(){
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [exerciseQuery, setExerciseQuery] = useState("")
+    const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
     const fetchExercises = async () => {
         try {
             const response = await api.get("/exercises")
             setExercises(response.data);
-            console.log(response.data);
         } catch (err){
             console.log(err)
         }
@@ -45,7 +46,6 @@ export default function AddExercise(){
         );
     };
 
-    const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
     const selectExercise = (exerciseName: string) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         if(!selectedExercises.includes(exerciseName)){
@@ -96,6 +96,14 @@ export default function AddExercise(){
             return exercises
         }
     },[exercisesIndex, exerciseQuery, exercises])
+
+    const onAddExercises = () => {
+        router.back();
+        router.dismissTo({
+            pathname: "/routines",
+            params: {exercisesNames: selectedExercises}
+        })
+    };
 
     return (
         <View
@@ -151,7 +159,7 @@ export default function AddExercise(){
             {selectedExercises.length > 0 &&
                 <View className="px-5 mb-15 absolute bottom-0 w-full">
                     <Pressable
-                        onPress={() => console.log("apasat")}
+                        onPress={onAddExercises}
                         className="w-full bg-[#0189F9] p-2 rounded-lg justify-center items-center"
                     >
                         <AppText>

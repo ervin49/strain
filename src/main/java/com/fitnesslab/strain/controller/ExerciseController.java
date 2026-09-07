@@ -21,6 +21,11 @@ public class ExerciseController {
         return ResponseEntity.ok(exerciseService.getAll());
     }
 
+    @PostMapping("/exercises-by-names")
+    public ResponseEntity<List<Exercise>> getExercisesByNames(@RequestBody List<String> exercisesNames){
+        return ResponseEntity.ok(exerciseService.getExercisesByNames(exercisesNames));
+    }
+
     @PostMapping("/exercises")
     public ResponseEntity<Exercise> createExercise(@RequestBody Exercise exercise){
         Exercise savedExercise = exerciseService.create(exercise);

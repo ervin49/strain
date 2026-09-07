@@ -5,6 +5,7 @@ import com.fitnesslab.strain.repository.ExerciseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,5 +19,13 @@ public class ExerciseService {
 
     public Exercise create(Exercise exercise) {
         return exerciseRepository.save(exercise);
+    }
+
+    public List<Exercise> getExercisesByNames(List<String> exercisesNames) {
+        List<Exercise> exercises = new ArrayList<>();
+        for(String exerciseName : exercisesNames){
+            exercises.add(exerciseRepository.getByName(exerciseName));
+        }
+        return exercises;
     }
 }
