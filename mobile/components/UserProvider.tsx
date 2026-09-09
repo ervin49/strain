@@ -63,9 +63,7 @@ export default function UserProvider({children} : {children: ReactNode}): ReactN
     const refreshUser = async () => {
         try {
             const response = await api.get("/my-details");
-            console.log("dupa request");
             setUser(response.data);
-            console.log(response.data);
         } catch (err: any) {
             console.log(err);
             setUser(null);

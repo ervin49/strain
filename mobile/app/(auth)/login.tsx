@@ -91,7 +91,10 @@ export default function LoginScreen() {
                         )}/>
                 </View>
                 <View className="h-px bg-gray-900"/>
-                <Pressable className="mt-4 mb-7 items-center active:opacity-30">
+                <Pressable
+                    className="mt-4 mb-7 items-center active:opacity-30"
+                    onPress={() => router.push("/change-password")}
+                >
                     <AppText className="text-[#0189F9]">Forgot Password?</AppText>
                 </Pressable>
                 {error &&

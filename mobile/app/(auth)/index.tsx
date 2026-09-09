@@ -1,8 +1,6 @@
 import {View, Text, Image, Pressable, useWindowDimensions} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
-import AppButton from "@/components/AppButton";
-import {Icon} from "expo-router/unstable-native-tabs";
-import {router, useRouter} from "expo-router";
+import {router} from "expo-router";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
 
 export default function Index(){
     const {height, width} = useWindowDimensions();
@@ -14,18 +12,28 @@ export default function Index(){
                 height: height
             }}/>
             <View style={{ marginTop: "auto", bottom: 35}}>
-                <AppButton title="Sign up with Google"
-                           onPress={() => router.push("/register")}
-                           variant="secondary"
+                <Pressable
+                    onPress={() => router.push("/register")}
+                    className="w-full bg-white px-3 py-2 flex-row rounded-xl items-center active:opacity-30"
                 >
-                    <Icon sf="mail"/>
-                </AppButton>
-                    <AppButton title="Sign up with Email"
-                               onPress={() => router.push("/register")}
-                               variant="secondary"
-                               className="mt-3">
-                        <Icon sf="mail"/>
-                    </AppButton>
+                    <MaterialCommunityIcons name="google" size={22}/>
+                    <View
+                        className="flex-1"
+                    >
+                        <Text className="ms-3 text-xl font-medium text-center">Sign up with Google</Text>
+                    </View>
+                </Pressable>
+                <Pressable
+                    onPress={() => router.push("/register")}
+                    className="w-full bg-white px-3 py-2 mt-4 flex-row rounded-xl items-center active:opacity-30"
+                >
+                    <MaterialCommunityIcons name="email" size={22}/>
+                    <View
+                        className="flex-1"
+                    >
+                        <Text className="ms-3 text-xl font-medium text-center">Sign up with Email</Text>
+                    </View>
+                </Pressable>
                 <Pressable onPress={() => router.push("/login")} className="active:opacity-30">
                     <View className="flex-row justify-center py-5">
                         <Text className="text-white">Already have an account? </Text>

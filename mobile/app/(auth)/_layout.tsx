@@ -52,6 +52,29 @@ export default function AuthLayout(){
                     </Pressable>
                 ),
             }}/>
+            <Stack.Screen name="change-password" options={{
+                headerShown: true,
+                headerTitle: 'Forgot Password',
+                headerTintColor: "lightgray",
+                headerStyle: {
+                    backgroundColor: "black"
+                },
+                headerBackButtonDisplayMode: "minimal",
+                headerLeft: () => (
+                    <Pressable
+                        onPress={() => {
+                            if(router.canGoBack()) {
+                                router.back()
+                            } else {
+                                router.replace("/")
+                            }
+                        }}
+                        hitSlop={10}
+                        className="h-10 w-10 justify-center items-center">
+                        <MaterialCommunityIcons name="arrow-left" color="white" size={26}/>
+                    </Pressable>
+                ),
+            }}/>
         </Stack>
     )
 }

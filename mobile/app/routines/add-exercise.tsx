@@ -1,14 +1,11 @@
-import AppTextInput from "@/components/AppTextInput";
-import {FlatList, Pressable, TextInput, View, Text, Vibration} from "react-native";
+import {FlatList, Pressable, TextInput, View, Text} from "react-native";
 import AppText from "@/components/AppText";
 import {useEffect, useMemo, useState} from "react";
 import {api} from "@/constants/axios";
-import AppButton from "@/components/AppButton";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import ExpoHaptics from "expo-haptics/src/ExpoHaptics";
 import * as Haptics from "expo-haptics"
 import lunr from "lunr"
-import {router} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 
 export interface Muscle {
     id: string;
@@ -34,7 +31,7 @@ export default function AddExercise(){
         }
     };
 
-    useEffect( () => {
+    useEffect(() => {
         fetchExercises()
     },[]);
 
@@ -46,8 +43,8 @@ export default function AddExercise(){
         );
     };
 
-    const selectExercise = (exerciseName: string) => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    const selectExercise = async (exerciseName: string) => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         if(!selectedExercises.includes(exerciseName)){
             setSelectedExercises([...selectedExercises,exerciseName]);
         } else {
