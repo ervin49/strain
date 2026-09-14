@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -27,6 +28,13 @@ public class RoutineController {
         Routine savedRoutine = routineService.create(user.getId(), routine);
         return ResponseEntity.status(201).body(savedRoutine);
     }
+
+    @DeleteMapping("/routines/{routineId}")
+    public ResponseEntity<Void> deleteRoutine(@PathVariable UUID routineId){
+        routineService.delete(routineId);
+        return ResponseEntity.noContent().build();
+    }
+
 //    @PostMapping("/users/{userId}/workouts",)
 //    public ResponseEntity<String> createWorkout(@PathVariable UUID userId, @RequestBody Workout workout){
 //        workoutService.create(userId,workout);

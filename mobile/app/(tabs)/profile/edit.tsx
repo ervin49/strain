@@ -24,7 +24,6 @@ export default function EditProfileScreen(){
     const [firstName, setFirstName] = useState<string | undefined>("")
     const [lastName, setLastName] = useState<string | undefined>("")
     const [dateOfBirth, setDateOfBirth] = useState<Date>(new Date())
-    const [file, setFile] = useState<File | null>(null);
     const [isPictureModalVisible, setIsPictureModalVisible] = useState(false);
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
 
@@ -70,13 +69,13 @@ export default function EditProfileScreen(){
     const onSelectLibraryPhoto = async () => {
         try{
             const result = await ImagePicker.launchImageLibraryAsync({mediaTypes: 'images'})
-            updateProfilePicture(result)
+            await updateProfilePicture(result)
         } catch (err){
             console.log(err);
         }
     }
 
-    async function updateProfilePicture(result){
+    async function updateProfilePicture(result: any){
         if(!result.canceled){
             const formData = new FormData();
             const asset = result.assets[0]
@@ -112,7 +111,7 @@ export default function EditProfileScreen(){
             }
 
             const result = await ImagePicker.launchCameraAsync()
-            updateProfilePicture(result)
+            await updateProfilePicture(result)
         } catch (err){
             console.log(err);
         }
@@ -296,7 +295,7 @@ export default function EditProfileScreen(){
                 <View className="ms-5">
                     <RNDateTimePicker
                         value={dateOfBirth}
-                        onValueChange={(event, date) => setDateOfBirth(date)}
+                        onValueChange={(event,date) => setDateOfBirth(date)}
                     />
                 </View>
             </View>

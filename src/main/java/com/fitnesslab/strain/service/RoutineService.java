@@ -36,8 +36,11 @@ public class RoutineService {
         return routineRepository.findWorkoutsByUserId(userId);
     }
 
+    @Transactional
     public void delete(UUID routineId) {
-        routineRepository.deleteById(routineId);
+        Routine routine = routineRepository.findById(routineId).orElseThrow();
+        routine.getExercises().clear();
+        routineRepository.delete(routine);
     }
 
     public void update(UUID routineId, Routine routine) {

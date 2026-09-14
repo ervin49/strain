@@ -11,6 +11,7 @@ import * as Haptics from "expo-haptics"
 import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {useUser} from "@/components/UserProvider";
+import {ScaleDecorator} from "react-native-draggable-flatlist";
 
 export default function CreateRoutine(){
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
@@ -75,16 +76,13 @@ export default function CreateRoutine(){
 
     const onSave = async () => {
         try {
-            const response = await api.post("/routines", {
+            await api.post("/routines", {
                 name: routineTitle,
                 exercises: exercisesIds.map((id) => ({id}))
             });
-            console.log(response.data)
             await refreshUser();
 
-            if (router.canGoBack()) {
-                router.back()
-            } else router.replace("/")
+            router.back()
         } catch (err){
             console.log(err);
         }
@@ -194,19 +192,21 @@ export default function CreateRoutine(){
                         </View>
                     )}
                     renderItem={({item, drag, isActive}) => (
-                        <Pressable onPress={() => console.log("")}
-                                   className={`p-3 mt-1 justify-between flex-row`}
-                                   onLongPress={drag}
-                                   disabled={isActive}
-                        >
-                            <View>
-                                <AppText className="text-white">{item.name}</AppText>
-                                <AppText className="mb-1 text-[#8a8a91] mt-1">{item.primaryMuscle.name}</AppText>
-                            </View>
-                            <Pressable onPress={() => removeExercise(item.name)}>
-                                <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
+                        <ScaleDecorator>
+                            <Pressable onPress={() => console.log("")}
+                                       className={`p-3 mt-1 justify-between flex-row`}
+                                       onLongPress={drag}
+                                       disabled={isActive}
+                            >
+                                <View>
+                                    <AppText className="text-white">{item.name}</AppText>
+                                    <AppText className="mb-1 text-[#8a8a91] mt-1">{item.primaryMuscle.name}</AppText>
+                                </View>
+                                <Pressable onPress={() => removeExercise(item.name)}>
+                                    <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
+                                </Pressable>
                             </Pressable>
-                        </Pressable>
+                        </ScaleDecorator>
                     )}
                     ListFooterComponent={() => (
                         <Pressable
