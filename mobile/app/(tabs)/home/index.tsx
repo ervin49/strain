@@ -1,9 +1,4 @@
-import {SafeAreaView} from "react-native-safe-area-context";
 import {ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
-import {Stack, useNavigation} from "expo-router";
-import {useLayoutEffect} from "react";
-import Header from "@/components/AppHeader";
-import {createScreenOptions} from "@/constants/ScreenOptions";
 import {useUser} from "@/components/UserProvider";
 import AppText from "@/components/AppText";
 

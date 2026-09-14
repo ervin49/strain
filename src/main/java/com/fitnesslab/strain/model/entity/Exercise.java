@@ -1,5 +1,6 @@
 package com.fitnesslab.strain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,10 @@ public class Exercise {
 
     @ManyToOne
     private Muscle primaryMuscle;
+
+    @ManyToMany(mappedBy = "exercises")
+    @JsonIgnore
+    private List<Routine> routines;
 
     @ManyToMany
     private List<Muscle> secondaryMuscles;

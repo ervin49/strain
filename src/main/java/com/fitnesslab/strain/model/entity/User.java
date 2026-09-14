@@ -46,9 +46,11 @@ public class User {
     private Integer noOfWorkouts = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Routine> routines;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Workout> workouts;
 
     @JsonIgnore

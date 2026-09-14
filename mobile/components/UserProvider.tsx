@@ -31,8 +31,7 @@ export interface Workout {
 
 export interface Routine {
     id: string;
-    date: string;
-    notes: string;
+    name: string;
     exercises: Exercise[];
 }
 

@@ -8,6 +8,9 @@ import {api} from "@/constants/axios";
 import {Exercise} from "@/app/routines/add-exercise";
 import Modal from "react-native-modal";
 import * as Haptics from "expo-haptics"
+import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
+import {useUser} from "@/components/UserProvider";
 
 export default function CreateRoutine(){
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
@@ -16,6 +19,8 @@ export default function CreateRoutine(){
     const [isDiscardModalVisible, setIsDiscardModalVisible] = useState(false)
     const isValid = exercises.length > 0 && routineTitle.trim() !== ''
     const {width, height} = useWindowDimensions()
+    const {refreshUser} = useUser()
+    const [exercisesIds, setExercisesIds] = useState<string[]>([])
 
     const fetchExercises = async () => {
         try {
@@ -29,12 +34,13 @@ export default function CreateRoutine(){
 
             const newExercises: Exercise[] = response.data;
 
+            setExercisesIds(newExercises.map((ex) => ex.id))
+
             const uniqueExercises = newExercises.filter(
                 newEx => !exercises.some(ex => ex.name === newEx.name)
             );
 
             setExercises([...exercises, ...uniqueExercises]);
-            console.log(JSON.stringify(response.data))
         } catch (e) {
             console.log(e);
         }
@@ -67,6 +73,23 @@ export default function CreateRoutine(){
         setExercises(exercises.filter(exercise => exercise.name !== exerciseName))
     }
 
+    const onSave = async () => {
+        try {
+            const response = await api.post("/routines", {
+                name: routineTitle,
+                exercises: exercisesIds.map((id) => ({id}))
+            });
+            console.log(response.data)
+            await refreshUser();
+
+            if (router.canGoBack()) {
+                router.back()
+            } else router.replace("/")
+        } catch (err){
+            console.log(err);
+        }
+    }
+
     return (
         <View style={{ flex: 1, backgroundColor: "black"}} className="p-4">
             <Stack.Screen
@@ -96,13 +119,7 @@ export default function CreateRoutine(){
                     headerRight: () => (
                         <Pressable
                             disabled={!isValid}
-                            onPress={() => {
-                                if(router.canGoBack()) {
-                                    router.back()
-                                } else {
-                                    router.replace("/")
-                                }
-                            }}
+                            onPress={onSave}
                             hitSlop={10}
                             className={`justify-center items-center 
                             `}
@@ -163,44 +180,50 @@ export default function CreateRoutine(){
                 className="text-2xl mt-2"
             />
             <View className="mt-4 h-px bg-gray-900"/>
-            <FlatList
-                data={exercises}
-                keyExtractor={(item) => item.id}
-                ListEmptyComponent={() => (
-                    <View
-                        className="items-center justify-center mt-35 px-5"
-                    >
-                        <AppText className="text-center">Get started by adding an exercise to your routine.</AppText>
-                    </View>
-                )}
-                renderItem={({item}) => (
-                    <Pressable onPress={() => console.log("")}
-                               className={`p-3 mt-1 justify-between flex-row`}
-                    >
-                        <View>
-                            <AppText className="text-white">{item.name}</AppText>
-                            <AppText className="mb-1 text-[#8a8a91] mt-1">{item.primaryMuscle.name}</AppText>
+            <GestureHandlerRootView>
+                <DraggableFlatList
+                    contentContainerClassName="h-full"
+                    data={exercises}
+                    onDragEnd={({ data}) => setExercises(data)}
+                    keyExtractor={(item) => item.id}
+                    ListEmptyComponent={() => (
+                        <View
+                            className="items-center justify-center mt-35 px-5"
+                        >
+                            <AppText className="text-center">Get started by adding an exercise to your routine.</AppText>
                         </View>
-                        <Pressable onPress={() => removeExercise(item.name)}>
-                            <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
+                    )}
+                    renderItem={({item, drag, isActive}) => (
+                        <Pressable onPress={() => console.log("")}
+                                   className={`p-3 mt-1 justify-between flex-row`}
+                                   onLongPress={drag}
+                                   disabled={isActive}
+                        >
+                            <View>
+                                <AppText className="text-white">{item.name}</AppText>
+                                <AppText className="mb-1 text-[#8a8a91] mt-1">{item.primaryMuscle.name}</AppText>
+                            </View>
+                            <Pressable onPress={() => removeExercise(item.name)}>
+                                <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
+                            </Pressable>
                         </Pressable>
-                    </Pressable>
-                )}
-                ListFooterComponent={() => (
-                    <Pressable
-                        className="mt-8 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
-                        onPress={async () => {
-                            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                            router.push("/routines/add-exercise")
-                        }}
-                    >
-                        <MaterialCommunityIcons name="plus" color="white" size={24}/>
-                        <AppText
-                            className="ms-2"
-                        >Add exercise</AppText>
-                    </Pressable>
-                )}
-            ></FlatList>
+                    )}
+                    ListFooterComponent={() => (
+                        <Pressable
+                            className="mt-8 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
+                            onPress={async () => {
+                                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                                router.push("/routines/add-exercise")
+                            }}
+                        >
+                            <MaterialCommunityIcons name="plus" color="white" size={24}/>
+                            <AppText
+                                className="ms-2"
+                            >Add exercise</AppText>
+                        </Pressable>
+                    )}
+                />
+            </GestureHandlerRootView>
         </View>
     )
 }

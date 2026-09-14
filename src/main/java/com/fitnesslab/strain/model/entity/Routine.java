@@ -25,7 +25,12 @@ public class Routine {
     private String name;
 
     @ManyToMany
-    private List<Exercise> exercises;
+    @JoinTable(
+            name = "routines_exercises",
+            joinColumns = @JoinColumn(name = "routine_id"),
+            inverseJoinColumns = @JoinColumn(name = "exercise_id")
+    )
+    List<Exercise> exercises;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

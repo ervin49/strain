@@ -6,7 +6,6 @@ export const createScreenOptions = ({title, align = 'center', small = true}: Hea
         <AppHeader title={title} align={align} small={small}></AppHeader>
     ),
     headerShadowVisible: true,
-    headerTintColor: "lightgray",
     headerStyle: {
         backgroundColor: "black"
     },

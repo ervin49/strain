@@ -22,7 +22,6 @@ export default function LoginScreen() {
         setLoading(true);
         try {
             const response = await api.post("/login", data);
-            console.log(response.data);
             await SecureStore.setItemAsync("token", response.data);
             await refreshUser();
             router.replace("/home");
