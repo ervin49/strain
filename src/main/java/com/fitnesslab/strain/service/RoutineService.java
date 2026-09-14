@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,10 +31,6 @@ public class RoutineService {
         return routineRepository.save(routine);
     }
 
-    public List<Routine> getWorkoutsByUserId(UUID userId){
-        return routineRepository.findWorkoutsByUserId(userId);
-    }
-
     @Transactional
     public void delete(UUID routineId) {
         Routine routine = routineRepository.findById(routineId).orElseThrow();
@@ -43,9 +38,15 @@ public class RoutineService {
         routineRepository.delete(routine);
     }
 
-    public void update(UUID routineId, Routine routine) {
-        routineRepository.getWorkoutById(routineId).orElseThrow(() -> new ResourceNotFoundException("Workout not found"));
-        routineRepository.deleteById(routineId);
-        routineRepository.save(routine);
+    @Transactional
+    public Routine update(UUID routineId, Routine routine) {
+        Routine oldRoutine = routineRepository.findById(routineId).orElseThrow(() -> new ResourceNotFoundException("Routine not found"));
+        oldRoutine.setName(routine.getName());
+        oldRoutine.setExercises(routine.getExercises());
+        return routineRepository.save(oldRoutine);
+    }
+
+    public Routine getRoutineById(UUID routineId) {
+        return routineRepository.findById(routineId).orElseThrow();
     }
 }

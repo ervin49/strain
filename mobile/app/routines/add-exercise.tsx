@@ -22,6 +22,7 @@ export default function AddExercise(){
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [exerciseQuery, setExerciseQuery] = useState("")
     const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
+    const {returnTo, routineId} = useLocalSearchParams<{returnTo: string, routineId: string}>()
     const fetchExercises = async () => {
         try {
             const response = await api.get("/exercises")
@@ -95,10 +96,12 @@ export default function AddExercise(){
     },[exercisesIndex, exerciseQuery, exercises])
 
     const onAddExercises = () => {
-        router.back();
         router.dismissTo({
-            pathname: "/routines",
-            params: {exercisesNames: selectedExercises}
+            pathname: returnTo,
+            params: {
+                routineId,
+                exercisesNames: selectedExercises
+            }
         })
     };
 

@@ -1,11 +1,11 @@
-import {View, Text, Pressable, FlatList, useWindowDimensions} from "react-native";
+import {View, Text, Pressable, useWindowDimensions} from "react-native";
 import AppText from "@/components/AppText";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import {Routine, useUser} from "@/components/UserProvider";
-import {router, useFocusEffect, useLocalSearchParams} from "expo-router";
+import {useUser} from "@/components/UserProvider";
+import {router} from "expo-router";
 import AppButton from "@/components/AppButton";
 import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
-import {useCallback, useEffect, useLayoutEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics"
 import {ScaleDecorator} from "react-native-draggable-flatlist";
@@ -13,7 +13,7 @@ import Modal from "react-native-modal";
 import {api} from "@/constants/axios";
 
 export default function WorkoutScreen(){
-    const {user, refreshUser, setUser} = useUser();
+    const {user, refreshUser} = useUser();
     const [routines, setRoutines] = useState(user?.routines ?? [])
     const noOfRoutines = routines.length
     const {height, width} = useWindowDimensions()
@@ -149,6 +149,12 @@ export default function WorkoutScreen(){
                             <Pressable
                                 className="bg-[#2C2C2E] rounded-xl p-4 mt-4"
                                 onLongPress={drag}
+                                onPress={() => router.push({
+                                    pathname: "/routines/edit",
+                                    params: {
+                                        "routineId" : item.id
+                                    }
+                                })}
                             >
                                 <View className="flex-row justify-between">
                                     <AppText className="font-bold">{item.name}</AppText>

@@ -1,25 +1,25 @@
-import AppText from "@/components/AppText";
-import AppTextInput from "@/components/AppTextInput";
-import {FlatList, Pressable, Text, useWindowDimensions, View} from "react-native";
-import {MaterialCommunityIcons} from "@expo/vector-icons";
-import {router, Stack, useLocalSearchParams, useNavigation} from "expo-router";
+import {Pressable, Text, TextInput, useWindowDimensions, View} from "react-native";
+import {router, Stack, useLocalSearchParams} from "expo-router";
 import {useEffect, useState} from "react";
+import AppText from "@/components/AppText";
 import {api} from "@/constants/axios";
-import {Exercise} from "@/app/routines/add-exercise";
-import Modal from "react-native-modal";
-import * as Haptics from "expo-haptics"
-import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
+import {Exercise, Routine, useUser} from "@/components/UserProvider";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
-import {useUser} from "@/components/UserProvider";
+import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
 import {ScaleDecorator} from "react-native-draggable-flatlist";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
+import Modal from "react-native-modal";
+import * as Haptics from "expo-haptics";
 
-export default function CreateRoutine(){
+export default function EditRoutineScreen() {
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
-    const [exercises, setExercises] = useState<Exercise[]>([]);
-    const [routineTitle, setRoutineTitle] = useState("")
-    const [isDiscardModalVisible, setIsDiscardModalVisible] = useState(false)
-    const isChanged = exercises.length > 0 && routineTitle.trim() !== ''
+    const {routineId} = useLocalSearchParams<{routineId: string}>()
+    const [routine, setRoutine] = useState<Routine | null>(null)
+    const [routineName, setRoutineName] = useState('')
+    const [exercises, setExercises] = useState<Exercise[]>([])
     const {width, height} = useWindowDimensions()
+    const [isDiscardModalVisible, setIsDiscardModalVisible] = useState(false)
+    const isChanged = routineName !== routine?.name || exercises !== routine.exercises
     const {refreshUser} = useUser()
     const [exercisesIds, setExercisesIds] = useState<string[]>([])
 
@@ -46,50 +46,49 @@ export default function CreateRoutine(){
             console.log(e);
         }
     }
+
     useEffect(() =>{
         if(exercisesNames){
             fetchExercises()
         }
     },[exercisesNames])
 
-    const navigation = useNavigation();
-
     useEffect(() => {
-        let parent = navigation.getParent()
-        while(parent) {
-            parent.setOptions({ gestureEnabled: false });
-            parent = parent.getParent()
-        }
-
-        return () => {
-            let parent = navigation.getParent()
-            while(parent) {
-                parent.setOptions({ gestureEnabled: true });
-                parent = parent.getParent()
+        const fetchRoutine = async () => {
+            try {
+                const result = await api.get(`/routines/${routineId}`);
+                setRoutine(result.data)
+                setRoutineName(result.data.name)
+                setExercises(result.data.exercises)
+            } catch (e) {
+                console.log(e);
             }
-        };
-    }, [navigation]);
+        }
+        fetchRoutine()
+    },[routineId])
 
-    const removeExercise = (exerciseName: string) => {
-        setExercises(exercises.filter(exercise => exercise.name !== exerciseName))
+    const removeExercise = (name: string) => {
+        setExercises(exercises.filter((ex) => ex.name !== name))
     }
 
     const onSave = async () => {
-        try {
-            await api.post("/routines", {
-                name: routineTitle,
-                exercises: exercisesIds.map((id) => ({id}))
-            });
-            await refreshUser();
-
+        try{
+            await api.put(`/routines/${routineId}`,{
+                "name": routineName,
+                "exercises": exercises
+            })
+            await refreshUser()
             router.back()
-        } catch (err){
-            console.log(err);
+        } catch (e){
+            console.log(e);
         }
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: "black"}} className="p-4">
+        <GestureHandlerRootView
+            style={{ flex: 1, backgroundColor: "black" }}
+            className="px-4 py-2"
+        >
             <Stack.Screen
                 options={{
                     headerLeft: () => (
@@ -146,7 +145,7 @@ export default function CreateRoutine(){
                 >
                     <AppText
                         className="mt-2 text-center"
-                    >Are you sure you want to discard the routine?</AppText>
+                    >Are you sure you want to discard all routine changes?</AppText>
                     <Pressable
                         className="bg-[#2C2C2E] w-full mt-5 p-2 rounded-xl items-center"
                         onPress={() => {
@@ -158,7 +157,7 @@ export default function CreateRoutine(){
                         <AppText
                             className="text-red-500"
                         >
-                            Discard routine
+                            Discard changes
                         </AppText>
                     </Pressable>
                     <Pressable
@@ -171,61 +170,50 @@ export default function CreateRoutine(){
                     </Pressable>
                 </View>
             </Modal>
-            <AppTextInput
-                placeholder="Routine title"
-                value={routineTitle}
-                onChangeText={(value) => setRoutineTitle(value)}
-                className="text-2xl mt-2"
+            <TextInput
+                value={routineName}
+                onChangeText={(value) => setRoutineName(value)}
+                className="text-2xl font-bold text-white mb-5 h-10"
             />
-            <View className="mt-4 h-px bg-gray-900"/>
-            <GestureHandlerRootView>
-                <DraggableFlatList
-                    contentContainerClassName="h-full"
-                    data={exercises}
-                    onDragEnd={({ data}) => setExercises(data)}
-                    keyExtractor={(item) => item.id}
-                    ListEmptyComponent={() => (
-                        <View
-                            className="items-center justify-center mt-35 px-5"
+            <View className="h-px bg-gray-900"/>
+            <DraggableFlatList
+                data={exercises}
+                keyExtractor={(ex) => ex.id}
+                onDragEnd={({data}) => setExercises(data)}
+                ListFooterComponent={() => (
+                    <Pressable
+                        className="mt-8 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
+                        onPress={async () => {
+                            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                            router.push({
+                                pathname: "/routines/add-exercise",
+                                params: {
+                                    routineId,
+                                    "returnTo": "/routines/edit"
+                                }
+                            })
+                        }}
+                    >
+                        <MaterialCommunityIcons name="plus" color="white" size={24}/>
+                        <AppText
+                            className="ms-2"
+                        >Add exercise</AppText>
+                    </Pressable>
+                )}
+                renderItem={({item, drag}) => (
+                    <ScaleDecorator>
+                        <Pressable
+                            onLongPress={drag}
                         >
-                            <AppText className="text-center">Get started by adding an exercise to your routine.</AppText>
-                        </View>
-                    )}
-                    renderItem={({item, drag}) => (
-                        <ScaleDecorator>
-                            <Pressable
-                                className={`p-3 mt-1 justify-between flex-row`}
-                                onLongPress={drag}
-                            >
-                                <View>
-                                    <AppText className="text-white">{item.name}</AppText>
-                                    <AppText className="mb-1 text-[#8a8a91] mt-1">{item.primaryMuscle.name}</AppText>
-                                </View>
+                            <View className="flex-row justify-between">
+                                <AppText className="text-blue-500">{item.name}</AppText>
                                 <Pressable onPress={() => removeExercise(item.name)}>
                                     <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
                                 </Pressable>
-                            </Pressable>
-                        </ScaleDecorator>
-                    )}
-                    ListFooterComponent={() => (
-                        <Pressable
-                            className="mt-8 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
-                            onPress={async () => {
-                                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                                router.push({
-                                    pathname: "/routines/add-exercise",
-                                    params: {"returnTo": "/routines"}
-                                })
-                            }}
-                        >
-                            <MaterialCommunityIcons name="plus" color="white" size={24}/>
-                            <AppText
-                                className="ms-2"
-                            >Add exercise</AppText>
+                            </View>
                         </Pressable>
-                    )}
-                />
-            </GestureHandlerRootView>
-        </View>
+                    </ScaleDecorator>
+                )}/>
+        </GestureHandlerRootView>
     )
 }

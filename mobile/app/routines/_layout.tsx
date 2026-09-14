@@ -12,6 +12,29 @@ export default function RoutinesLayout(){
                     title: "Create Routine"
                 }),
             }}/>
+            <Stack.Screen name="edit" options={{
+                ...createScreenOptions({
+                    title: 'Edit Routine'
+                }),
+                headerLeft: () => (
+                    <Pressable
+                        onPress={() => {
+                            if(router.canGoBack()) {
+                                router.back()
+                            } else {
+                                router.replace("/")
+                            }
+                        }}
+                        hitSlop={10}
+                        className="justify-center items-center">
+                        <Text
+                            className="px-4 text-[#0479DA] text-lg"
+                        >
+                            Cancel
+                        </Text>
+                    </Pressable>
+                )
+            }}/>
             <Stack.Screen name="add-exercise" options={{
                 ...createScreenOptions({
                     title: 'Add Exercise'

@@ -7,6 +7,8 @@ import com.fitnesslab.strain.service.RoutineService;
 import com.fitnesslab.strain.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +23,18 @@ public class RoutineController {
     private final UserRepository userRepository;
     private final UserService userService;
     private final RoutineService routineService;
+
+    @GetMapping("/routines/{routineId}")
+    public ResponseEntity<Routine> getRoutine(@PathVariable UUID routineId){
+        Routine routine = routineService.getRoutineById(routineId);
+        return ResponseEntity.status(200).body(routine);
+    }
+
+    @PutMapping("/routines/{routineId}")
+    public ResponseEntity<Routine> updateRoutine(@PathVariable UUID routineId, @RequestBody Routine newRoutine){
+        Routine routine = routineService.update(routineId, newRoutine);
+        return ResponseEntity.status(200).body(routine);
+    }
 
     @PostMapping("/routines")
     public ResponseEntity<Routine> createRoutine(@RequestBody Routine routine, Principal principal){
