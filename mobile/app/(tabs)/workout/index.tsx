@@ -1,7 +1,7 @@
-import {View, Text, Pressable, useWindowDimensions} from "react-native";
+import {View, Text, Pressable, useWindowDimensions, RefreshControl} from "react-native";
 import AppText from "@/components/AppText";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import {useUser} from "@/components/UserProvider";
+import {Routine, useUser} from "@/components/UserProvider";
 import {router} from "expo-router";
 import AppButton from "@/components/AppButton";
 import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
@@ -11,19 +11,33 @@ import * as Haptics from "expo-haptics"
 import {ScaleDecorator} from "react-native-draggable-flatlist";
 import Modal from "react-native-modal";
 import {api} from "@/constants/axios";
+import {useRefresh} from "@/constants/onRefresh";
 
-export default function WorkoutScreen(){
+export default function WorkoutScreen() {
     const {user, refreshUser} = useUser();
     const [routines, setRoutines] = useState(user?.routines ?? [])
     const noOfRoutines = routines.length
     const {height, width} = useWindowDimensions()
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const onRefresh = useRefresh(setIsRefreshing)
+
+    const onOrder = async (data: Routine[]) => {
+        try {
+            const routinesIds = data.map((routine) => routine.id)
+            await api.put("/routines", routinesIds)
+            await refreshUser()
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
 
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
     const [routineToDelete, setRoutineToDelete] = useState<string | null>(null)
 
     useEffect(() => {
         setRoutines(user?.routines ?? [])
-    },[user?.routines])
+    }, [user?.routines])
 
     const onStartRoutine = async () => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
@@ -37,14 +51,14 @@ export default function WorkoutScreen(){
 
             setIsDeleteModalVisible(false)
             setRoutineToDelete(null)
-        }catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
 
     return (
         <GestureHandlerRootView
-            style={{ flex: 1, backgroundColor: "black" }}
+            style={{flex: 1, backgroundColor: "black"}}
             className="p-4"
         >
             <Modal
@@ -52,7 +66,8 @@ export default function WorkoutScreen(){
                 animationIn="fadeIn"
                 className="items-center justify-center"
             >
-                <View style={{ height: height * 0.25,
+                <View style={{
+                    height: height * 0.25,
                     width: width * 0.85,
                     backgroundColor: '#161618'
                 }}
@@ -86,9 +101,16 @@ export default function WorkoutScreen(){
             <DraggableFlatList
                 data={routines}
                 keyExtractor={(item) => item.id}
-                onDragEnd={({data}) => setRoutines(data)}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+                onDragEnd={({data}) => onOrder(data)}
                 contentContainerClassName="pb-50"
-                ListEmptyComponent={() => {}}
+                ListEmptyComponent={() => {
+                }}
                 ListHeaderComponent={() => (
                     <View>
                         <Pressable
@@ -136,10 +158,9 @@ export default function WorkoutScreen(){
                     </View>
                 )}
                 renderItem={({item, drag}) => {
-                    const exercises = item.exercises.map((ex,i) =>
-                    {
+                    const exercises = item.exercises.map((ex, i) => {
                         let name = ex.name
-                        if(i < item.exercises.length - 1){
+                        if (i < item.exercises.length - 1) {
                             name += ', '
                         }
                         return name
@@ -152,7 +173,7 @@ export default function WorkoutScreen(){
                                 onPress={() => router.push({
                                     pathname: "/routines/edit",
                                     params: {
-                                        "routineId" : item.id
+                                        "routineId": item.id
                                     }
                                 })}
                             >

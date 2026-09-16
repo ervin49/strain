@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -34,6 +35,12 @@ public class RoutineController {
     public ResponseEntity<Routine> updateRoutine(@PathVariable UUID routineId, @RequestBody Routine newRoutine){
         Routine routine = routineService.update(routineId, newRoutine);
         return ResponseEntity.status(200).body(routine);
+    }
+
+    @PutMapping("/routines")
+    public ResponseEntity<List<UUID>> updateUsersRoutinesOrder(@RequestBody UUID[] routinesIds, Principal principal){
+        List<UUID> routines = routineService.updateUsersRoutinesOrder(routinesIds, principal.getName());
+        return ResponseEntity.status(200).body(routines);
     }
 
     @PostMapping("/routines")

@@ -35,4 +35,7 @@ public class Routine {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column
+    private Integer routineOrder;
 }
