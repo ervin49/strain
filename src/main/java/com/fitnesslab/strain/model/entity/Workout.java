@@ -7,9 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,10 +25,8 @@ public class Workout {
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
 
-    private String notes;
-
     @OneToMany(mappedBy = "workout")
-    private List<WorkoutExercise> exercises;
+    private List<Exercise> exercises;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

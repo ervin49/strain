@@ -26,6 +26,7 @@ public class ExerciseService {
         for(String exerciseName : exercisesNames){
             exercises.add(exerciseRepository.getByName(exerciseName));
         }
+
         return exercises;
     }
 }

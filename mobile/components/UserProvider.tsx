@@ -1,6 +1,5 @@
 import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
 import {api} from "@/constants/axios";
-import * as SecureStore from "expo-secure-store";
 
 export interface Muscle {
     id: string;
@@ -10,22 +9,24 @@ export interface Muscle {
 export interface ExerciseSet {
     id: string;
     setNumber: number;
-    reps: number;
-    weight: number;
+    weight: string | undefined;
+    reps: string | undefined;
+    exercise: Exercise
 }
 
 export interface Exercise {
     id: string;
     name: string;
-    muscles: Muscle[];
+    equipment: string;
+    primaryMuscle: Muscle;
+    secondaryMuscles: Muscle[];
     sets: ExerciseSet[];
 }
 
 export interface Workout {
     id: string;
-    date: string;
-    notes: string;
-    durationMinutes: number;
+    startedAt: string;
+    endedAt: string;
     exercises: Exercise[];
 }
 
@@ -33,6 +34,7 @@ export interface Routine {
     id: string;
     name: string;
     exercises: Exercise[];
+    routineOrder: number;
 }
 
 export interface UserProfile {

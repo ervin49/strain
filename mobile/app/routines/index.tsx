@@ -1,16 +1,15 @@
 import AppText from "@/components/AppText";
 import AppTextInput from "@/components/AppTextInput";
-import {FlatList, Pressable, Text, useWindowDimensions, View} from "react-native";
+import {Pressable, Text, useWindowDimensions, View} from "react-native";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {router, Stack, useLocalSearchParams, useNavigation} from "expo-router";
 import {useEffect, useState} from "react";
 import {api} from "@/constants/axios";
-import {Exercise} from "@/app/routines/add-exercise";
 import Modal from "react-native-modal";
 import * as Haptics from "expo-haptics"
 import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
-import {useUser} from "@/components/UserProvider";
+import {Exercise, useUser} from "@/components/UserProvider";
 import {ScaleDecorator} from "react-native-draggable-flatlist";
 
 export default function CreateRoutine(){

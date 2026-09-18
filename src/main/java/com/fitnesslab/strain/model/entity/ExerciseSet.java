@@ -1,6 +1,8 @@
 package com.fitnesslab.strain.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,22 +11,18 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 @Table(name = "exercise_sets")
 public class ExerciseSet {
     @Id
     @UuidGenerator
     private UUID id;
-
     private int setNumber;
-    private int reps;
     private int weight;
-
-    @ManyToOne
-    @JoinColumn(name = "workout_exercise_id")
-    private WorkoutExercise workoutExercise;
+    private int reps;
 }
+

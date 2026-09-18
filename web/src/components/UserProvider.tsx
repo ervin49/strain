@@ -16,7 +16,8 @@ export interface ExerciseSet {
 export interface Exercise {
     id: string;
     name: string;
-    muscles: Muscle[];
+    primaryMuscle: Muscle;
+    secondaryMuscles: Muscle[];
     sets: ExerciseSet[];
 }
 

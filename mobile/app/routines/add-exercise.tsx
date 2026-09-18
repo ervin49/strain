@@ -1,4 +1,4 @@
-import {FlatList, Pressable, TextInput, View, Text} from "react-native";
+import {FlatList, Pressable, TextInput, View} from "react-native";
 import AppText from "@/components/AppText";
 import {useEffect, useMemo, useState} from "react";
 import {api} from "@/constants/axios";
@@ -6,18 +6,8 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import * as Haptics from "expo-haptics"
 import lunr from "lunr"
 import {router, useLocalSearchParams} from "expo-router";
+import {Exercise} from "@/components/UserProvider";
 
-export interface Muscle {
-    id: string;
-    name: string;
-}
-export interface Exercise {
-    id: string;
-    name: string;
-    equipment: string;
-    primaryMuscle: Muscle;
-    secondaryMuscles: Muscle[];
-}
 export default function AddExercise(){
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [exerciseQuery, setExerciseQuery] = useState("")

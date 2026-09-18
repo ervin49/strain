@@ -4,7 +4,7 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {Routine, useUser} from "@/components/UserProvider";
 import {router} from "expo-router";
 import AppButton from "@/components/AppButton";
-import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
+import DraggableFlatList from "react-native-draggable-flatlist";
 import {useEffect, useState} from "react";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics"

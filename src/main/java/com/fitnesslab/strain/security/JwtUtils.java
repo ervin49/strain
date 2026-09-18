@@ -6,8 +6,6 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -67,17 +65,17 @@ public class JwtUtils {
     }
 
     public boolean isJWT(String jwt){
-        String[] jwtSplitted = jwt.split("\\.");
-        if(jwtSplitted.length != 3){
+        String[] jwtSplit = jwt.split("\\.");
+        if(jwtSplit.length != 3){
             return false;
         }
         try {
-            String jsonFirstPart = new String(Base64.getDecoder().decode(jwtSplitted[0]));
+            String jsonFirstPart = new String(Base64.getDecoder().decode(jwtSplit[0]));
             JSONObject firstPart = new JSONObject(jsonFirstPart);
             if(!firstPart.has("alg")){
                 return false;
             }
-            String jsonSecondPart = new String(Base64.getDecoder().decode(jwtSplitted[1]));
+            String jsonSecondPart = new String(Base64.getDecoder().decode(jwtSplit[1]));
             JSONObject secondPart = new JSONObject(jsonSecondPart);
         } catch(JSONException e){
             return false;

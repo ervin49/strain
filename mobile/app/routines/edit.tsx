@@ -1,27 +1,29 @@
-import {Pressable, Text, TextInput, useWindowDimensions, View} from "react-native";
+import {FlatList, Pressable, Text, TextInput, useWindowDimensions, View} from "react-native";
 import {router, Stack, useLocalSearchParams} from "expo-router";
 import {useEffect, useState} from "react";
 import AppText from "@/components/AppText";
 import {api} from "@/constants/axios";
-import {Exercise, Routine, useUser} from "@/components/UserProvider";
+import {Exercise, ExerciseSet, Routine, useUser} from "@/components/UserProvider";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
-import DraggableFlatList from "react-native-draggable-flatlist/src/components/DraggableFlatList";
+import DraggableFlatList from "react-native-draggable-flatlist";
 import {ScaleDecorator} from "react-native-draggable-flatlist";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import * as Haptics from "expo-haptics";
+import AppTextInput from "@/components/AppTextInput";
 
 export default function EditRoutineScreen() {
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
     const {routineId} = useLocalSearchParams<{routineId: string}>()
     const [routine, setRoutine] = useState<Routine | null>(null)
     const [routineName, setRoutineName] = useState('')
+    const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
     const [exercises, setExercises] = useState<Exercise[]>([])
     const {width, height} = useWindowDimensions()
     const [isDiscardModalVisible, setIsDiscardModalVisible] = useState(false)
     const isChanged = routineName !== routine?.name || exercises !== routine.exercises
     const {refreshUser} = useUser()
-    const [exercisesIds, setExercisesIds] = useState<string[]>([])
+
 
     const fetchExercises = async () => {
         try {
@@ -34,8 +36,6 @@ export default function EditRoutineScreen() {
             )
 
             const newExercises: Exercise[] = response.data;
-
-            setExercisesIds(newExercises.map((ex) => ex.id))
 
             const uniqueExercises = newExercises.filter(
                 newEx => !exercises.some(ex => ex.name === newEx.name)
@@ -83,6 +83,7 @@ export default function EditRoutineScreen() {
             console.log(e);
         }
     }
+
 
     return (
         <GestureHandlerRootView
@@ -182,7 +183,7 @@ export default function EditRoutineScreen() {
                 onDragEnd={({data}) => setExercises(data)}
                 ListFooterComponent={() => (
                     <Pressable
-                        className="mt-8 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
+                        className="mt-1 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
                         onPress={async () => {
                             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                             router.push({
@@ -200,20 +201,71 @@ export default function EditRoutineScreen() {
                         >Add exercise</AppText>
                     </Pressable>
                 )}
-                renderItem={({item, drag}) => (
-                    <ScaleDecorator>
-                        <Pressable
-                            onLongPress={drag}
-                        >
-                            <View className="flex-row justify-between">
-                                <AppText className="text-blue-500">{item.name}</AppText>
-                                <Pressable onPress={() => removeExercise(item.name)}>
-                                    <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
+                renderItem={({item, drag}) => {
+                    let id = 0;
+                    function getUniqueId(): number {
+                        return id++
+                    }
+
+                    const newExerciseSet: ExerciseSet = {
+                        id: getUniqueId().toLocaleString(),
+                        setNumber: getUniqueId(),
+                        reps: undefined,
+                        weight: undefined,
+                        exercise: item
+                    }
+                    return (
+                        <ScaleDecorator>
+                            <Pressable
+                                onLongPress={drag}
+                                className="mb-4"
+                            >
+                                <View className="flex-row justify-between">
+                                    <AppText className="text-blue-500">{item.name}</AppText>
+                                    <Pressable onPress={() => removeExercise(item.name)}>
+                                        <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
+                                    </Pressable>
+                                </View>
+                                <View className="flex-row justify-between">
+                                    <AppText className="text-sm text-gray-400">SET</AppText>
+                                    <AppText className="text-sm text-gray-400">KG</AppText>
+                                    <AppText className="text-sm text-gray-400">REPS</AppText>
+                                </View>
+                                <FlatList
+                                    data={exerciseSets.filter((ex)=> ex.exercise === item)}
+                                    keyExtractor={(set) => set.setNumber.toString()}
+                                    renderItem={({item}) => (
+                                        <View
+                                            className="flex-row justify-between">
+                                            <AppText>{item.setNumber}</AppText>
+                                            <AppTextInput
+                                                placeholder={`${item.weight ?? '-'}`}
+                                                keyboardType="numeric"
+                                                value={item.weight}
+                                                onChangeText={(value) => {item.weight = value}}
+                                            />
+                                            <AppTextInput
+                                                placeholder={`${item.reps ?? '-'}`}
+                                                keyboardType="numeric"
+                                                value={item.reps}
+                                                onChangeText={(value) => {item.reps = value}}
+                                            />
+                                        </View>
+                                    )}
+                                />
+                                <Pressable
+                                    onPress={() => setExerciseSets([...exerciseSets, newExerciseSet])}
+                                    className="active:opacity-30 py-2 bg-[#2C2C2E] flex-row justify-center items-center rounded-xl"
+                                >
+                                    <MaterialCommunityIcons name="plus" size={24} color="white"/>
+                                    <AppText className="ms-1">
+                                        Add Set
+                                    </AppText>
                                 </Pressable>
-                            </View>
-                        </Pressable>
-                    </ScaleDecorator>
-                )}/>
+                            </Pressable>
+                        </ScaleDecorator>
+                    )
+                }}/>
         </GestureHandlerRootView>
     )
 }
