@@ -23,7 +23,9 @@ export interface Exercise {
 
 export interface Workout {
     id: string;
+    routineName: string;
     duration: number;
+    date: Date;
     exercises: Exercise[];
 }
 

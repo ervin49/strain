@@ -1,5 +1,5 @@
 import {
-    ActivityIndicator, FlatList,
+    ActivityIndicator, FlatList, Image,
     RefreshControl,
     ScrollView,
     useWindowDimensions,
@@ -16,7 +16,6 @@ export default function HomeScreen() {
     const {height} = useWindowDimensions()
     const onRefresh = useRefresh(setIsRefreshing)
     const [workouts, setWorkouts] = useState<Workout[]>([])
-    const noOfWorkouts = workouts.length;
 
     useEffect(() => {
         if(user) {
@@ -32,29 +31,43 @@ export default function HomeScreen() {
     }
 
     return (
-        <>
-            <ScrollView
-                style={{ flex: 0, backgroundColor: "black"}}
-                contentContainerClassName="px-4 py-2"
+        <View
+            style={{ height: height * 0.7, flex: 1, backgroundColor: 'black'}}>
+            <FlatList
+                data={workouts}
                 refreshControl={
                     <RefreshControl
                         onRefresh={onRefresh}
                         refreshing={isRefreshing}
                     />
                 }
-            >
-                <View style={{ height: height * 0.7}}>
-                    <FlatList
-                        data={workouts}
-                        renderItem={({item}) => (
+                renderItem={({item}) => (
+                    <View className="p-4">
+                        <View className="flex-row">
+                            <Image src={user?.avatarPath ?
+                                `http://192.168.1.200:8080/user-images/${user.avatarPath}` :
+                                require('@/assets/images/default-profile-picture.png')}
+                                   style={{ width: 100, height: 100}}
+                            />
                             <View>
-                                <AppText>
-                                    {item.duration}
-                                </AppText>
+                                <AppText>{user?.firstName} {user?.lastName}</AppText>
+                                <AppText>{((new Date() - item.date) / 1000).toString()}</AppText>
                             </View>
-                        )}/>
-                </View>
-            </ScrollView>
-        </>
+                        </View>
+                        <AppText>{item.routineName}</AppText>
+                        <View className="flex-row">
+                            <View>
+                                <AppText>Time</AppText>
+                                <AppText>{item.duration}</AppText>
+                            </View>
+                            <View>
+                                <AppText>Volume</AppText>
+                                <AppText>0</AppText>
+                            </View>
+                        </View>
+                        <View className="h-px mt-3 bg-[#2C2C2E]"/>
+                    </View>
+                )}/>
+        </View>
     )
 }

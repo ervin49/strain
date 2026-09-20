@@ -1,5 +1,6 @@
 package com.fitnesslab.strain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +23,12 @@ public class Workout {
     @UuidGenerator
     private UUID id;
 
+    private String routineName;
+
     private int duration;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime date;
 
     @OneToMany(mappedBy = "workout")
     private List<Exercise> exercises;

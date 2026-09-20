@@ -1,4 +1,4 @@
-import {View, Text, TextInput, Pressable, FlatList} from "react-native";
+import {View, Text, Pressable, FlatList} from "react-native";
 import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {api} from "@/constants/axios";
 import {Exercise, ExerciseSet, Routine, useUser} from "@/components/UserProvider";
@@ -21,6 +21,7 @@ export default function LogWorkoutScreen(){
     const {user, refreshUser} = useUser();
     const [userId, setUserId] = useState('')
     const [time, setTime] = useState(0)
+    const [volume, setVolume] = useState(0)
     const startTimeRef = useRef(0)
     const intervalRef = useRef<number | null>(null);
 
@@ -38,6 +39,12 @@ export default function LogWorkoutScreen(){
             setUserId(user.id)
         }
     },[user])
+
+    useEffect(() => {
+        let volume = 0;
+        exerciseSets.forEach((set) => {volume += Number(set.weight ?? 0) * Number(set.reps ?? 0)})
+        setVolume(volume)
+    },[exerciseSets])
 
     useLayoutEffect(() => {
         startTime()
@@ -144,6 +151,7 @@ export default function LogWorkoutScreen(){
         try {
             await api.post("/workouts",{
                 'duration': time,
+                'date': new Date().toISOString().slice(0,19),
                 exercises,
                 userId
             })
@@ -171,16 +179,29 @@ export default function LogWorkoutScreen(){
                 }}
             />
             <View className="flex-row justify-between">
+                <View
+                    className="justify-center items-center"
+                    style={{width: 80}}
+                >
                     <Text className="text-gray-400">Duration</Text>
-                <Text className="text-gray-400">Volume</Text>
-                <Text className="text-gray-400">Sets</Text>
+                    <Text className="text-blue-500 text-lg">{timeInMinutes()}</Text>
+                </View>
+                <View
+                    className="justify-center items-center"
+                    style={{width: 80}}
+                >
+                    <Text className="text-gray-400">Volume</Text>
+                    <Text className="text-gray-400 text-lg">{volume} kg</Text>
+                </View>
+                <View
+                    className="justify-center items-center"
+                    style={{width: 80}}
+                >
+                    <Text className="text-gray-400">Sets</Text>
+                    <Text className="text-gray-400 text-lg">0</Text>
+                </View>
             </View>
-            <View className="flex-row justify-between">
-                <Text className="text-blue-500 text-lg">{timeInMinutes()}</Text>
-                <Text className="text-gray-400">0</Text>
-                <Text className="text-gray-400">0</Text>
-            </View>
-            <View className="h-px mt-3 bg-gray-900"/>
+            <View className="h-px mt-5 bg-gray-900"/>
             <DraggableFlatList
                 data={exercises}
                 keyExtractor={(ex) => ex.id}
