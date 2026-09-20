@@ -33,12 +33,6 @@ public class RoutineController {
         return ResponseEntity.status(200).body(routine);
     }
 
-    @PutMapping("/routines/{routineId}/sets")
-    public ResponseEntity<List<ExerciseSet>> updateRoutineSets(@PathVariable UUID routineId, @RequestBody List<ExerciseSet> sets){
-        List<ExerciseSet> setsToReturn = routineService.updateRoutineSets(routineId, sets);
-        return ResponseEntity.status(200).body(setsToReturn);
-    }
-
     @PutMapping("/routines")
     public ResponseEntity<List<UUID>> updateUsersRoutinesOrder(@RequestBody UUID[] routinesIds, Principal principal){
         List<UUID> routines = routineService.updateUsersRoutinesOrder(routinesIds, principal.getName());

@@ -39,6 +39,6 @@ public class Routine {
     @Column
     private Integer routineOrder;
 
-    @OneToMany
-    private List<ExerciseSet> sets = new ArrayList<>(List.of(ExerciseSet.builder().setNumber(1).weight(null).reps(null).build()));
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<ExerciseSet> sets;
 }

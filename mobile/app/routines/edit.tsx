@@ -51,7 +51,7 @@ export default function EditRoutineScreen() {
     useEffect(() => {
         if(exercises) {
             exercises.forEach((ex) => {
-                if(exerciseSets.some((set) => set.exercise === ex.id)) {
+                if(exerciseSets.some((set) => set.exerciseId === ex.id)) {
                     return;
                 }
 
@@ -59,7 +59,7 @@ export default function EditRoutineScreen() {
                     setNumber: 1,
                     weight: undefined,
                     reps: undefined,
-                    exercise: ex.id
+                    exerciseId: ex.id
                 }
 
                 setExerciseSets(prev => [...prev, firstSet])
@@ -77,10 +77,11 @@ export default function EditRoutineScreen() {
         const fetchRoutine = async () => {
             try {
                 const result = await api.get(`/routines/${routineId}`);
+                console.log(result.data.sets);
                 setRoutine(result.data)
                 setRoutineName(result.data.name)
                 setExercises(result.data.exercises)
-
+                setExerciseSets(result.data.sets)
             } catch (e) {
                 console.log(e);
             }
@@ -97,8 +98,6 @@ export default function EditRoutineScreen() {
             await api.put(`/routines/${routineId}`,{
                 "name": routineName,
                 "exercises": exercises,
-            })
-            await api.put(`/routines/${routineId}/sets`,{
                 "sets": exerciseSets
             })
             await refreshUser()
@@ -245,10 +244,10 @@ export default function EditRoutineScreen() {
                 )}
                 renderItem={({item, drag}) => {
                     const newExerciseSet: ExerciseSet = {
-                        setNumber: exerciseSets.filter((ex) => ex.exercise === item.id).length + 1,
+                        setNumber: exerciseSets.filter((ex) => ex.exerciseId === item.id).length + 1,
                         reps: undefined,
                         weight: undefined,
-                        exercise: item.id
+                        exerciseId: item.id
                     }
                     return (
                         <ScaleDecorator>
@@ -270,7 +269,7 @@ export default function EditRoutineScreen() {
                                     <AppText className="text-sm flex-1 text-gray-400 text-center">REPS</AppText>
                                 </View>
                                 <FlatList
-                                    data={exerciseSets.filter((ex)=> ex.exercise === item.id)}
+                                    data={exerciseSets.filter((ex)=> ex.exerciseId === item.id)}
                                     keyExtractor={(set) => set.setNumber.toLocaleString()}
                                     renderItem={({item}) => {
                                         return (

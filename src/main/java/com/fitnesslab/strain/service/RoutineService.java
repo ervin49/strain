@@ -1,8 +1,6 @@
 package com.fitnesslab.strain.service;
 
 import com.fitnesslab.strain.exception.ResourceNotFoundException;
-import com.fitnesslab.strain.model.entity.Exercise;
-import com.fitnesslab.strain.model.entity.ExerciseSet;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
@@ -13,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +49,8 @@ public class RoutineService {
         Routine oldRoutine = routineRepository.findById(routineId).orElseThrow(() -> new ResourceNotFoundException("Routine not found"));
         oldRoutine.setName(routine.getName());
         oldRoutine.setExercises(routine.getExercises());
+        oldRoutine.setSets(routine.getSets());
+        System.out.println(routine.getSets());
         return routineRepository.save(oldRoutine);
     }
 
@@ -68,18 +67,5 @@ public class RoutineService {
 
         User user = userRepository.getUserByEmail(email).orElseThrow();
         return user.getRoutines().stream().map(Routine::getId).toList();
-    }
-
-    @Transactional
-    public List<ExerciseSet> updateRoutineSets(UUID routineId, List<ExerciseSet> sets){
-        List<ExerciseSet> addedSets = new ArrayList<>();
-        Routine routine = entityManager.getReference(Routine.class, routineId);
-
-        for(ExerciseSet set : sets){
-            routine.getSets().add(set);
-            addedSets.add(set);
-        }
-
-        return addedSets;
     }
 }
