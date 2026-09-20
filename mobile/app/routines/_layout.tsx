@@ -40,6 +40,7 @@ export default function RoutinesLayout(){
                 ...createScreenOptions({
                     title: 'Add Exercise'
                 }),
+                presentation: 'fullScreenModal',
                 headerLeft: () => (
                     <Pressable
                         onPress={() => {

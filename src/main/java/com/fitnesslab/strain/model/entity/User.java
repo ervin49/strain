@@ -40,9 +40,6 @@ public class User {
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private LocalDate dateOfBirth;
 
-    @Builder.Default
-    private Integer noOfWorkouts = 0;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     @OrderBy("routineOrder ASC")

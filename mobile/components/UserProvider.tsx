@@ -10,7 +10,7 @@ export interface ExerciseSet {
     setNumber: number;
     weight: string | undefined;
     reps: string | undefined;
-    exercise: string | undefined
+    exerciseId: string | undefined
 }
 
 export interface Exercise {
@@ -19,13 +19,11 @@ export interface Exercise {
     equipment: string;
     primaryMuscle: Muscle;
     secondaryMuscles: Muscle[];
-    sets: ExerciseSet[];
 }
 
 export interface Workout {
     id: string;
-    startedAt: string;
-    endedAt: string;
+    duration: number;
     exercises: Exercise[];
 }
 
@@ -34,6 +32,7 @@ export interface Routine {
     name: string;
     exercises: Exercise[];
     routineOrder: number;
+    sets: ExerciseSet[];
 }
 
 export interface UserProfile {

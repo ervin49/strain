@@ -39,8 +39,14 @@ export default function WorkoutScreen() {
         setRoutines(user?.routines ?? [])
     }, [user?.routines])
 
-    const onStartRoutine = async () => {
+    const onStartRoutine = async (routineId: any) => {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        router.push({
+            pathname: "/log-workout",
+            params: {
+                'routineId': routineId
+            }
+        })
     }
 
     const onDeleteRoutine = async () => {
@@ -187,7 +193,7 @@ export default function WorkoutScreen() {
                                     </Pressable>
                                 </View>
                                 <AppText className="text-gray-400" numberOfLines={2}>{exercises}</AppText>
-                                <AppButton onPress={onStartRoutine}
+                                <AppButton onPress={() => onStartRoutine(item.id)}
                                            className="mt-4"
                                            title="Start Routine"
                                 />

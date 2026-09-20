@@ -22,8 +22,7 @@ public class Workout {
     @UuidGenerator
     private UUID id;
 
-    private LocalDateTime startedAt;
-    private LocalDateTime endedAt;
+    private int duration;
 
     @OneToMany(mappedBy = "workout")
     private List<Exercise> exercises;

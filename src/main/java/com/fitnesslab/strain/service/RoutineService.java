@@ -31,9 +31,6 @@ public class RoutineService {
 
         routine.setUser(user);
 
-        int currentNoOfWorkouts = user.getNoOfWorkouts() != null ? user.getNoOfWorkouts() : 0;
-        user.setNoOfWorkouts(currentNoOfWorkouts + 1);
-
         return routineRepository.save(routine);
     }
 
@@ -50,7 +47,6 @@ public class RoutineService {
         oldRoutine.setName(routine.getName());
         oldRoutine.setExercises(routine.getExercises());
         oldRoutine.setSets(routine.getSets());
-        System.out.println(routine.getSets());
         return routineRepository.save(oldRoutine);
     }
 

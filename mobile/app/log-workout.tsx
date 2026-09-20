@@ -1,30 +1,79 @@
-import {Button, FlatList, Pressable, Text, TextInput, useWindowDimensions, View} from "react-native";
-import {router, Stack, useLocalSearchParams} from "expo-router";
-import {useEffect, useState} from "react";
-import AppText from "@/components/AppText";
+import {View, Text, TextInput, Pressable, FlatList} from "react-native";
+import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {api} from "@/constants/axios";
 import {Exercise, ExerciseSet, Routine, useUser} from "@/components/UserProvider";
-import {GestureHandlerRootView} from "react-native-gesture-handler";
-import DraggableFlatList from "react-native-draggable-flatlist";
-import {ScaleDecorator} from "react-native-draggable-flatlist";
-import {MaterialCommunityIcons} from "@expo/vector-icons";
-import Modal from "react-native-modal";
+import {router, Stack, useLocalSearchParams} from "expo-router";
+import DraggableFlatList, {ScaleDecorator} from "react-native-draggable-flatlist";
 import * as Haptics from "expo-haptics";
-import AppTextInput from "@/components/AppTextInput";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
+import AppText from "@/components/AppText";
 import ReanimatedSwipeable from "react-native-gesture-handler/src/components/ReanimatedSwipeable";
-import Reanimated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import AppTextInput from "@/components/AppTextInput";
+import Reanimated, {SharedValue, useAnimatedStyle} from "react-native-reanimated";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 
-export default function EditRoutineScreen() {
+export default function LogWorkoutScreen(){
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
     const {routineId} = useLocalSearchParams<{routineId: string}>()
     const [routine, setRoutine] = useState<Routine | null>(null)
-    const [routineName, setRoutineName] = useState('')
     const [exercises, setExercises] = useState<Exercise[]>([])
     const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
-    const {width, height} = useWindowDimensions()
-    const [isDiscardModalVisible, setIsDiscardModalVisible] = useState(false)
-    const isChanged = routineName !== routine?.name || exercises !== routine.exercises || exerciseSets !== routine.sets
-    const {refreshUser} = useUser()
+    const {user, refreshUser} = useUser();
+    const [userId, setUserId] = useState('')
+    const [time, setTime] = useState(0)
+    const startTimeRef = useRef(0)
+    const intervalRef = useRef<number | null>(null);
+
+    const onDelete = (item: ExerciseSet) => {
+        setExerciseSets((prev) => [...prev.filter((set) => set !== item)])
+    }
+
+    const startTime = () => {
+        startTimeRef.current = Date.now() - time * 1000
+        intervalRef.current = setInterval(() => setTime(Math.floor((Date.now() - startTimeRef.current) / 1000)),1000)
+    }
+
+    useEffect(() => {
+        if(user) {
+            setUserId(user.id)
+        }
+    },[user])
+
+    useLayoutEffect(() => {
+        startTime()
+    },[])
+
+    const timeInMinutes = () => {
+        if(time < 60){
+            return time + 's'
+        }
+        if(time < 3600) {
+            return Math.floor(time / 60) + 'min ' + (time % 60) + 's'
+        }
+
+        return Math.floor(time / 3600) + 'h ' + Math.floor((time % 3600) / 60) + 'min ' + Math.floor(time % 60) + 's'
+    }
+
+    function DeleteAction({
+                              drag, item,
+                          }: { drag: SharedValue<number>; item: ExerciseSet }) {
+        // drag is negative as the row moves left; +80 puts the action back at rest
+        const style = useAnimatedStyle(() => ({
+            transform: [{ translateX: drag.value + 80 }],
+        }));
+
+        return (
+            <Reanimated.View style={[style]}>
+                <Pressable
+                    onPress={() => onDelete(item)}
+                    accessibilityLabel="Delete"
+                    className="bg-red-600"
+                >
+                    <Text className="text-white py-4 px-5  text-center">Delete</Text>
+                </Pressable>
+            </Reanimated.View>
+        );
+    }
 
     const fetchExercises = async () => {
         try {
@@ -77,9 +126,7 @@ export default function EditRoutineScreen() {
         const fetchRoutine = async () => {
             try {
                 const result = await api.get(`/routines/${routineId}`);
-                console.log(result.data.sets);
                 setRoutine(result.data)
-                setRoutineName(result.data.name)
                 setExercises(result.data.exercises)
                 setExerciseSets(result.data.sets)
             } catch (e) {
@@ -93,146 +140,62 @@ export default function EditRoutineScreen() {
         setExercises(exercises.filter((ex) => ex.name !== name))
     }
 
-    const onSave = async () => {
+    const handleFinish = async () => {
         try {
-            await api.put(`/routines/${routineId}`,{
-                "name": routineName,
-                "exercises": exercises,
-                "sets": exerciseSets
+            await api.post("/workouts",{
+                'duration': time,
+                exercises,
+                userId
             })
             await refreshUser()
             router.back()
-        } catch (e){
+        }catch (e) {
             console.log(e);
         }
     }
-
-    const onDelete = (item: ExerciseSet) => {
-        setExerciseSets((prev) => [...prev.filter((set) => set !== item)])
-    }
-
-    function DeleteAction({
-                              drag, item,
-                          }: { drag: SharedValue<number>; item: ExerciseSet }) {
-        // drag is negative as the row moves left; +80 puts the action back at rest
-        const style = useAnimatedStyle(() => ({
-            transform: [{ translateX: drag.value + 80 }],
-        }));
-
-        return (
-            <Reanimated.View style={[style]}>
-                <Pressable
-                    onPress={() => onDelete(item)}
-                    accessibilityLabel="Delete"
-                    className="bg-red-600"
-                >
-                    <Text className="text-white py-4 px-5  text-center">Delete</Text>
-                </Pressable>
-            </Reanimated.View>
-        );
-    }
-
-
     return (
         <GestureHandlerRootView
-            style={{ flex: 1, backgroundColor: "black" }}
-            className="px-4 py-2"
+            style={{ flex: 1, backgroundColor: 'black'}}
+            className="p-4"
         >
             <Stack.Screen
                 options={{
-                    headerTintColor: "#000",
-                    headerLeft: () => (
-                        <Pressable
-                            onPress={() => {
-                                if(isChanged) {
-                                    setIsDiscardModalVisible(true)
-                                } else {
-                                    if (router.canGoBack()) {
-                                        router.back()
-                                    } else {
-                                        router.replace("/")
-                                    }
-                                }
-                            }}
-                            hitSlop={10}
-                            className="justify-center items-center"
-                        >
-                            <Text
-                                className="px-4 text-[#0479DA] text-lg"
-                            >
-                                Cancel
-                            </Text>
-                        </Pressable>
-                    ),
                     headerRight: () => (
-                        <Button
-                            title="Save"
-                            disabled={!isChanged}
-                            onPress={onSave}
-                            className={`justify-center items-center`}
+                        <Pressable
+                            className="px-3"
+                            onPress={handleFinish}
                         >
-                        </Button>
-
-                    ),
+                            <Text>Finish</Text>
+                        </Pressable>
+                    )
                 }}
             />
-            <Modal
-                isVisible={isDiscardModalVisible}
-                className="items-center justify-center"
-            >
-                <View style={{ height: height * 0.24,
-                    width: width * 0.85,
-                    backgroundColor: '#161618'
-                }}
-                      className="p-5 items-center rounded-2xl"
-                >
-                    <AppText
-                        className="mt-2 text-center"
-                    >Are you sure you want to discard all routine changes?</AppText>
-                    <Pressable
-                        className="bg-[#2C2C2E] w-full mt-5 p-2 rounded-xl items-center"
-                        onPress={() => {
-                            if(router.canGoBack())
-                                router.back()
-                            else router.replace("/")
-                        }}
-                    >
-                        <AppText
-                            className="text-red-500"
-                        >
-                            Discard changes
-                        </AppText>
-                    </Pressable>
-                    <Pressable
-                        className="bg-[#2C2C2E] mt-5 w-full p-2 rounded-xl items-center"
-                        onPress={() => setIsDiscardModalVisible(false)}
-                    >
-                        <AppText>
-                            Cancel
-                        </AppText>
-                    </Pressable>
-                </View>
-            </Modal>
-            <TextInput
-                value={routineName}
-                onChangeText={(value) => setRoutineName(value)}
-                className="text-2xl font-bold text-white mb-5 h-10"
-            />
-            <View className="h-px bg-gray-900"/>
+            <View className="flex-row justify-between">
+                    <Text className="text-gray-400">Duration</Text>
+                <Text className="text-gray-400">Volume</Text>
+                <Text className="text-gray-400">Sets</Text>
+            </View>
+            <View className="flex-row justify-between">
+                <Text className="text-blue-500 text-lg">{timeInMinutes()}</Text>
+                <Text className="text-gray-400">0</Text>
+                <Text className="text-gray-400">0</Text>
+            </View>
+            <View className="h-px mt-3 bg-gray-900"/>
             <DraggableFlatList
                 data={exercises}
                 keyExtractor={(ex) => ex.id}
+                showsVerticalScrollIndicator={false}
                 onDragEnd={({data}) => setExercises(data)}
                 ListFooterComponent={() => (
                     <Pressable
-                        className="mt-1 mb-120 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
+                        className="mt-1 mb-130 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
                         onPress={async () => {
                             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                             router.push({
                                 pathname: "/routines/add-exercise",
                                 params: {
                                     routineId,
-                                    "returnTo": "/routines/edit"
+                                    "returnTo": "/log-workout"
                                 }
                             })
                         }}
@@ -240,7 +203,7 @@ export default function EditRoutineScreen() {
                         <MaterialCommunityIcons name="plus" color="white" size={24}/>
                         <AppText
                             className="ms-2"
-                        >Add Exercise</AppText>
+                        >Add exercise</AppText>
                     </Pressable>
                 )}
                 renderItem={({item, drag}) => {
