@@ -7,6 +7,7 @@ export const createScreenOptions = ({title, align = 'center', small = true}: Hea
     ),
     headerShadowVisible: true,
     headerStyle: {
-        backgroundColor: "black"
+        backgroundColor: "#000"
     },
+    headerTintColor: '#000'
 });

@@ -29,7 +29,4 @@ public class Exercise {
 
     @ManyToOne
     private Workout workout;
-
-    @OneToMany
-    private List<ExerciseSet> sets;
 }

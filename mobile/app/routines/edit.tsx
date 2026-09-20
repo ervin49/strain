@@ -1,4 +1,4 @@
-import {FlatList, Pressable, Text, TextInput, useWindowDimensions, View} from "react-native";
+import {Button, FlatList, Pressable, Text, TextInput, useWindowDimensions, View} from "react-native";
 import {router, Stack, useLocalSearchParams} from "expo-router";
 import {useEffect, useState} from "react";
 import AppText from "@/components/AppText";
@@ -11,19 +11,20 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import * as Haptics from "expo-haptics";
 import AppTextInput from "@/components/AppTextInput";
+import ReanimatedSwipeable from "react-native-gesture-handler/src/components/ReanimatedSwipeable";
+import Reanimated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
 
 export default function EditRoutineScreen() {
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
     const {routineId} = useLocalSearchParams<{routineId: string}>()
     const [routine, setRoutine] = useState<Routine | null>(null)
     const [routineName, setRoutineName] = useState('')
-    const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
     const [exercises, setExercises] = useState<Exercise[]>([])
+    const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
     const {width, height} = useWindowDimensions()
     const [isDiscardModalVisible, setIsDiscardModalVisible] = useState(false)
-    const isChanged = routineName !== routine?.name || exercises !== routine.exercises
+    const isChanged = routineName !== routine?.name || exercises !== routine.exercises || exerciseSets.length !== exercises.length
     const {refreshUser} = useUser()
-
 
     const fetchExercises = async () => {
         try {
@@ -41,11 +42,30 @@ export default function EditRoutineScreen() {
                 newEx => !exercises.some(ex => ex.name === newEx.name)
             );
 
-            setExercises([...exercises, ...uniqueExercises]);
+            setExercises((prev) => [...prev, ...uniqueExercises]);
         } catch (e) {
             console.log(e);
         }
     }
+
+    useEffect(() => {
+        if(exercises) {
+            exercises.forEach((ex) => {
+                if(exerciseSets.some((set) => set.exercise === ex.id)) {
+                    return;
+                }
+
+                const firstSet: ExerciseSet = {
+                    setNumber: 1,
+                    weight: undefined,
+                    reps: undefined,
+                    exercise: ex.id
+                }
+
+                setExerciseSets(prev => [...prev, firstSet])
+            })
+        }
+    },[exercises])
 
     useEffect(() =>{
         if(exercisesNames){
@@ -60,6 +80,7 @@ export default function EditRoutineScreen() {
                 setRoutine(result.data)
                 setRoutineName(result.data.name)
                 setExercises(result.data.exercises)
+
             } catch (e) {
                 console.log(e);
             }
@@ -72,16 +93,44 @@ export default function EditRoutineScreen() {
     }
 
     const onSave = async () => {
-        try{
+        try {
             await api.put(`/routines/${routineId}`,{
                 "name": routineName,
-                "exercises": exercises
+                "exercises": exercises,
+            })
+            await api.put(`/routines/${routineId}/sets`,{
+                "sets": exerciseSets
             })
             await refreshUser()
             router.back()
         } catch (e){
             console.log(e);
         }
+    }
+
+    const onDelete = (item: ExerciseSet) => {
+        setExerciseSets((prev) => [...prev.filter((set) => set !== item)])
+    }
+
+    function DeleteAction({
+                              drag, item,
+                          }: { drag: SharedValue<number>; item: ExerciseSet }) {
+        // drag is negative as the row moves left; +80 puts the action back at rest
+        const style = useAnimatedStyle(() => ({
+            transform: [{ translateX: drag.value + 80 }],
+        }));
+
+        return (
+            <Reanimated.View style={[style]}>
+                <Pressable
+                    onPress={() => onDelete(item)}
+                    accessibilityLabel="Delete"
+                    className="bg-red-600"
+                >
+                    <Text className="text-white py-4 px-5  text-center">Delete</Text>
+                </Pressable>
+            </Reanimated.View>
+        );
     }
 
 
@@ -92,6 +141,7 @@ export default function EditRoutineScreen() {
         >
             <Stack.Screen
                 options={{
+                    headerTintColor: "#000",
                     headerLeft: () => (
                         <Pressable
                             onPress={() => {
@@ -106,7 +156,8 @@ export default function EditRoutineScreen() {
                                 }
                             }}
                             hitSlop={10}
-                            className="justify-center items-center">
+                            className="justify-center items-center"
+                        >
                             <Text
                                 className="px-4 text-[#0479DA] text-lg"
                             >
@@ -115,21 +166,12 @@ export default function EditRoutineScreen() {
                         </Pressable>
                     ),
                     headerRight: () => (
-                        <Pressable
-                            disabled={!isChanged}
+                        <Button
+                            title="Save"
                             onPress={onSave}
-                            hitSlop={10}
-                            className={`justify-center items-center 
-                            `}
+                            className={`justify-center items-center`}
                         >
-                            <AppText
-                                className={`px-4 text-[#0479DA] text-lg
-                                ${isChanged ? 'text-[#008CFF]' : 'text-[#EFEFEF]'}
-                                `}
-                            >
-                                Save
-                            </AppText>
-                        </Pressable>
+                        </Button>
 
                     ),
                 }}
@@ -202,23 +244,17 @@ export default function EditRoutineScreen() {
                     </Pressable>
                 )}
                 renderItem={({item, drag}) => {
-                    let id = 0;
-                    function getUniqueId(): number {
-                        return id++
-                    }
-
                     const newExerciseSet: ExerciseSet = {
-                        id: getUniqueId().toLocaleString(),
-                        setNumber: getUniqueId(),
+                        setNumber: exerciseSets.filter((ex) => ex.exercise === item.id).length + 1,
                         reps: undefined,
                         weight: undefined,
-                        exercise: item
+                        exercise: item.id
                     }
                     return (
                         <ScaleDecorator>
                             <Pressable
                                 onLongPress={drag}
-                                className="mb-4"
+                                className="mb-4 mt-4"
                             >
                                 <View className="flex-row justify-between">
                                     <AppText className="text-blue-500">{item.name}</AppText>
@@ -226,36 +262,54 @@ export default function EditRoutineScreen() {
                                         <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
                                     </Pressable>
                                 </View>
-                                <View className="flex-row justify-between">
-                                    <AppText className="text-sm text-gray-400">SET</AppText>
-                                    <AppText className="text-sm text-gray-400">KG</AppText>
-                                    <AppText className="text-sm text-gray-400">REPS</AppText>
+                                <View className="flex-row justify-between mt-2">
+                                    <View style={{ width: 32 }}>
+                                        <AppText className="text-sm text-gray-400 ms-1">SET</AppText>
+                                    </View>
+                                    <AppText className="text-sm flex-1 text-gray-400 text-center">KG</AppText>
+                                    <AppText className="text-sm flex-1 text-gray-400 text-center">REPS</AppText>
                                 </View>
                                 <FlatList
-                                    data={exerciseSets.filter((ex)=> ex.exercise === item)}
-                                    keyExtractor={(set) => set.setNumber.toString()}
-                                    renderItem={({item}) => (
-                                        <View
-                                            className="flex-row justify-between">
-                                            <AppText>{item.setNumber}</AppText>
-                                            <AppTextInput
-                                                placeholder={`${item.weight ?? '-'}`}
-                                                keyboardType="numeric"
-                                                value={item.weight}
-                                                onChangeText={(value) => {item.weight = value}}
-                                            />
-                                            <AppTextInput
-                                                placeholder={`${item.reps ?? '-'}`}
-                                                keyboardType="numeric"
-                                                value={item.reps}
-                                                onChangeText={(value) => {item.reps = value}}
-                                            />
-                                        </View>
-                                    )}
+                                    data={exerciseSets.filter((ex)=> ex.exercise === item.id)}
+                                    keyExtractor={(set) => set.setNumber.toLocaleString()}
+                                    renderItem={({item}) => {
+                                        return (
+                                            <ReanimatedSwipeable
+                                                friction={1}
+                                                overshootRight={false}
+                                                renderRightActions={(_progress, drag) => (
+                                                    <DeleteAction drag={drag} item={item}/>
+                                                )}
+                                            >
+                                                <View
+                                                    className="flex-row justify-between  mt-3 gap-2"
+                                                >
+                                                    <View className="bg-[#2C2C2E] rounded-lg justify-center items-center" style={{ width: 32, height: 32}}>
+                                                        <AppText>{item.setNumber}</AppText>
+                                                    </View>
+                                                    <AppTextInput
+                                                        placeholder={`${item.weight ?? '-'}`}
+                                                        keyboardType="numeric"
+                                                        value={item.weight}
+                                                        onChangeText={(value) => {item.weight = value}}
+                                                        className="border flex-1 rounded-lg text-lg border-[#2C2C2E]"
+                                                        textAlign="center"
+                                                    />
+                                                    <AppTextInput
+                                                        placeholder={`${item.reps ?? '-'}`}
+                                                        keyboardType="numeric"
+                                                        value={item.reps}
+                                                        onChangeText={(value) => {item.reps = value}}
+                                                        className="flex-1 rounded-lg text-lg border border-[#2C2C2E]"
+                                                        textAlign="center"
+                                                    />
+                                                </View>
+                                            </ReanimatedSwipeable>
+                                        )}}
                                 />
                                 <Pressable
                                     onPress={() => setExerciseSets([...exerciseSets, newExerciseSet])}
-                                    className="active:opacity-30 py-2 bg-[#2C2C2E] flex-row justify-center items-center rounded-xl"
+                                    className="active:opacity-30 py-2 mt-4 bg-[#2C2C2E] flex-row justify-center items-center rounded-xl"
                                 >
                                     <MaterialCommunityIcons name="plus" size={24} color="white"/>
                                     <AppText className="ms-1">

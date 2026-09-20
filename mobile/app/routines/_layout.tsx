@@ -16,6 +16,7 @@ export default function RoutinesLayout(){
                 ...createScreenOptions({
                     title: 'Edit Routine'
                 }),
+                headerTintColor: '#fff',
                 headerLeft: () => (
                     <Pressable
                         onPress={() => {

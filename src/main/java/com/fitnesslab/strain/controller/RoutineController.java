@@ -1,17 +1,13 @@
 package com.fitnesslab.strain.controller;
 
+import com.fitnesslab.strain.model.entity.ExerciseSet;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.service.RoutineService;
 import com.fitnesslab.strain.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -35,6 +31,12 @@ public class RoutineController {
     public ResponseEntity<Routine> updateRoutine(@PathVariable UUID routineId, @RequestBody Routine newRoutine){
         Routine routine = routineService.update(routineId, newRoutine);
         return ResponseEntity.status(200).body(routine);
+    }
+
+    @PutMapping("/routines/{routineId}/sets")
+    public ResponseEntity<List<ExerciseSet>> updateRoutineSets(@PathVariable UUID routineId, @RequestBody List<ExerciseSet> sets){
+        List<ExerciseSet> setsToReturn = routineService.updateRoutineSets(routineId, sets);
+        return ResponseEntity.status(200).body(setsToReturn);
     }
 
     @PutMapping("/routines")
