@@ -30,8 +30,15 @@ public class Workout {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime date;
 
-    @OneToMany(mappedBy = "workout")
+    @OneToMany
+    @JoinTable(
+            name = "workouts_exercises",
+            joinColumns = @JoinColumn(name = "workout_id"),
+            inverseJoinColumns = @JoinColumn(name = "exercise_id")
+    )
     private List<Exercise> exercises;
+
+    private Integer volume;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

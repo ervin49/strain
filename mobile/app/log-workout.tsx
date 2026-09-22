@@ -1,5 +1,5 @@
-import {View, Text, Pressable, FlatList} from "react-native";
-import {useEffect, useLayoutEffect, useRef, useState} from "react";
+import {View, Text, Pressable, FlatList, useWindowDimensions} from "react-native";
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {api} from "@/constants/axios";
 import {Exercise, ExerciseSet, Routine, useUser} from "@/components/UserProvider";
 import {router, Stack, useLocalSearchParams} from "expo-router";
@@ -11,17 +11,24 @@ import ReanimatedSwipeable from "react-native-gesture-handler/src/components/Rea
 import AppTextInput from "@/components/AppTextInput";
 import Reanimated, {SharedValue, useAnimatedStyle} from "react-native-reanimated";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
+import Modal from "react-native-modal";
+import AppButton from "@/components/AppButton";
 
 export default function LogWorkoutScreen(){
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
     const {routineId} = useLocalSearchParams<{routineId: string}>()
+    const {width, height} = useWindowDimensions()
     const [routine, setRoutine] = useState<Routine | null>(null)
+    const routineName = routine?.name
     const [exercises, setExercises] = useState<Exercise[]>([])
     const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
     const {user, refreshUser} = useUser();
     const [userId, setUserId] = useState('')
-    const [time, setTime] = useState(0)
+    const [, updateState] = useState<{}>();
+    const forceUpdate = useCallback(() => updateState({}), []);
+    const [duration, setDuration] = useState(0)
     const [volume, setVolume] = useState(0)
+    const [isAddExModalVisible, setIsAddExModalVisible] = useState(false)
     const startTimeRef = useRef(0)
     const intervalRef = useRef<number | null>(null);
 
@@ -30,8 +37,8 @@ export default function LogWorkoutScreen(){
     }
 
     const startTime = () => {
-        startTimeRef.current = Date.now() - time * 1000
-        intervalRef.current = setInterval(() => setTime(Math.floor((Date.now() - startTimeRef.current) / 1000)),1000)
+        startTimeRef.current = Date.now() - duration * 1000
+        intervalRef.current = setInterval(() => setDuration(Math.floor((Date.now() - startTimeRef.current) / 1000)),1000)
     }
 
     useEffect(() => {
@@ -50,15 +57,15 @@ export default function LogWorkoutScreen(){
         startTime()
     },[])
 
-    const timeInMinutes = () => {
-        if(time < 60){
-            return time + 's'
+    const displayTime = () => {
+        if(duration < 60){
+            return duration + 's'
         }
-        if(time < 3600) {
-            return Math.floor(time / 60) + 'min ' + (time % 60) + 's'
+        if(duration < 3600) {
+            return Math.floor(duration / 60) + 'min ' + (duration % 60) + 's'
         }
 
-        return Math.floor(time / 3600) + 'h ' + Math.floor((time % 3600) / 60) + 'min ' + Math.floor(time % 60) + 's'
+        return Math.floor(duration / 3600) + 'h ' + Math.floor((duration % 3600) / 60) + 'min ' + Math.floor(duration % 60) + 's'
     }
 
     function DeleteAction({
@@ -148,16 +155,23 @@ export default function LogWorkoutScreen(){
     }
 
     const handleFinish = async () => {
+        if(exercises.length === 0){
+            setIsAddExModalVisible(true)
+            return
+        }
+
         try {
-            await api.post("/workouts",{
-                'duration': time,
-                'date': new Date().toISOString().slice(0,19),
+            const result = await api.post("/workouts",{
+                routineName,
+                duration,
                 exercises,
-                userId
+                volume
             })
+
+            console.log(result.data);
             await refreshUser()
             router.back()
-        }catch (e) {
+        } catch (e) {
             console.log(e);
         }
     }
@@ -178,13 +192,38 @@ export default function LogWorkoutScreen(){
                     )
                 }}
             />
+            <Modal
+                onBackdropPress={() => setIsAddExModalVisible(false)}
+                useNativeDriver={true}
+                isVisible={isAddExModalVisible}
+                className="items-center justify-center"
+            >
+                <View style={{
+                    height: height * 0.15,
+                    width: width * 0.85,
+                    backgroundColor: '#161618'
+                }}
+                      className="p-5 items-center rounded-2xl"
+                >
+                    <AppText
+                        className="mt-2 mb-5 text-center"
+                    >Add an exercise</AppText>
+                    <AppButton
+                        onPress={() => {
+                            setIsAddExModalVisible(false)
+                        }}
+                        title="Ok"
+                    >
+                    </AppButton>
+                </View>
+            </Modal>
             <View className="flex-row justify-between">
                 <View
                     className="justify-center items-center"
                     style={{width: 80}}
                 >
                     <Text className="text-gray-400">Duration</Text>
-                    <Text className="text-blue-500 text-lg">{timeInMinutes()}</Text>
+                    <Text className="text-blue-500 text-lg">{displayTime()}</Text>
                 </View>
                 <View
                     className="justify-center items-center"
@@ -206,6 +245,14 @@ export default function LogWorkoutScreen(){
                 data={exercises}
                 keyExtractor={(ex) => ex.id}
                 showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                ListEmptyComponent={() => (
+                    <View
+                        className="items-center justify-center mt-35 mb-5 px-5"
+                    >
+                        <AppText className="text-center">Get started by adding an exercise to your routine.</AppText>
+                    </View>
+                )}
                 onDragEnd={({data}) => setExercises(data)}
                 ListFooterComponent={() => (
                     <Pressable
@@ -238,7 +285,7 @@ export default function LogWorkoutScreen(){
                         <ScaleDecorator>
                             <Pressable
                                 onLongPress={drag}
-                                className="mb-4 mt-4"
+                                className="mb-4 mt-8"
                             >
                                 <View className="flex-row justify-between">
                                     <AppText className="text-blue-500">{item.name}</AppText>
@@ -256,6 +303,7 @@ export default function LogWorkoutScreen(){
                                 <FlatList
                                     data={exerciseSets.filter((ex)=> ex.exerciseId === item.id)}
                                     keyExtractor={(set) => set.setNumber.toLocaleString()}
+                                    keyboardShouldPersistTaps="handled"
                                     renderItem={({item}) => {
                                         return (
                                             <ReanimatedSwipeable
@@ -275,7 +323,16 @@ export default function LogWorkoutScreen(){
                                                         placeholder={`${item.weight ?? '-'}`}
                                                         keyboardType="numeric"
                                                         value={item.weight}
-                                                        onChangeText={(value) => {item.weight = value}}
+                                                        onChangeText={(value) => {
+                                                            setExercises(prev =>
+                                                                prev.map(ex =>
+                                                                    ex.id === item.exerciseId ? {
+                                                                        ...ex,
+                                                                        weight: value
+                                                                    } : ex
+                                                                )
+                                                            )
+                                                        }}
                                                         className="border flex-1 rounded-lg text-lg border-[#2C2C2E]"
                                                         textAlign="center"
                                                     />
@@ -283,7 +340,16 @@ export default function LogWorkoutScreen(){
                                                         placeholder={`${item.reps ?? '-'}`}
                                                         keyboardType="numeric"
                                                         value={item.reps}
-                                                        onChangeText={(value) => {item.reps = value}}
+                                                        onChangeText={(value) => {
+                                                            setExercises(prev =>
+                                                                prev.map(ex =>
+                                                                    ex.id === item.exerciseId ? {
+                                                                        ...ex,
+                                                                        reps: value
+                                                                    } : ex
+                                                                )
+                                                            )
+                                                        }}
                                                         className="flex-1 rounded-lg text-lg border border-[#2C2C2E]"
                                                         textAlign="center"
                                                     />

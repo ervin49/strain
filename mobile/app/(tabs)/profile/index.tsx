@@ -1,11 +1,18 @@
-import {Image, Pressable, RefreshControl, ScrollView, Text, useWindowDimensions, View} from "react-native";
-import {useUser} from "@/components/UserProvider";
+import {
+    FlatList,
+    Image,
+    ListRenderItem,
+    ListRenderItemInfo,
+    Pressable,
+    RefreshControl,
+    useWindowDimensions,
+    View
+} from "react-native";
+import {Exercise, useUser, Workout} from "@/components/UserProvider";
 import {router, useLocalSearchParams} from "expo-router";
-import {useEffect, useLayoutEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import AppText from "@/components/AppText";
 import Modal from "react-native-modal";
-import * as Haptics from "expo-haptics"
-import {ImpactFeedbackStyle} from "expo-haptics/src/Haptics.types";
 import {useRefresh} from "@/constants/onRefresh";
 
 export default function ProfileScreen() {
@@ -17,13 +24,10 @@ export default function ProfileScreen() {
     const avatarPath = user?.avatarPath;
     const onRefresh = useRefresh(setIsRefreshing)
     const {success} = useLocalSearchParams()
-    let workouts = [];
-    if(user){
-        workouts = user.workouts
-    }
+    const [workouts, setWorkouts] = useState<Workout[]>([])
     const noOfWorkouts = workouts.length
-
     const [isPassChangedModalVisible, setIsPassChangedModalVisible] = useState(false);
+
     useEffect(() => {
         if(success !== 'true'){
             return;
@@ -34,18 +38,29 @@ export default function ProfileScreen() {
         },3000)
     },[success])
 
+    useEffect(() => {
+        if(user) {
+            setWorkouts(user.workouts)
+        }
+    },[user])
+
+    const displayTime = (time: number) => {
+        if(time < 60){
+            return time + 's'
+        }
+        if(time < 3600) {
+            return Math.floor(time / 60) + 'min ' + (time % 60) + 's'
+        }
+
+        return Math.floor(time / 3600) + 'h ' + Math.floor((time % 3600) / 60) + 'min ' + Math.floor(time % 60) + 's'
+    }
+
     return (
-        <ScrollView
+        <View
             style={{flex: 1, backgroundColor: "black"}}
-            contentContainerClassName="px-4 py-2"
-            refreshControl={
-                <RefreshControl
-                    refreshing={isRefreshing}
-                    onRefresh={onRefresh}
-                />
-            }
         >
             <Modal
+                useNativeDriver={true}
                 isVisible={isPassChangedModalVisible}
                 hasBackdrop={false}
                 animationIn="fadeInDown"
@@ -59,62 +74,97 @@ export default function ProfileScreen() {
                     <AppText>Password changed successfully</AppText>
                 </View>
             </Modal>
-            <View
-                className="flex-row mt-4"
-            >
-                <Pressable
-                    className="active:opacity-30"
-                    onPress={() => router.push("/profile/edit")}
-                >
-                    <Image source={ avatarPath ?
-                        { uri: `http://192.168.1.200:8080/user-images/${avatarPath}`} :
-                        require('@/assets/images/default-profile-picture.png')
-                    }
-                           style={{ width: 80, height: 80}}
-                           className="rounded-full"
+            <FlatList
+                data={[...workouts].reverse()}
+                contentContainerClassName="pb-150"
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        onRefresh={onRefresh}
+                        refreshing={isRefreshing}
                     />
-                </Pressable>
-                <View className="flex-1 mt-2 ms-4 me-3" style={{ height: height * 0.7 }}>
-                    <AppText>{firstName} {lastName}</AppText>
-                    <View className="flex-row mt-1 justify-between">
-                        <View>
-                            <AppText
-                                className="text-gray-400 text-sm"
-                            >
-                                Workouts
-                            </AppText>
-                            <AppText
-                                className="relative bottom-1"
-                            >
-                                {noOfWorkouts}
-                            </AppText>
-                        </View>
+                }
+                ItemSeparatorComponent={() => (
+                    <View className="p-2  bg-[#2C2C2E]"/>
+                )}
+                ListHeaderComponent={() => (
+                    <View>
                         <View
+                            className="flex-row mt-4"
                         >
-                            <AppText
-                                className="text-gray-400 text-sm"
+                            <Pressable
+                                className="active:opacity-30"
+                                onPress={() => router.push("/profile/edit")}
                             >
-                                Followers
-                            </AppText>
-                            <AppText
-                                className="relative bottom-1"
-                            >
-                                0</AppText>
+                                <Image source={ avatarPath ?
+                                    { uri: `http://192.168.1.200:8080/user-images/${avatarPath}`} :
+                                    require('@/assets/images/default-profile-picture.png')
+                                }
+                                       style={{ width: 80, height: 80}}
+                                       className="rounded-full"
+                                />
+                            </Pressable>
+                            <View className="flex-1 mt-2 ms-4 me-3">
+                                <AppText>{firstName} {lastName}</AppText>
+                                <View className="flex-row mt-1 justify-between">
+                                    <View>
+                                        <AppText className="text-gray-400 text-sm">Workouts
+                                        </AppText>
+                                        <AppText className="relative bottom-1">{noOfWorkouts}</AppText>
+                                    </View>
+                                    <View>
+                                        <AppText className="text-gray-400 text-sm">Followers</AppText>
+                                        <AppText className="relative bottom-1">0</AppText>
+                                    </View>
+                                    <View>
+                                        <AppText className="text-gray-400 text-sm">Following</AppText>
+                                        <AppText className="relative bottom-1">0</AppText>
+                                    </View>
+                                </View>
+                            </View>
                         </View>
-                        <View
-                        >
-                            <AppText
-                                className="text-gray-400 text-sm"
-                            >
-                                Following
-                            </AppText>
-                            <AppText
-                                className="relative bottom-1"
-                            >0</AppText>
-                        </View>
+                        <AppText className="mt-20 mb-3 text-gray-400 text-lg">Workouts</AppText>
                     </View>
-                </View>
-            </View>
-        </ScrollView>
+                )}
+                renderItem={({item}) => (
+                    <View className="p-4">
+                        <View className="flex-row">
+                            <Image source={user?.avatarPath ?
+                                `http://192.168.1.200:8080/user-images/${user.avatarPath}` :
+                                require('@/assets/images/default-profile-picture.png')}
+                                   style={{ width: 50, height: 50}}
+                                   className="rounded-full"
+                            />
+                            <View className="ms-5">
+                                <AppText>{user?.firstName} {user?.lastName}</AppText>
+                                <AppText className="text-gray-500 text-sm">{item.date.toString().split('T')[0]}</AppText>
+                            </View>
+                        </View>
+                        <AppText className="mt-3 font-bold text-lg">{item.routineName}</AppText>
+                        <View className="flex-row gap-10 mt-3">
+                            <View>
+                                <AppText className="text-gray-500 text-sm">Time</AppText>
+                                <AppText>{displayTime(item.duration)}</AppText>
+                            </View>
+                            <View>
+                                <AppText className="text-gray-500 text-sm">Volume</AppText>
+                                <AppText>{item.volume ?? '0'} kg</AppText>
+                            </View>
+                        </View>
+                        <View className="h-px mt-4 bg-[#2C2C2E]"/>
+                        <FlatList
+                            data={item.exercises}
+                            renderItem={({item}) => (
+                                <AppText>
+                                    {item.name}
+                                </AppText>
+                            )}
+                        />
+                        {item.exercises.length > 4 &&
+                            <AppText className="text-center">See {item.exercises.length - 3} more {item.exercises.length === 4 ? 'exercise' : 'exercises'}</AppText>
+                        }
+                    </View>
+                )}/>
+        </View>
     )
 }

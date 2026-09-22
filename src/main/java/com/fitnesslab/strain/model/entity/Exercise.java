@@ -26,7 +26,4 @@ public class Exercise {
 
     @ManyToMany
     private List<Muscle> secondaryMuscles;
-
-    @ManyToOne
-    private Workout workout;
 }

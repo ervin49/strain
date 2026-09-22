@@ -68,6 +68,7 @@ export default function WorkoutScreen() {
             className="p-4"
         >
             <Modal
+                useNativeDriver={true}
                 isVisible={isDeleteModalVisible}
                 animationIn="fadeIn"
                 className="items-center justify-center"

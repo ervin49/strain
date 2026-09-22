@@ -177,6 +177,7 @@ export default function EditRoutineScreen() {
                 }}
             />
             <Modal
+                useNativeDriver={true}
                 isVisible={isDiscardModalVisible}
                 className="items-center justify-center"
             >

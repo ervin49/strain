@@ -170,6 +170,7 @@ export default function EditProfileScreen(){
                 </Pressable>
             </View>
             <Modal
+                useNativeDriver={true}
                 isVisible={isPictureModalVisible}
                 swipeDirection="down"
                 animationIn="slideInUp"
@@ -229,6 +230,7 @@ export default function EditProfileScreen(){
                 </View>
             </Modal>
             <Modal
+                useNativeDriver={true}
                 isVisible={isConfirmationModalVisible}
                 animationIn="fadeIn"
                 className="items-center justify-center"
