@@ -21,6 +21,7 @@ public class ExerciseSet {
     @Id
     @UuidGenerator
     private UUID id;
+
     private int setNumber;
     private String weight;
     private String reps;

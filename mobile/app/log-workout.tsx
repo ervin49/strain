@@ -13,6 +13,7 @@ import Reanimated, {SharedValue, useAnimatedStyle} from "react-native-reanimated
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Modal from "react-native-modal";
 import AppButton from "@/components/AppButton";
+import {ImpactFeedbackStyle} from "expo-haptics/src/Haptics.types";
 
 export default function LogWorkoutScreen(){
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
@@ -22,6 +23,7 @@ export default function LogWorkoutScreen(){
     const routineName = routine?.name
     const [exercises, setExercises] = useState<Exercise[]>([])
     const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
+    const [finishedSets, setFinishedSets] = useState<ExerciseSet[]>([])
     const {user, refreshUser} = useUser();
     const [userId, setUserId] = useState('')
     const [, updateState] = useState<{}>();
@@ -31,6 +33,10 @@ export default function LogWorkoutScreen(){
     const [isAddExModalVisible, setIsAddExModalVisible] = useState(false)
     const startTimeRef = useRef(0)
     const intervalRef = useRef<number | null>(null);
+
+    const getSetId = (set: ExerciseSet) => {
+        return set.exerciseId + '-' + set.setNumber
+    }
 
     const onDelete = (item: ExerciseSet) => {
         setExerciseSets((prev) => [...prev.filter((set) => set !== item)])
@@ -46,12 +52,6 @@ export default function LogWorkoutScreen(){
             setUserId(user.id)
         }
     },[user])
-
-    useEffect(() => {
-        let volume = 0;
-        exerciseSets.forEach((set) => {volume += Number(set.weight ?? 0) * Number(set.reps ?? 0)})
-        setVolume(volume)
-    },[exerciseSets])
 
     useLayoutEffect(() => {
         startTime()
@@ -154,7 +154,7 @@ export default function LogWorkoutScreen(){
         setExercises(exercises.filter((ex) => ex.name !== name))
     }
 
-    const handleFinish = async () => {
+    const handleFinishWorkout = async () => {
         if(exercises.length === 0){
             setIsAddExModalVisible(true)
             return
@@ -165,6 +165,7 @@ export default function LogWorkoutScreen(){
                 routineName,
                 duration,
                 exercises,
+                'sets': finishedSets.map(({id, ...set}) => set),
                 volume
             })
 
@@ -175,17 +176,40 @@ export default function LogWorkoutScreen(){
             console.log(e);
         }
     }
+
+    const handleFinishSet = async (item: ExerciseSet) => {
+        await Haptics.impactAsync(ImpactFeedbackStyle.Light);
+
+        setFinishedSets(prev => {
+            const id = getSetId(item);
+
+            const next = prev.some(set => getSetId(set) === id)
+                ? prev.filter(set => getSetId(set) !== id)
+                : [...prev, exerciseSets.find(set => getSetId(set) === id)!];
+
+            const volume = next.reduce(
+                (sum, set) =>
+                    sum +
+                    Number(set.weight ?? 0) * Number(set.reps ?? 0),
+                0
+            );
+
+            setVolume(volume);
+
+            return next;
+        });
+    }
+
     return (
         <GestureHandlerRootView
             style={{ flex: 1, backgroundColor: 'black'}}
-            className="p-4"
         >
             <Stack.Screen
                 options={{
                     headerRight: () => (
                         <Pressable
                             className="px-3"
-                            onPress={handleFinish}
+                            onPress={handleFinishWorkout}
                         >
                             <Text>Finish</Text>
                         </Pressable>
@@ -287,24 +311,31 @@ export default function LogWorkoutScreen(){
                                 onLongPress={drag}
                                 className="mb-4 mt-8"
                             >
-                                <View className="flex-row justify-between">
+                                <View className="flex-row justify-between px-3">
                                     <AppText className="text-blue-500">{item.name}</AppText>
                                     <Pressable onPress={() => removeExercise(item.name)}>
                                         <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
                                     </Pressable>
                                 </View>
-                                <View className="flex-row justify-between mt-2">
+                                <View className="flex-row justify-between mt-2 px-2.5">
                                     <View style={{ width: 32 }}>
                                         <AppText className="text-sm text-gray-400 ms-1">SET</AppText>
                                     </View>
                                     <AppText className="text-sm flex-1 text-gray-400 text-center">KG</AppText>
                                     <AppText className="text-sm flex-1 text-gray-400 text-center">REPS</AppText>
+                                    <MaterialCommunityIcons
+                                        name="check"
+                                        color="gray"
+                                        size={18}
+                                    />
                                 </View>
                                 <FlatList
                                     data={exerciseSets.filter((ex)=> ex.exerciseId === item.id)}
                                     keyExtractor={(set) => set.setNumber.toLocaleString()}
                                     keyboardShouldPersistTaps="handled"
                                     renderItem={({item}) => {
+                                        let isFinished = finishedSets.some((set) => getSetId(set) === getSetId(item))
+
                                         return (
                                             <ReanimatedSwipeable
                                                 friction={1}
@@ -314,9 +345,10 @@ export default function LogWorkoutScreen(){
                                                 )}
                                             >
                                                 <View
-                                                    className="flex-row justify-between  mt-3 gap-2"
+                                                    className={`  ${isFinished ?  'bg-green-500/15' : 'bg-black'}  flex-row justify-between p-2 gap-2`}
                                                 >
-                                                    <View className="bg-[#2C2C2E] rounded-lg justify-center items-center" style={{ width: 32, height: 32}}>
+                                                    <View className={`bg-[#2C2C2E]  rounded-lg justify-center items-center`}
+                                                          style={{ width: 32, height: 32}}>
                                                         <AppText>{item.setNumber}</AppText>
                                                     </View>
                                                     <AppTextInput
@@ -324,16 +356,16 @@ export default function LogWorkoutScreen(){
                                                         keyboardType="numeric"
                                                         value={item.weight}
                                                         onChangeText={(value) => {
-                                                            setExercises(prev =>
-                                                                prev.map(ex =>
-                                                                    ex.id === item.exerciseId ? {
-                                                                        ...ex,
+                                                            setExerciseSets(prev =>
+                                                                prev.map(set =>
+                                                                    getSetId(set) === getSetId(item) ? {
+                                                                        ...set,
                                                                         weight: value
-                                                                    } : ex
+                                                                    } : set
                                                                 )
                                                             )
                                                         }}
-                                                        className="border flex-1 rounded-lg text-lg border-[#2C2C2E]"
+                                                        className={`${isFinished ? '' : 'border'} flex-1 rounded-lg text-lg border-[#2C2C2E]`}
                                                         textAlign="center"
                                                     />
                                                     <AppTextInput
@@ -341,18 +373,30 @@ export default function LogWorkoutScreen(){
                                                         keyboardType="numeric"
                                                         value={item.reps}
                                                         onChangeText={(value) => {
-                                                            setExercises(prev =>
-                                                                prev.map(ex =>
-                                                                    ex.id === item.exerciseId ? {
-                                                                        ...ex,
+                                                            setExerciseSets(prev =>
+                                                                prev.map(set =>
+                                                                    getSetId(set) === getSetId(item) ? {
+                                                                        ...set,
                                                                         reps: value
-                                                                    } : ex
+                                                                    } : set
                                                                 )
                                                             )
                                                         }}
-                                                        className="flex-1 rounded-lg text-lg border border-[#2C2C2E]"
+                                                        className={`${isFinished ? '' : 'border'} flex-1 rounded-lg text-lg border-[#2C2C2E]`}
                                                         textAlign="center"
+                                                        style={{
+                                                            height: 32,
+                                                            padding: 0,
+                                                            fontSize: 16,
+                                                        }}
                                                     />
+                                                    <Pressable
+                                                        className="bg-[#2C2C2E] items-center justify-center rounded-lg"
+                                                        style={{ width: 32, height: 32}}
+                                                        onPress={() => handleFinishSet(item)}
+                                                    >
+                                                        <MaterialCommunityIcons name="check" size={24} color="gray"/>
+                                                    </Pressable>
                                                 </View>
                                             </ReanimatedSwipeable>
                                         )}}

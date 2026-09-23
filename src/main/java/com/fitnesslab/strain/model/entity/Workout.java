@@ -38,6 +38,9 @@ public class Workout {
     )
     private List<Exercise> exercises;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<ExerciseSet> sets;
+
     private Integer volume;
 
     @ManyToOne

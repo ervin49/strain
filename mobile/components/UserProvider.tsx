@@ -27,6 +27,7 @@ export interface Workout {
     duration: number;
     date: Date;
     exercises: Exercise[];
+    sets: ExerciseSet[];
     volume: number;
 }
 

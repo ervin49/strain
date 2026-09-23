@@ -1,5 +1,6 @@
 import {
     ActivityIndicator, FlatList, Image,
+    Pressable,
     RefreshControl,
     useWindowDimensions,
     View
@@ -45,7 +46,6 @@ export default function HomeScreen() {
         let d, h, m, s;
         s = Math.floor(ms / 1000);
         m = Math.floor(s / 60);
-        s = s % 60;
         h = Math.floor(m / 60);
         m = m % 60;
         d = Math.floor(h / 24);
@@ -85,7 +85,7 @@ export default function HomeScreen() {
                 ItemSeparatorComponent={() => (
                     <View className="p-2 bg-[#2C2C2E]"/>
                 )}
-                renderItem={({item}) => (
+                renderItem={({item: workout}) => (
                     <View className="p-4">
                         <View className="flex-row">
                             <Image source={user?.avatarPath ?
@@ -96,31 +96,43 @@ export default function HomeScreen() {
                             />
                             <View className="ms-5">
                                 <AppText>{user?.firstName} {user?.lastName}</AppText>
-                                <AppText className="text-gray-500 text-sm">{convertMS(new Date().getTime() - new Date(item.date).getTime())}</AppText>
+                                <AppText className="text-gray-500 text-sm">{convertMS(new Date().getTime() - new Date(workout.date).getTime())}</AppText>
                             </View>
                         </View>
-                        <AppText className="mt-3 font-bold text-lg">{item.routineName}</AppText>
+                        <AppText className="mt-3 font-bold text-lg">{workout.routineName}</AppText>
                         <View className="flex-row gap-10 mt-3">
                             <View>
                                 <AppText className="text-gray-500 text-sm">Time</AppText>
-                                <AppText>{displayTime(item.duration)}</AppText>
+                                <AppText>{displayTime(workout.duration)}</AppText>
                             </View>
                             <View>
                                 <AppText className="text-gray-500 text-sm">Volume</AppText>
-                                <AppText>{item.volume ?? '0'} kg</AppText>
+                                <AppText>{workout.volume ?? '0'} kg</AppText>
                             </View>
                         </View>
                         <View className="h-px mt-4 bg-[#2C2C2E]"/>
                         <FlatList
-                            data={item.exercises.splice(0,3)}
-                            renderItem={({item}) => (
-                                <AppText>
-                                    {item.name}
-                                </AppText>
-                            )}
+                            data={[...workout.exercises].splice(0,3)}
+                            className="p-2"
+                            renderItem={({item: exercise}) => {
+                                const noOfSets = workout.sets.filter(
+                                    (set) => set.exerciseId === exercise.id
+                                ).length
+
+                                return (
+                                    <AppText>
+                                        {noOfSets} sets {exercise.name}
+                                    </AppText>
+                                )
+                            }}
                         />
-                        {item.exercises.length > 3 &&
-                            <AppText className="text-center">See {item.exercises.length - 3} more {item.exercises.length === 4 ? 'exercise' : 'exercises'}</AppText>
+                        {workout.exercises.length > 3 &&
+                            <Pressable
+                                onPress={() => console.log("da ma daaaaaaaa")}
+                                hitSlop={20}
+                            >
+                                <AppText className="text-center text-sm mt-3 text-gray-400">See {workout.exercises.length - 3} more {workout.exercises.length === 4 ? 'exercise' : 'exercises'}</AppText>
+                            </Pressable>
                         }
                     </View>
                 )}/>
