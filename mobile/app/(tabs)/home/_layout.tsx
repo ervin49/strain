@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import {router, Stack} from "expo-router";
 import {createScreenOptions} from "@/constants/ScreenOptions";
 import {Pressable, View} from "react-native";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
@@ -28,6 +28,27 @@ export default function DashboardLayout(){
                         </Pressable>
                     </View>
                 )
+            }}/>
+            <Stack.Screen name="workout-details" options={{
+                ...createScreenOptions({
+                    title: "Workout Details",
+                    small: true,
+                    align: "center"
+                }),
+                headerLeft: () => (
+                    <Pressable
+                        onPress={() => {
+                            if(router.canGoBack()) {
+                                router.back()
+                            } else {
+                                router.replace("/")
+                            }
+                        }}
+                        hitSlop={10}
+                        className="h-10 w-10 justify-center items-center">
+                        <MaterialCommunityIcons name="arrow-left" color="white" size={26}/>
+                    </Pressable>
+                ),
             }}/>
         </Stack>
     )

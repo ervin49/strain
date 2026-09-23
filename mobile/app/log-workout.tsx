@@ -1,4 +1,4 @@
-import {View, Text, Pressable, FlatList, useWindowDimensions} from "react-native";
+import {View, Text, Pressable, FlatList, useWindowDimensions, ActivityIndicator} from "react-native";
 import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {api} from "@/constants/axios";
 import {Exercise, ExerciseSet, Routine, useUser} from "@/components/UserProvider";
@@ -31,6 +31,7 @@ export default function LogWorkoutScreen(){
     const [duration, setDuration] = useState(0)
     const [volume, setVolume] = useState(0)
     const [isAddExModalVisible, setIsAddExModalVisible] = useState(false)
+    const [isNoSetValuesModalVisible, setIsNoSetValuesModalVisible] = useState(false)
     const startTimeRef = useRef(0)
     const intervalRef = useRef<number | null>(null);
 
@@ -160,14 +161,20 @@ export default function LogWorkoutScreen(){
             return
         }
 
+        if(finishedSets.length === 0){
+            setIsNoSetValuesModalVisible(true)
+            return
+        }
+
         try {
             const result = await api.post("/workouts",{
                 routineName,
                 duration,
-                exercises,
+                'exercises': exercises.filter((ex) => finishedSets.some((set) => set.exerciseId === ex.id)),
                 'sets': finishedSets.map(({id, ...set}) => set),
                 volume
             })
+            console.log(result.data);
 
             await refreshUser()
             router.back()
@@ -197,6 +204,14 @@ export default function LogWorkoutScreen(){
 
             return next;
         });
+    }
+
+    if(!routine){
+        return(
+            <View className="bg-black items-center justify-center" style={{ flex: 1}}>
+                <ActivityIndicator size="large" className="relative bottom-20"/>
+            </View>
+        )
     }
 
     return (
@@ -240,6 +255,31 @@ export default function LogWorkoutScreen(){
                     </AppButton>
                 </View>
             </Modal>
+            <Modal
+                onBackdropPress={() => setIsNoSetValuesModalVisible(false)}
+                useNativeDriver={true}
+                isVisible={isNoSetValuesModalVisible}
+                className="items-center justify-center"
+            >
+                <View style={{
+                    height: height * 0.15,
+                    width: width * 0.85,
+                    backgroundColor: '#161618'
+                }}
+                      className="p-5 items-center rounded-2xl"
+                >
+                    <AppText
+                        className="mt-2 mb-5 text-center"
+                    >Your workout has no set values</AppText>
+                    <AppButton
+                        onPress={() => {
+                            setIsNoSetValuesModalVisible(false)
+                        }}
+                        title="Ok"
+                    >
+                    </AppButton>
+                </View>
+            </Modal>
             <View className="flex-row justify-between">
                 <View
                     className="justify-center items-center"
@@ -260,7 +300,7 @@ export default function LogWorkoutScreen(){
                     style={{width: 80}}
                 >
                     <Text className="text-gray-400">Sets</Text>
-                    <Text className="text-gray-400 text-lg">0</Text>
+                    <Text className="text-gray-400 text-lg">{finishedSets.length}</Text>
                 </View>
             </View>
             <View className="h-px mt-5 bg-gray-900"/>

@@ -30,4 +30,8 @@ public class WorkoutService {
         Workout workout = workoutRepository.findById(workoutId).orElseThrow();
         workoutRepository.delete(workout);
     }
+
+    public Workout findById(UUID workoutId) {
+        return workoutRepository.findById(workoutId).orElseThrow();
+    }
 }

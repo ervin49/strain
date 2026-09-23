@@ -1,4 +1,4 @@
-import {FlatList, Pressable, TextInput, View} from "react-native";
+import {ActivityIndicator, FlatList, Pressable, TextInput, View} from "react-native";
 import AppText from "@/components/AppText";
 import {useEffect, useMemo, useState} from "react";
 import {api} from "@/constants/axios";
@@ -94,6 +94,14 @@ export default function AddExercise(){
             }
         })
     };
+
+    if(!exercises){
+        return(
+            <View className="bg-black items-center justify-center" style={{ flex: 1}}>
+                <ActivityIndicator size="large" className="relative bottom-20"/>
+            </View>
+        )
+    }
 
     return (
         <View

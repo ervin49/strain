@@ -13,6 +13,7 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {api} from "@/constants/axios";
 import Modal from "react-native-modal";
 import {router} from "expo-router";
+import {convertMS, displayTime} from "@/constants/time";
 
 export default function HomeScreen() {
     const {loading, user, refreshUser} = useUser();
@@ -37,42 +38,6 @@ export default function HomeScreen() {
         )
     }
 
-    const displayTime = (time: number) => {
-        if(time < 60){
-            return time + 's'
-        }
-        if(time < 3600) {
-            return Math.floor(time / 60) + 'min ' + (time % 60) + 's'
-        }
-
-        return Math.floor(time / 3600) + 'h ' + Math.floor((time % 3600) / 60) + 'min ' + Math.floor(time % 60) + 's'
-    }
-
-    function convertMS(ms: number) {
-        let d, h, m, s;
-        s = Math.floor(ms / 1000);
-        m = Math.floor(s / 60);
-        h = Math.floor(m / 60);
-        m = m % 60;
-        d = Math.floor(h / 24);
-        h = h % 24;
-
-        if(d == 0){
-            if(h == 0){
-                if(m == 0) {
-                    return 'a few seconds ago'
-                }
-                else {
-                    return m == 1 ? 'one minute ago' : m + ' minutes ago'
-                }
-            }
-            else {
-                return h == 1 ? 'one hour ago' : h + ' hours ago'
-            }
-        } else {
-            return d == 1 ? 'one day ago' : d + ' days ago'
-        }
-    }
 
     const handleDeleteWorkout = async () => {
         try {
@@ -149,7 +114,7 @@ export default function HomeScreen() {
                         <View className="flex-row justify-between">
                             <View className="flex-row">
                                 <Image source={user?.avatarPath ?
-                                    `http://192.168.1.200:8080/user-images/${user.avatarPath}` :
+                                    {uri: `http://192.168.1.200:8080/user-images/${user.avatarPath}`} :
                                     require('@/assets/images/default-profile-picture.png')}
                                        style={{ width: 50, height: 50}}
                                        className="rounded-full"
@@ -167,6 +132,15 @@ export default function HomeScreen() {
                                 <MaterialCommunityIcons name="trash-can-outline" color="red" size={26}/>
                             </Pressable>
                         </View>
+                        <Pressable
+                            onPress={() => router.push({
+                                pathname: "/home/workout-details",
+                                params: {
+                                    'workoutId': workout.id
+                                }
+                            })}
+                            hitSlop={20}
+                        >
                         <AppText className="mt-3 font-bold text-lg">{workout.routineName}</AppText>
                         <View className="flex-row gap-10 mt-3">
                             <View>
@@ -177,8 +151,22 @@ export default function HomeScreen() {
                                 <AppText className="text-gray-500 text-sm">Volume</AppText>
                                 <AppText>{workout.volume ?? '0'} kg</AppText>
                             </View>
+                            <View>
+                                <AppText className="text-gray-500 text-sm">Sets</AppText>
+                                <AppText>{workout.sets.length ?? '0'}</AppText>
+                            </View>
                         </View>
+                        </Pressable>
                         <View className="h-px mt-4 bg-[#2C2C2E]"/>
+                        <Pressable
+                            onPress={() => router.push({
+                                pathname: "/home/workout-details",
+                                params: {
+                                    'workoutId': workout.id
+                                }
+                            })}
+                            hitSlop={20}
+                        >
                         <FlatList
                             data={[...workout.exercises].splice(0,3)}
                             className="p-2"
@@ -194,9 +182,15 @@ export default function HomeScreen() {
                                 )
                             }}
                         />
+                        </Pressable>
                         {workout.exercises.length > 3 &&
                             <Pressable
-                                onPress={() => console.log("da ma daaaaaaaa")}
+                                onPress={() => router.push({
+                                    pathname: "/home/workout-details",
+                                    params: {
+                                        'workoutId': workout.id
+                                    }
+                                })}
                                 hitSlop={20}
                             >
                                 <AppText className="text-center text-sm mt-3 text-gray-400">See {workout.exercises.length - 3} more {workout.exercises.length === 4 ? 'exercise' : 'exercises'}</AppText>

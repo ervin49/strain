@@ -1,24 +1,21 @@
 import {
     FlatList,
     Image,
-    ListRenderItem,
-    ListRenderItemInfo,
     Pressable,
     RefreshControl,
-    useWindowDimensions,
     View
 } from "react-native";
-import {Exercise, useUser, Workout} from "@/components/UserProvider";
+import {useUser, Workout} from "@/components/UserProvider";
 import {router, useLocalSearchParams} from "expo-router";
 import {useEffect, useState} from "react";
 import AppText from "@/components/AppText";
 import Modal from "react-native-modal";
 import {useRefresh} from "@/constants/onRefresh";
+import {displayTime} from "@/constants/time";
 
 export default function ProfileScreen() {
     const {user} = useUser();
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const {height} = useWindowDimensions()
     const firstName = user?.firstName
     const lastName = user?.lastName
     const avatarPath = user?.avatarPath;
@@ -44,16 +41,6 @@ export default function ProfileScreen() {
         }
     },[user])
 
-    const displayTime = (time: number) => {
-        if(time < 60){
-            return time + 's'
-        }
-        if(time < 3600) {
-            return Math.floor(time / 60) + 'min ' + (time % 60) + 's'
-        }
-
-        return Math.floor(time / 3600) + 'h ' + Math.floor((time % 3600) / 60) + 'min ' + Math.floor(time % 60) + 's'
-    }
 
     return (
         <View
@@ -130,7 +117,7 @@ export default function ProfileScreen() {
                     <View className="p-4">
                         <View className="flex-row">
                             <Image source={user?.avatarPath ?
-                                `http://192.168.1.200:8080/user-images/${user.avatarPath}` :
+                                {uri: `http://192.168.1.200:8080/user-images/${user.avatarPath}`} :
                                 require('@/assets/images/default-profile-picture.png')}
                                    style={{ width: 50, height: 50}}
                                    className="rounded-full"

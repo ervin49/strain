@@ -24,6 +24,12 @@ public class WorkoutController {
         return ResponseEntity.status(201).body(createdWorkout);
     }
 
+    @GetMapping("/workouts/{workoutId}")
+    public ResponseEntity<Workout> getWorkout(@PathVariable UUID workoutId){
+        Workout workout = workoutService.findById(workoutId);
+        return ResponseEntity.ok(workout);
+    }
+
     @DeleteMapping("/workouts/{workoutId}")
     public ResponseEntity<Workout> addWorkout(@PathVariable UUID workoutId){
         workoutService.delete(workoutId);
