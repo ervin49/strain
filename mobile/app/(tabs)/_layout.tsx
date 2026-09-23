@@ -5,6 +5,7 @@ import {ActivityIndicator, View} from "react-native";
 
 export default function TabsLayout() {
     const { loading } = useUser();
+
     if(loading){
         return(
             <View className="bg-black items-center justify-center" style={{ flex: 1}}>
@@ -12,6 +13,7 @@ export default function TabsLayout() {
             </View>
         )
     }
+
     return (
         <NativeTabs>
             <NativeTabs.Trigger name="home">

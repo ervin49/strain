@@ -17,7 +17,6 @@ export default function WorkoutDetailsScreen() {
             try{
                 const result = await api.get(`/workouts/${workoutId}`)
 
-                console.log(result.data);
                 setWorkout(result.data)
                 setExercises(result.data.exercises)
             } catch (e) {

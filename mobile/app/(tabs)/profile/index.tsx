@@ -12,7 +12,7 @@ import {useEffect, useState} from "react";
 import AppText from "@/components/AppText";
 import Modal from "react-native-modal";
 import {useRefresh} from "@/constants/onRefresh";
-import {convertMS, displayTime} from "@/constants/time";
+import {displayTime} from "@/constants/time";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 
 export default function ProfileScreen() {
@@ -137,7 +137,7 @@ export default function ProfileScreen() {
                                 />
                                 <View className="ms-5">
                                     <AppText>{user.firstName}</AppText>
-                                    <AppText className="text-gray-500 text-sm">{convertMS(new Date().getTime() - new Date(workout.date).getTime())}</AppText>
+                                    <AppText className="text-gray-500 text-sm">{workout.date.toString().split('T')[0]}</AppText>
                                 </View>
                             </View>
                             <Pressable onPress={() => {

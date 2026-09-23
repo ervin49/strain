@@ -100,6 +100,12 @@ export default function HomeScreen() {
                 data={[...workouts].reverse()}
                 contentContainerClassName="pb-150"
                 showsVerticalScrollIndicator={false}
+                ListEmptyComponent={() => (
+                    <View className="items-center justify-center mt-20">
+                        <AppText className="text-center text-xl">You don't have any workout.</AppText>
+                        <AppText className="text-xl text-center">Add a workout now</AppText>
+                    </View>
+                )}
                 refreshControl={
                     <RefreshControl
                         onRefresh={onRefresh}

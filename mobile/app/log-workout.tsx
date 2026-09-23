@@ -14,23 +14,21 @@ import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Modal from "react-native-modal";
 import AppButton from "@/components/AppButton";
 import {ImpactFeedbackStyle} from "expo-haptics/src/Haptics.types";
+import {displayTime} from "@/constants/time";
 
 export default function LogWorkoutScreen(){
     const {exercisesNames} = useLocalSearchParams<{exercisesNames: string}>();
     const {routineId} = useLocalSearchParams<{routineId: string}>()
     const {width, height} = useWindowDimensions()
     const [routine, setRoutine] = useState<Routine | null>(null)
-    const routineName = routine?.name
+    const [routineName, setRoutineName] = useState<string>("")
     const [exercises, setExercises] = useState<Exercise[]>([])
     const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
     const [finishedSets, setFinishedSets] = useState<ExerciseSet[]>([])
-    const {refreshUser} = useUser();
-    const [duration, setDuration] = useState(0)
+    const {refreshUser, setWorkoutInProgress, startTime, duration} = useUser();
     const [volume, setVolume] = useState(0)
     const [isAddExModalVisible, setIsAddExModalVisible] = useState(false)
     const [isNoSetValuesModalVisible, setIsNoSetValuesModalVisible] = useState(false)
-    const startTimeRef = useRef(0)
-    const intervalRef = useRef<number | null>(null);
 
     const getSetId = (set: ExerciseSet) => {
         return set.exerciseId + '-' + set.setNumber
@@ -40,25 +38,17 @@ export default function LogWorkoutScreen(){
         setExerciseSets((prev) => [...prev.filter((set) => set !== item)])
     }
 
-    const startTime = () => {
-        startTimeRef.current = Date.now() - duration * 1000
-        intervalRef.current = setInterval(() => setDuration(Math.floor((Date.now() - startTimeRef.current) / 1000)),1000)
-    }
-
     useLayoutEffect(() => {
+        setWorkoutInProgress({
+            routineName,
+            duration,
+            exercises,
+            'sets': exerciseSets,
+            finishedSets,
+            volume,
+        })
         startTime()
-    },[])
-
-    const displayTime = () => {
-        if(duration < 60){
-            return duration + 's'
-        }
-        if(duration < 3600) {
-            return Math.floor(duration / 60) + 'min ' + (duration % 60) + 's'
-        }
-
-        return Math.floor(duration / 3600) + 'h ' + Math.floor((duration % 3600) / 60) + 'min ' + Math.floor(duration % 60) + 's'
-    }
+    },[routineName, duration, exercises, exerciseSets, finishedSets, volume])
 
     function DeleteAction({
                               drag, item,
@@ -137,6 +127,7 @@ export default function LogWorkoutScreen(){
             try {
                 const result = await api.get(`/routines/${routineId}`);
                 setRoutine(result.data)
+                setRoutineName(result.data.routineName)
                 setExercises(result.data.exercises)
                 setExerciseSets(result.data.sets)
             } catch (e) {
@@ -162,14 +153,13 @@ export default function LogWorkoutScreen(){
         }
 
         try {
-            const result = await api.post("/workouts",{
+            await api.post("/workouts",{
                 routineName,
                 duration,
                 'exercises': exercises.filter((ex) => finishedSets.some((set) => set.exerciseId === ex.id)),
                 'sets': finishedSets.map(({id, ...set}) => set),
                 volume
             })
-            console.log(result.data);
 
             await refreshUser()
             router.back()
@@ -179,7 +169,7 @@ export default function LogWorkoutScreen(){
     }
 
     const handleFinishSet = async (item: ExerciseSet) => {
-        await Haptics.impactAsync(ImpactFeedbackStyle.Light);
+        await Haptics.impactAsync(ImpactFeedbackStyle.Medium);
 
         setFinishedSets(prev => {
             const id = getSetId(item);
@@ -221,6 +211,29 @@ export default function LogWorkoutScreen(){
                             onPress={handleFinishWorkout}
                         >
                             <Text>Finish</Text>
+                        </Pressable>
+                    ),
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => {
+                                setWorkoutInProgress({
+                                    duration,
+                                    exercises,
+                                    finishedSets,
+                                    sets: exerciseSets,
+                                    routineName,
+                                    volume
+                                })
+
+                                if(router.canGoBack()) {
+                                    router.back()
+                                } else {
+                                    router.replace("/")
+                                }
+                            }}
+                            hitSlop={10}
+                            className="justify-center items-center">
+                            <MaterialCommunityIcons name="chevron-down" size={28}/>
                         </Pressable>
                     )
                 }}
@@ -275,13 +288,13 @@ export default function LogWorkoutScreen(){
                     </AppButton>
                 </View>
             </Modal>
-            <View className="flex-row justify-between">
+            <View className="flex-row justify-between mt-3">
                 <View
                     className="justify-center items-center"
                     style={{width: 80}}
                 >
                     <Text className="text-gray-400">Duration</Text>
-                    <Text className="text-blue-500 text-lg">{displayTime()}</Text>
+                    <Text className="text-blue-500 text-lg">{displayTime(duration)}</Text>
                 </View>
                 <View
                     className="justify-center items-center"
@@ -349,12 +362,12 @@ export default function LogWorkoutScreen(){
                                 className="mb-4 mt-8"
                             >
                                 <View className="flex-row justify-between px-3">
-                                    <AppText className="text-blue-500">{item.name}</AppText>
+                                    <AppText className="text-blue-500 text-xl">{item.name}</AppText>
                                     <Pressable onPress={() => removeExercise(item.name)}>
                                         <MaterialCommunityIcons name="trash-can-outline" color="red" size={24}/>
                                     </Pressable>
                                 </View>
-                                <View className="flex-row justify-between mt-2 px-2.5">
+                                <View className="flex-row justify-between mt-3 px-2.5">
                                     <View style={{ width: 32 }}>
                                         <AppText className="text-sm text-gray-400 ms-1">SET</AppText>
                                     </View>

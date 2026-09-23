@@ -77,7 +77,6 @@ export default function EditRoutineScreen() {
         const fetchRoutine = async () => {
             try {
                 const result = await api.get(`/routines/${routineId}`);
-                console.log(result.data.sets);
                 setRoutine(result.data)
                 setRoutineName(result.data.name)
                 setExercises(result.data.exercises)

@@ -1,4 +1,4 @@
-import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
+import {createContext, type ReactNode, useContext, useEffect, useRef, useState} from "react";
 import {api} from "@/constants/axios";
 
 export interface Muscle {
@@ -51,11 +51,25 @@ export interface UserProfile {
     avatarPath: string;
 }
 
+export interface WorkoutInProgress {
+    routineName: string;
+    duration: number;
+    exercises: Exercise[];
+    sets: ExerciseSet[];
+    finishedSets: ExerciseSet[];
+    volume: number;
+}
+
 export interface UserContextType{
     user: UserProfile | null;
     setUser: (user: UserProfile | null) => void;
     loading: boolean;
     refreshUser: () => Promise<void>;
+    workoutInProgress: WorkoutInProgress | null;
+    setWorkoutInProgress: (workout: WorkoutInProgress | null) => void;
+    startTime: () => void;
+    duration: number;
+    stopTime: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -63,6 +77,27 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export default function UserProvider({children} : {children: ReactNode}): ReactNode {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [workoutInProgress, setWorkoutInProgress] = useState<WorkoutInProgress | null>(null)
+    const startTimeRef = useRef(0)
+    const intervalRef = useRef<number | null>(null);
+    const [duration, setDuration] = useState(0)
+
+    const startTime = () => {
+        if (intervalRef.current !== null) {
+            clearInterval(intervalRef.current)
+        }
+
+        startTimeRef.current = Date.now() - duration * 1000
+        intervalRef.current = setInterval(() => setDuration(Math.floor((Date.now() - startTimeRef.current) / 1000)),1000)
+    }
+
+    const stopTime = () => {
+        if (intervalRef.current !== null) {
+            clearInterval(intervalRef.current)
+            intervalRef.current = null
+            setDuration(0)
+        }
+    }
 
     const refreshUser = async () => {
         try {
@@ -81,7 +116,11 @@ export default function UserProvider({children} : {children: ReactNode}): ReactN
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, setUser, loading, refreshUser}}>
+        <UserContext.Provider value={{
+            user, setUser, loading, refreshUser,
+            workoutInProgress, setWorkoutInProgress, startTime, duration, stopTime
+        }}
+        >
             {children}
         </UserContext.Provider>
     )

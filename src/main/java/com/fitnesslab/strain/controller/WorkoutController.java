@@ -31,7 +31,7 @@ public class WorkoutController {
     }
 
     @DeleteMapping("/workouts/{workoutId}")
-    public ResponseEntity<Workout> addWorkout(@PathVariable UUID workoutId){
+    public ResponseEntity<Workout> deleteWorkout(@PathVariable UUID workoutId){
         workoutService.delete(workoutId);
         return ResponseEntity.noContent().build();
     }
