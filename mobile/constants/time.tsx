@@ -31,6 +31,6 @@ export function convertMS(ms: number) {
             return h == 1 ? 'one hour ago' : h + ' hours ago'
         }
     } else {
-        return d == 1 ? 'one day ago' : d + ' days ago'
+        return d == 1 ? 'yesterday' : d + ' days ago'
     }
 }

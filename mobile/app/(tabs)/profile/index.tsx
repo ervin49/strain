@@ -1,4 +1,5 @@
 import {
+    ActivityIndicator,
     FlatList,
     Image,
     Pressable,
@@ -11,10 +12,11 @@ import {useEffect, useState} from "react";
 import AppText from "@/components/AppText";
 import Modal from "react-native-modal";
 import {useRefresh} from "@/constants/onRefresh";
-import {displayTime} from "@/constants/time";
+import {convertMS, displayTime} from "@/constants/time";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
 
 export default function ProfileScreen() {
-    const {user} = useUser();
+    const {user, loading} = useUser();
     const [isRefreshing, setIsRefreshing] = useState(false);
     const firstName = user?.firstName
     const lastName = user?.lastName
@@ -24,6 +26,8 @@ export default function ProfileScreen() {
     const [workouts, setWorkouts] = useState<Workout[]>([])
     const noOfWorkouts = workouts.length
     const [isPassChangedModalVisible, setIsPassChangedModalVisible] = useState(false);
+    const [workoutToDelete, setWorkoutToDelete] = useState<Workout | null>()
+    const [isDeleteWorkoutVisible, setIsDeleteWorkoutVisible] = useState(false)
 
     useEffect(() => {
         if(success !== 'true'){
@@ -40,6 +44,14 @@ export default function ProfileScreen() {
             setWorkouts(user.workouts)
         }
     },[user])
+
+    if(loading || !user){
+        return(
+            <View className="bg-black items-center justify-center" style={{ flex: 1}}>
+                <ActivityIndicator size="large" className="relative bottom-20"/>
+            </View>
+        )
+    }
 
 
     return (
@@ -113,42 +125,92 @@ export default function ProfileScreen() {
                         <AppText className="mt-20 mb-3 text-gray-400 text-lg">Workouts</AppText>
                     </View>
                 )}
-                renderItem={({item}) => (
+                renderItem={({item: workout}) => (
                     <View className="p-4">
-                        <View className="flex-row">
-                            <Image source={user?.avatarPath ?
-                                {uri: `http://192.168.1.200:8080/user-images/${user.avatarPath}`} :
-                                require('@/assets/images/default-profile-picture.png')}
-                                   style={{ width: 50, height: 50}}
-                                   className="rounded-full"
-                            />
-                            <View className="ms-5">
-                                <AppText>{user?.firstName} {user?.lastName}</AppText>
-                                <AppText className="text-gray-500 text-sm">{item.date.toString().split('T')[0]}</AppText>
+                        <View className="flex-row justify-between">
+                            <View className="flex-row">
+                                <Image source={user.avatarPath ?
+                                    {uri: `http://192.168.1.200:8080/user-images/${user.avatarPath}`} :
+                                    require('@/assets/images/default-profile-picture.png')}
+                                       style={{ width: 50, height: 50}}
+                                       className="rounded-full"
+                                />
+                                <View className="ms-5">
+                                    <AppText>{user.firstName}</AppText>
+                                    <AppText className="text-gray-500 text-sm">{convertMS(new Date().getTime() - new Date(workout.date).getTime())}</AppText>
+                                </View>
                             </View>
+                            <Pressable onPress={() => {
+                                setWorkoutToDelete(workout)
+                                setIsDeleteWorkoutVisible(true)
+                            }}
+                            >
+                                <MaterialCommunityIcons name="trash-can-outline" color="red" size={26}/>
+                            </Pressable>
                         </View>
-                        <AppText className="mt-3 font-bold text-lg">{item.routineName}</AppText>
-                        <View className="flex-row gap-10 mt-3">
-                            <View>
-                                <AppText className="text-gray-500 text-sm">Time</AppText>
-                                <AppText>{displayTime(item.duration)}</AppText>
+                        <Pressable
+                            onPress={() => router.push({
+                                pathname: "/home/workout-details",
+                                params: {
+                                    'workoutId': workout.id
+                                }
+                            })}
+                            hitSlop={20}
+                        >
+                            <AppText className="mt-3 font-bold text-lg">{workout.routineName}</AppText>
+                            <View className="flex-row gap-10 mt-3">
+                                <View>
+                                    <AppText className="text-gray-500 text-sm">Time</AppText>
+                                    <AppText>{displayTime(workout.duration)}</AppText>
+                                </View>
+                                <View>
+                                    <AppText className="text-gray-500 text-sm">Volume</AppText>
+                                    <AppText>{workout.volume ?? '0'} kg</AppText>
+                                </View>
+                                <View>
+                                    <AppText className="text-gray-500 text-sm">Sets</AppText>
+                                    <AppText>{workout.sets.length ?? '0'}</AppText>
+                                </View>
                             </View>
-                            <View>
-                                <AppText className="text-gray-500 text-sm">Volume</AppText>
-                                <AppText>{item.volume ?? '0'} kg</AppText>
-                            </View>
-                        </View>
+                        </Pressable>
                         <View className="h-px mt-4 bg-[#2C2C2E]"/>
-                        <FlatList
-                            data={item.exercises}
-                            renderItem={({item}) => (
-                                <AppText>
-                                    {item.name}
-                                </AppText>
-                            )}
-                        />
-                        {item.exercises.length > 4 &&
-                            <AppText className="text-center">See {item.exercises.length - 3} more {item.exercises.length === 4 ? 'exercise' : 'exercises'}</AppText>
+                        <Pressable
+                            onPress={() => router.push({
+                                pathname: "/home/workout-details",
+                                params: {
+                                    'workoutId': workout.id
+                                }
+                            })}
+                            hitSlop={20}
+                        >
+                            <FlatList
+                                data={[...workout.exercises].splice(0,3)}
+                                className="p-2"
+                                renderItem={({item: exercise}) => {
+                                    const noOfSets = workout.sets.filter(
+                                        (set) => set.exerciseId === exercise.id
+                                    ).length
+
+                                    return (
+                                        <AppText>
+                                            {noOfSets} sets {exercise.name}
+                                        </AppText>
+                                    )
+                                }}
+                            />
+                        </Pressable>
+                        {workout.exercises.length > 3 &&
+                            <Pressable
+                                onPress={() => router.push({
+                                    pathname: "/home/workout-details",
+                                    params: {
+                                        'workoutId': workout.id
+                                    }
+                                })}
+                                hitSlop={20}
+                            >
+                                <AppText className="text-center text-base mt-3 text-gray-500">See {workout.exercises.length - 3} more {workout.exercises.length === 4 ? 'exercise' : 'exercises'}</AppText>
+                            </Pressable>
                         }
                     </View>
                 )}/>

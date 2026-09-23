@@ -30,7 +30,7 @@ export default function HomeScreen() {
         }
     },[user])
 
-    if(loading){
+    if(loading || !user){
         return(
             <View className="bg-black items-center justify-center" style={{ flex: 1}}>
                 <ActivityIndicator size="large" className="relative bottom-20"/>
@@ -113,14 +113,14 @@ export default function HomeScreen() {
                     <View className="p-4">
                         <View className="flex-row justify-between">
                             <View className="flex-row">
-                                <Image source={user?.avatarPath ?
+                                <Image source={user.avatarPath ?
                                     {uri: `http://192.168.1.200:8080/user-images/${user.avatarPath}`} :
                                     require('@/assets/images/default-profile-picture.png')}
                                        style={{ width: 50, height: 50}}
                                        className="rounded-full"
                                 />
                                 <View className="ms-5">
-                                    <AppText>{user?.firstName} {user?.lastName}</AppText>
+                                    <AppText>{user.firstName}</AppText>
                                     <AppText className="text-gray-500 text-sm">{convertMS(new Date().getTime() - new Date(workout.date).getTime())}</AppText>
                                 </View>
                             </View>
@@ -193,7 +193,7 @@ export default function HomeScreen() {
                                 })}
                                 hitSlop={20}
                             >
-                                <AppText className="text-center text-sm mt-3 text-gray-400">See {workout.exercises.length - 3} more {workout.exercises.length === 4 ? 'exercise' : 'exercises'}</AppText>
+                                <AppText className="text-center text-base mt-3 text-gray-500">See {workout.exercises.length - 3} more {workout.exercises.length === 4 ? 'exercise' : 'exercises'}</AppText>
                             </Pressable>
                         }
                     </View>

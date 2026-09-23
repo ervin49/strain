@@ -1,5 +1,5 @@
 import {View, Text, Pressable, FlatList, useWindowDimensions, ActivityIndicator} from "react-native";
-import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
+import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {api} from "@/constants/axios";
 import {Exercise, ExerciseSet, Routine, useUser} from "@/components/UserProvider";
 import {router, Stack, useLocalSearchParams} from "expo-router";
@@ -24,10 +24,7 @@ export default function LogWorkoutScreen(){
     const [exercises, setExercises] = useState<Exercise[]>([])
     const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
     const [finishedSets, setFinishedSets] = useState<ExerciseSet[]>([])
-    const {user, refreshUser} = useUser();
-    const [userId, setUserId] = useState('')
-    const [, updateState] = useState<{}>();
-    const forceUpdate = useCallback(() => updateState({}), []);
+    const {refreshUser} = useUser();
     const [duration, setDuration] = useState(0)
     const [volume, setVolume] = useState(0)
     const [isAddExModalVisible, setIsAddExModalVisible] = useState(false)
@@ -47,12 +44,6 @@ export default function LogWorkoutScreen(){
         startTimeRef.current = Date.now() - duration * 1000
         intervalRef.current = setInterval(() => setDuration(Math.floor((Date.now() - startTimeRef.current) / 1000)),1000)
     }
-
-    useEffect(() => {
-        if(user) {
-            setUserId(user.id)
-        }
-    },[user])
 
     useLayoutEffect(() => {
         startTime()
@@ -139,6 +130,10 @@ export default function LogWorkoutScreen(){
 
     useEffect(() => {
         const fetchRoutine = async () => {
+            if(!routineId){
+                return
+            }
+
             try {
                 const result = await api.get(`/routines/${routineId}`);
                 setRoutine(result.data)
@@ -206,7 +201,7 @@ export default function LogWorkoutScreen(){
         });
     }
 
-    if(!routine){
+    if(routineId && !routine){
         return(
             <View className="bg-black items-center justify-center" style={{ flex: 1}}>
                 <ActivityIndicator size="large" className="relative bottom-20"/>
@@ -313,29 +308,32 @@ export default function LogWorkoutScreen(){
                     <View
                         className="items-center justify-center mt-35 mb-5 px-5"
                     >
-                        <AppText className="text-center">Get started by adding an exercise to your routine.</AppText>
+                        <AppText className="text-center text-xl font-semibold">Get started</AppText>
+                        <AppText className="text-center text-gray-500">Add an exercise to start your workout</AppText>
                     </View>
                 )}
                 onDragEnd={({data}) => setExercises(data)}
                 ListFooterComponent={() => (
-                    <Pressable
-                        className="mt-1 mb-130 flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
-                        onPress={async () => {
-                            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                            router.push({
-                                pathname: "/routines/add-exercise",
-                                params: {
-                                    routineId,
-                                    "returnTo": "/log-workout"
-                                }
-                            })
-                        }}
-                    >
-                        <MaterialCommunityIcons name="plus" color="white" size={24}/>
-                        <AppText
-                            className="ms-2"
-                        >Add exercise</AppText>
-                    </Pressable>
+                    <View className="mx-2">
+                        <Pressable
+                            className="mt-1 mb-130  flex-row w-full py-2 justify-center items-center active:opacity-80 rounded-xl bg-[#0189F9]"
+                            onPress={async () => {
+                                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                                router.push({
+                                    pathname: "/routines/add-exercise",
+                                    params: {
+                                        routineId,
+                                        "returnTo": "/log-workout"
+                                    }
+                                })
+                            }}
+                        >
+                            <MaterialCommunityIcons name="plus" color="white" size={24}/>
+                            <AppText
+                                className="ms-2"
+                            >Add Exercise</AppText>
+                        </Pressable>
+                    </View>
                 )}
                 renderItem={({item, drag}) => {
                     const newExerciseSet: ExerciseSet = {
@@ -440,6 +438,7 @@ export default function LogWorkoutScreen(){
                                             </ReanimatedSwipeable>
                                         )}}
                                 />
+                                <View className="mx-2">
                                 <Pressable
                                     onPress={() => setExerciseSets([...exerciseSets, newExerciseSet])}
                                     className="active:opacity-30 py-2 mt-4 bg-[#2C2C2E] flex-row justify-center items-center rounded-xl"
@@ -449,6 +448,7 @@ export default function LogWorkoutScreen(){
                                         Add Set
                                     </AppText>
                                 </Pressable>
+                                </View>
                             </Pressable>
                         </ScaleDecorator>
                     )

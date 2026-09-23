@@ -122,6 +122,9 @@ export default function WorkoutScreen() {
                     <View>
                         <Pressable
                             className="p-3  bg-[#161618] rounded-xl flex-row items-center active:opacity-30"
+                            onPress={() => router.push({
+                                pathname: "/log-workout"
+                            })}
                         >
                             <MaterialCommunityIcons name="plus" color="white" size={26}/>
                             <AppText
