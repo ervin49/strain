@@ -135,6 +135,7 @@ export default function CreateRoutine(){
             />
             <Modal
                 isVisible={isDiscardModalVisible}
+                useNativeDriver={true}
                 className="items-center justify-center"
             >
                 <View style={{ height: height * 0.24,

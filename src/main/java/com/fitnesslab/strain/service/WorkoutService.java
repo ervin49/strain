@@ -1,6 +1,5 @@
 package com.fitnesslab.strain.service;
 
-import com.fitnesslab.strain.model.entity.Exercise;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.model.entity.Workout;
 import com.fitnesslab.strain.repository.UserRepository;
@@ -9,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Service
@@ -28,5 +24,10 @@ public class WorkoutService {
         workout.setDate(LocalDateTime.now());
 
         return workoutRepository.save(workout);
+    }
+
+    public void delete(UUID workoutId) {
+        Workout workout = workoutRepository.findById(workoutId).orElseThrow();
+        workoutRepository.delete(workout);
     }
 }

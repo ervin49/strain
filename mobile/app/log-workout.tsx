@@ -169,7 +169,6 @@ export default function LogWorkoutScreen(){
                 volume
             })
 
-            console.log(result.data);
             await refreshUser()
             router.back()
         } catch (e) {

@@ -7,6 +7,7 @@ export interface Muscle {
 }
 
 export interface ExerciseSet {
+    id?: string;
     setNumber: number;
     weight: string | undefined;
     reps: string | undefined;
