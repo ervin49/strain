@@ -36,9 +36,9 @@ export default function Sidebar() {
     const firstName = user?.firstName;
     return (
         <>
-            <aside className="d-flex flex-nowrap vh-100">
+            <aside className="d-flex position-fixed flex-nowrap vh-100">
                 <div
-                    className="d-flex flex-column flex-shrink-0 p-3"
+                    className="d-flex flex-column p-3"
                     style={{width: 256, backgroundColor: "#111313"}}
                 >
                     <Link to="/dashboard">

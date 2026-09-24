@@ -4,24 +4,36 @@ import {Link} from "react-router-dom";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import '../assets/styles/calendar.css'
-import {useUser} from "../components/UserProvider.tsx";
+import {useUser, type Workout} from "../components/UserProvider.tsx";
+import {displayTime} from "../constants/time.tsx";
 
 export default function ProfilePage() {
     const { user } = useUser();
-    const avatarPath = user?.avatarPath;
-    const firstName= user?.firstName;
-    const lastName= user?.lastName;
-    const noOfWorkouts = user?.workouts?.length || 0;
-    const workouts = user?.workouts || [];
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
+    const [workouts, setWorkouts] = useState<Workout[]>([])
 
     useEffect(() => {
         document.title = "Strain - Profile";
     }, []);
 
     let duration = 0;
-    for(let i = 0; i < noOfWorkouts; i++){
-        duration += workouts[i].durationMinutes;
+    for(let i = 0; i < workouts.length; i++){
+        duration += workouts[i].duration;
     }
+
+    useEffect(() => {
+        if(user) {
+            setWorkouts(user.workouts)
+            setFirstName(user.firstName)
+            setLastName(user.lastName)
+        }
+    },[user])
+
+    useEffect(() => {
+        if(workouts) {
+        }
+    },[workouts])
 
     return (
         <>
@@ -32,7 +44,9 @@ export default function ProfilePage() {
                          style={{ maxWidth: 1024, height:274, backgroundColor: "#111313"}}
                     >
                         <div>
-                            <img src={avatarPath ? `http://localhost:8080/user-images/${avatarPath}` : `/src/assets/default-profile-picture.png`} alt="profile picture"
+                            <img src={user?.avatarPath ?
+                                `http://localhost:8080/user-images/${user.avatarPath}` :
+                                `/src/assets/default-profile-picture.png`} alt="profile picture"
                                  width={104}
                                  height={104}
                                  className="rounded-circle"
@@ -48,7 +62,7 @@ export default function ProfilePage() {
                         <div className="d-flex position-relative" style={{ top: -10}}>
                             <div>
                                 <span className="text-muted" style={{fontSize: 11}}>Workouts</span>
-                                <p className="position-relative" style={{ top: -5}}>{noOfWorkouts}</p>
+                                <p className="position-relative" style={{ top: -5}}>{workouts.length}</p>
                             </div>
                             <div style={{ marginLeft: 41}}>
                                 <span className="text-muted" style={{fontSize: 11}}>Followers</span>
@@ -68,7 +82,7 @@ export default function ProfilePage() {
                             <p className="mt-4 position-relative" style={{ left: -10}}>Duration</p>
                             <div className="position-relative w-100" style={{ left: -20, height: 1, backgroundColor: "#2C2C2E"}}/>
                             <div className="d-flex mt-3">
-                                <p style={{ fontSize: 25 }}>{duration}m</p>
+                                <p style={{ fontSize: 25 }}>{displayTime(duration)}</p>
                                 <span style={{ fontSize: 12, bottom: -15 }} className="text-muted ms-2 position-relative">This week</span>
                             </div>
                         </div>
@@ -76,9 +90,10 @@ export default function ProfilePage() {
                              style={{ width: 375,  backgroundColor: "#111313"}}
                         >
                             <span style={{ fontSize: 16 }} className="fw-bold">Calendar</span>
-                            <Calendar formatShortWeekday={(locale, date) => {
-                                return date.toLocaleDateString(locale, { weekday: 'short'}).charAt(0)
-                            }}/>
+                            <Calendar
+                                formatShortWeekday={(locale, date) => {
+                                    return date.toLocaleDateString(locale, { weekday: 'short'}).charAt(0)
+                                }}/>
                         </div>
                     </div>
                 </div>

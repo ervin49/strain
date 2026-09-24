@@ -183,7 +183,7 @@ export default function HomeScreen() {
 
                                 return (
                                     <AppText>
-                                        {noOfSets} sets {exercise.name}
+                                        {noOfSets} {noOfSets === 1 ? 'set' : 'sets'} {exercise.name}
                                     </AppText>
                                 )
                             }}

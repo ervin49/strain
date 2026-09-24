@@ -7,32 +7,37 @@ export interface Muscle {
 }
 
 export interface ExerciseSet {
-    id: string;
+    id?: string;
     setNumber: number;
-    reps: number;
-    weight: number;
+    weight: string | undefined;
+    reps: string | undefined;
+    exerciseId: string | undefined
 }
 
 export interface Exercise {
     id: string;
     name: string;
+    equipment: string;
     primaryMuscle: Muscle;
     secondaryMuscles: Muscle[];
-    sets: ExerciseSet[];
 }
 
 export interface Workout {
     id: string;
-    date: string;
-    notes: string;
-    durationMinutes: number;
+    routineName: string;
+    duration: number;
+    date: Date;
     exercises: Exercise[];
+    sets: ExerciseSet[];
+    volume: number;
 }
 
 export interface Routine {
     id: string;
     name: string;
     exercises: Exercise[];
+    routineOrder: number;
+    sets: ExerciseSet[];
 }
 
 export interface UserProfile {

@@ -30,6 +30,7 @@ export default function LogWorkoutScreen(){
     const [volume, setVolume] = useState(0)
     const [isAddExModalVisible, setIsAddExModalVisible] = useState(false)
     const [isNoSetValuesModalVisible, setIsNoSetValuesModalVisible] = useState(false)
+    const [ready, setReady] = useState(false)
 
     const getSetId = (set: ExerciseSet) => {
         return set.exerciseId + '-' + set.setNumber
@@ -39,18 +40,8 @@ export default function LogWorkoutScreen(){
         setExerciseSets((prev) => [...prev.filter((set) => set !== item)])
     }
 
-    useLayoutEffect(() => {
-        if(workoutInProgress){
-            setExercises(workoutInProgress.exercises)
-            setExerciseSets(workoutInProgress.sets)
-            setFinishedSets(workoutInProgress.finishedSets)
-            setVolume(workoutInProgress.volume)
-            setRoutineName(workoutInProgress.routineName)
-        }
-    },[])
-
-    useLayoutEffect(() => {
-        if(isFinishingWorkout.current){
+    useEffect(() => {
+        if(!ready || isFinishingWorkout.current){
             return
         }
 
@@ -62,7 +53,7 @@ export default function LogWorkoutScreen(){
             finishedSets,
             volume,
         })
-    },[routineName, duration, exercises, exerciseSets, finishedSets, volume])
+    },[ready, routineName, duration, exercises, exerciseSets, finishedSets, volume])
     
     useEffect(() => {
         startTime()
@@ -138,16 +129,22 @@ export default function LogWorkoutScreen(){
 
     useEffect(() => {
         const fetchRoutine = async () => {
-            if(!routineId){
-                return
-            }
-
             try {
-                const result = await api.get(`/routines/${routineId}`);
-                setRoutine(result.data)
-                setRoutineName(result.data.routineName)
-                setExercises(result.data.exercises)
-                setExerciseSets(result.data.sets)
+                if (routineId) {
+                    const result = await api.get(`/routines/${routineId}`);
+
+                    setRoutine(result.data)
+                    setRoutineName(result.data.name)
+                    setExercises(result.data.exercises)
+                    setExerciseSets(result.data.sets)
+                } else if(workoutInProgress) {
+                    setExercises(workoutInProgress.exercises)
+                    setExerciseSets(workoutInProgress.sets)
+                    setFinishedSets(workoutInProgress.finishedSets)
+                    setVolume(workoutInProgress.volume)
+                    setRoutineName(workoutInProgress.routineName)
+                }
+                setReady(true)
             } catch (e) {
                 console.log(e);
             }
@@ -172,7 +169,7 @@ export default function LogWorkoutScreen(){
 
         try {
             await api.post("/workouts",{
-                routineName,
+                routineName: routineName || 'Quick Workout',
                 duration,
                 'exercises': exercises.filter((ex) => finishedSets.some((set) => set.exerciseId === ex.id)),
                 'sets': finishedSets.map(({id, ...set}) => set),
