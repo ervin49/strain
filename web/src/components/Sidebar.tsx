@@ -97,6 +97,8 @@ export default function Sidebar() {
                     </div>
                 </div>
             </aside>
+            {/*placeholder for centering*/}
+            <div style={{width: 256}}/>
         </>
     )
 }

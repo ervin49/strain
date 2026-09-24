@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import PrivateRoute from "./components/PrivateRoute.tsx";
 import {Logout} from "./components/Logout.tsx";
+import WorkoutPage from "./pages/WorkoutPage.tsx";
 
 export default function App() {
     return (
@@ -43,6 +44,13 @@ export default function App() {
                        element={
                            <PrivateRoute>
                                <SettingsPage/>
+                           </PrivateRoute>
+                       }
+                />
+                <Route path="/workout/:workoutId"
+                       element={
+                           <PrivateRoute>
+                               <WorkoutPage/>
                            </PrivateRoute>
                        }
                 />

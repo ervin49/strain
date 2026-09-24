@@ -26,6 +26,7 @@ export default function WorkoutDetailsScreen() {
 
         fetchWorkout()
     }, [workoutId]);
+
     if(!workout){
         return(
             <View className="bg-black items-center justify-center" style={{ flex: 1}}>
@@ -33,6 +34,7 @@ export default function WorkoutDetailsScreen() {
             </View>
         )
     }
+
     return (
         <View style={{ flex: 1, backgroundColor: 'black'}}>
             <FlatList

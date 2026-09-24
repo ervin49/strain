@@ -86,6 +86,10 @@ export default function DashboardPage() {
                                 <div className="mb-3">
                                     <div className="rounded-4 mt-1 p-4"
                                          style={{ width: 684, backgroundColor: "#111313"}}>
+                                        <Link
+                                            to="/profile"
+                                            style={{ textDecoration: 'none', color: 'white'}}
+                                        >
                                         <div className="d-flex mb-3">
                                             <img src={user.avatarPath ? `http://192.168.1.200:8080/user-images/${user.avatarPath}` :
                                                 '/src/assets/default-profile-picture.png'}
@@ -99,6 +103,10 @@ export default function DashboardPage() {
                                                 </span>
                                             </div>
                                         </div>
+                                    </Link>
+                                    <Link
+                                        to={`/workout/${workout.id}`}
+                                        style={{ textDecoration: 'none', color: 'white' }}>
                                         <div onClick={() => console.log('a mers')}>
                                             <span className="fw-bold">{workout.routineName}</span>
                                         </div>
@@ -124,10 +132,11 @@ export default function DashboardPage() {
                                                 )
                                             }
                                         )}
-                                    </div>
+                                    </Link>
                                 </div>
+                            </div>
                             )
-                        )}
+                            )}
                     </div>
                 </div>
                 <div className="w-100  p-4 rounded-4 ms-3 mt-4"
