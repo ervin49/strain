@@ -1,4 +1,4 @@
-import {Stack} from "expo-router";
+import {router, Stack} from "expo-router";
 import UserProvider, {useUser} from "@/components/UserProvider";
 import {Pressable, useWindowDimensions, View} from "react-native";
 import {createScreenOptions} from "@/constants/ScreenOptions";
@@ -87,7 +87,7 @@ export function RootLayoutFunction() {
                     <Pressable
                         className="active:opacity-30 rounded-full flex-row items-center px-4 justify-center bg-[#2C2C2E]"
                         style={{ width: width * 0.7}}
-                        onPress={() => console.log("da")}
+                        onPress={() => router.push({pathname: '/log-workout'})}
                     >
                         <View className="bg-gray-700 p-2 rounded-full">
                             <MaterialCommunityIcons name="chevron-up" size={32} color="gray"/>

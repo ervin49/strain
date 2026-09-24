@@ -21,11 +21,12 @@ export default function LogWorkoutScreen(){
     const {routineId} = useLocalSearchParams<{routineId: string}>()
     const {width, height} = useWindowDimensions()
     const [routine, setRoutine] = useState<Routine | null>(null)
+    const isFinishingWorkout = useRef(false)
     const [routineName, setRoutineName] = useState<string>("")
     const [exercises, setExercises] = useState<Exercise[]>([])
     const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
     const [finishedSets, setFinishedSets] = useState<ExerciseSet[]>([])
-    const {refreshUser, setWorkoutInProgress, startTime, duration} = useUser();
+    const {refreshUser, setWorkoutInProgress, workoutInProgress, startTime, stopTime, duration} = useUser();
     const [volume, setVolume] = useState(0)
     const [isAddExModalVisible, setIsAddExModalVisible] = useState(false)
     const [isNoSetValuesModalVisible, setIsNoSetValuesModalVisible] = useState(false)
@@ -39,6 +40,20 @@ export default function LogWorkoutScreen(){
     }
 
     useLayoutEffect(() => {
+        if(workoutInProgress){
+            setExercises(workoutInProgress.exercises)
+            setExerciseSets(workoutInProgress.sets)
+            setFinishedSets(workoutInProgress.finishedSets)
+            setVolume(workoutInProgress.volume)
+            setRoutineName(workoutInProgress.routineName)
+        }
+    },[])
+
+    useLayoutEffect(() => {
+        if(isFinishingWorkout.current){
+            return
+        }
+
         setWorkoutInProgress({
             routineName,
             duration,
@@ -47,8 +62,11 @@ export default function LogWorkoutScreen(){
             finishedSets,
             volume,
         })
-        startTime()
     },[routineName, duration, exercises, exerciseSets, finishedSets, volume])
+    
+    useEffect(() => {
+        startTime()
+    },[])
 
     function DeleteAction({
                               drag, item,
@@ -160,6 +178,11 @@ export default function LogWorkoutScreen(){
                 'sets': finishedSets.map(({id, ...set}) => set),
                 volume
             })
+
+            isFinishingWorkout.current = true
+
+            stopTime()
+            setWorkoutInProgress(null)
 
             await refreshUser()
             router.back()
