@@ -44,9 +44,18 @@ public class RoutineService {
     @Transactional
     public Routine update(UUID routineId, Routine routine) {
         Routine oldRoutine = routineRepository.findById(routineId).orElseThrow(() -> new ResourceNotFoundException("Routine not found"));
-        oldRoutine.setName(routine.getName());
-        oldRoutine.setExercises(routine.getExercises());
-        oldRoutine.setSets(routine.getSets());
+        if (routine.getName() != null && !routine.getName().isBlank()) {
+            oldRoutine.setName(routine.getName());
+        }
+
+        if (routine.getExercises() != null && !routine.getExercises().isEmpty()) {
+            oldRoutine.setExercises(routine.getExercises());
+        }
+
+        if (routine.getSets() != null && !routine.getSets().isEmpty()) {
+            oldRoutine.setSets(routine.getSets());
+        }
+
         return routineRepository.save(oldRoutine);
     }
 

@@ -245,7 +245,7 @@ export default function EditRoutineScreen() {
                 )}
                 renderItem={({item, drag}) => {
                     const newExerciseSet: ExerciseSet = {
-                        setNumber: exerciseSets.filter((ex) => ex.exerciseId === item.id).length + 1,
+                        setNumber: exerciseSets.filter((set) => set.exerciseId === item.id).length + 1,
                         reps: undefined,
                         weight: undefined,
                         exerciseId: item.id

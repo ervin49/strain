@@ -85,14 +85,14 @@ export function RootLayoutFunction() {
                     className="absolute bottom-27 w-full justify-center"
                 >
                     <Pressable
-                        className="active:opacity-30 rounded-full p-2 flex-row w-full justify-between  bg-[#2C2C2E] border"
+                        className="active:opacity-70 rounded-full p-2 flex-row w-full justify-between  bg-[#2C2C2E] border"
                         onPress={() => router.push({pathname: '/log-workout'})}
                     >
                         <View className="flex-row">
                             <View className="bg-[#1E1E18] p-2 rounded-full">
-                                <MaterialCommunityIcons name="chevron-up" size={32} color="gray"/>
+                                <MaterialCommunityIcons name="chevron-up" size={32} color="white"/>
                             </View>
-                            <View className="ms-4">
+                            <View className="ms-5">
                                 <AppText>Workout {displayTime(duration)}</AppText>
                                 <View>
                                     <AppText numberOfLines={1} className="text-gray-500">
