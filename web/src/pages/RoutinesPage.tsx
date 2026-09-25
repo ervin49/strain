@@ -4,6 +4,7 @@ import {type Routine, useUser} from "../components/UserProvider.tsx";
 import {isSortable, useSortable} from "@dnd-kit/react/sortable";
 import {DragDropProvider} from "@dnd-kit/react";
 import {api} from "../constants/axios.tsx";
+import {Link} from "react-router-dom";
 
 function Sortable({item,id, index}: {item: Routine, id: string, index: number}) {
     const {ref} = useSortable({id, index});
@@ -68,54 +69,56 @@ export default function RoutinesPage() {
     }, [user]);
 
     return (
-        <>
-            <div className="container-fluid d-flex min-vh-100 p-0 bg-black">
-                <Sidebar/>
-                <div className="flex-grow-1 d-flex justify-content-center">
-                    <div>
-                        <h4 className="mt-4 mb-3">Routines</h4>
-                        {noOfRoutines === 0 &&
-                            <div className="rounded-4 mt-1 d-flex justify-content-center align-items-center"
-                                 style={{ width: 642, height: "60vh", backgroundColor: "#111313"}}>
-                                <div>
-                                    <div className="d-flex justify-content-center">
-                                        <img src="/src/assets/dumbbell.png" alt="dumbbell"/>
-                                    </div>
-                                    <h6 className="mt-3 d-flex justify-content-center">Get started</h6>
-                                    <p className="text-muted" style={{ fontSize: 14}}>Start by creating a routine!</p>
+        <div className="container-fluid d-flex min-vh-100 p-0 bg-black">
+            <Sidebar/>
+            <div className="flex-grow-1 d-flex justify-content-center">
+                <div>
+                    <h4 className="mt-4 mb-3">Routines</h4>
+                    {noOfRoutines === 0 &&
+                        <div className="rounded-4 mt-1 d-flex justify-content-center align-items-center"
+                             style={{ width: 642, height: "60vh", backgroundColor: "#111313"}}>
+                            <div>
+                                <div className="d-flex justify-content-center">
+                                    <img src="/src/assets/dumbbell.png" alt="dumbbell"/>
                                 </div>
+                                <h6 className="mt-3 d-flex justify-content-center">Get started</h6>
+                                <p className="text-muted" style={{ fontSize: 14}}>Start by creating a routine!</p>
                             </div>
-                        }
-                        {noOfRoutines > 0 &&
-                            <DragDropProvider onDragEnd={onOrder}>
-                                <ul>
-                                    {routines.map((item,index) => (
-                                        <Sortable item={item} key={item.id} id={item.id} index={index}/>
-                                    ))}
-                                </ul>
-                            </DragDropProvider>
-                        }
-                    </div>
-                    <div style={{
-                        width: 360, height: 96, marginTop: 70, backgroundColor: "#111313"
-                    }}
-                         className="rounded-4 ms-4 d-flex align-items-center">
-                        <button className="btn d-flex justify-content-between ms-3" style={{ width: "90%"}}>
-                            <div className="d-flex">
-                                <div className="rounded-4 bg-black d-flex justify-content-center align-items-center" style={{ width: 48, height: 48}}>
-                                    <img src="/src/assets/sidebar-icons/routines.png" alt="routine"
-                                         width={18} height={22}/>
-                                </div>
-                                <span className="ms-3" style={{ marginTop: 12}}>New Routine</span>
+                        </div>
+                    }
+                    {noOfRoutines > 0 &&
+                        <DragDropProvider onDragEnd={onOrder}>
+                            <ul>
+                                {routines.map((item,index) => (
+                                    <Sortable item={item} key={item.id} id={item.id} index={index}/>
+                                ))}
+                            </ul>
+                        </DragDropProvider>
+                    }
+                </div>
+                <div style={{
+                    width: 360, height: 96, marginTop: 70, backgroundColor: "#111313"
+                }}
+                     className="rounded-4 ms-4 d-flex align-items-center">
+                    <Link
+                        to="/routines/new"
+                        className="btn d-flex justify-content-between ms-3"
+                        style={{ width: "90%"}}
+                    >
+                        <div className="d-flex">
+                            <div className="rounded-4 bg-black d-flex justify-content-center align-items-center" style={{ width: 48, height: 48}}>
+                                <img src="/src/assets/sidebar-icons/routines.png" alt="routine"
+                                     width={18} height={22}/>
                             </div>
-                            <img src="/src/assets/right-arrow.png" alt="arrow"
-                                 style={{ marginTop: 12 }}
-                                 height={26} width={26}
-                            />
-                        </button>
-                    </div>
+                            <span className="ms-3" style={{ marginTop: 12}}>New Routine</span>
+                        </div>
+                        <img src="/src/assets/right-arrow.png" alt="arrow"
+                             style={{ marginTop: 12 }}
+                             height={26} width={26}
+                        />
+                    </Link>
                 </div>
             </div>
-        </>
+        </div>
     )
 }

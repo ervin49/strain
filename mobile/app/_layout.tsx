@@ -82,29 +82,36 @@ export function RootLayoutFunction() {
             </Modal>
             {workoutInProgress && (
                 <View
-                    className="absolute bottom-30 justify-center items-center w-full gap-3 flex-row"
+                    className="absolute bottom-27 w-full justify-center"
                 >
                     <Pressable
-                        className="active:opacity-30 rounded-full flex-row items-center px-4 justify-center bg-[#2C2C2E]"
-                        style={{ width: width * 0.7}}
+                        className="active:opacity-30 rounded-full p-2 flex-row w-full justify-between  bg-[#2C2C2E] border"
                         onPress={() => router.push({pathname: '/log-workout'})}
                     >
-                        <View className="bg-gray-700 p-2 rounded-full">
-                            <MaterialCommunityIcons name="chevron-up" size={32} color="gray"/>
+                        <View className="flex-row">
+                            <View className="bg-[#1E1E18] p-2 rounded-full">
+                                <MaterialCommunityIcons name="chevron-up" size={32} color="gray"/>
+                            </View>
+                            <View className="ms-4">
+                                <AppText>Workout {displayTime(duration)}</AppText>
+                                <View>
+                                    <AppText numberOfLines={1} className="text-gray-500">
+                                        {workoutInProgress.exercises.length > 0 ?
+                                            workoutInProgress.exercises[0].name :
+                                            'No exercises'}
+                                    </AppText>
+                                </View>
+                            </View>
                         </View>
-                        <View>
-                            <AppText>Workout {displayTime(duration)}</AppText>
-                            <AppText numberOfLines={1}>{workoutInProgress.exercises.map((ex) => ex.name).join(', ')}</AppText>
-                        </View>
+                        <Pressable
+                            className="active:opacity-30 rounded-full bg-[#2C2C2E]  p-2 border"
+                            hitSlop={10}
+                            onPress={() => setIsDiscardWorkoutModalVisible(true)}
+                        >
+                            <MaterialCommunityIcons name="trash-can-outline" size={32} color="red"/>
+                        </Pressable>
                     </Pressable>
 
-                    <Pressable
-                        className="active:opacity-30 rounded-full bg-[#2C2C2E] p-3"
-                        hitSlop={10}
-                        onPress={() => setIsDiscardWorkoutModalVisible(true)}
-                    >
-                        <MaterialCommunityIcons name="trash-can-outline" size={32} color="red"/>
-                    </Pressable>
                 </View>
             )}
         </View>

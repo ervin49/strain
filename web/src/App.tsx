@@ -10,6 +10,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import PrivateRoute from "./components/PrivateRoute.tsx";
 import {Logout} from "./components/Logout.tsx";
 import WorkoutPage from "./pages/WorkoutPage.tsx";
+import NewRoutinePage from "./pages/NewRoutinePage.tsx";
 
 export default function App() {
     return (
@@ -51,6 +52,13 @@ export default function App() {
                        element={
                            <PrivateRoute>
                                <WorkoutPage/>
+                           </PrivateRoute>
+                       }
+                />
+                <Route path="/routines/new"
+                       element={
+                           <PrivateRoute>
+                               <NewRoutinePage/>
                            </PrivateRoute>
                        }
                 />
