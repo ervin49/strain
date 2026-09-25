@@ -268,25 +268,35 @@ export default function NewRoutinePage(){
                     </div>
                     <div
                         style={{width: 400, backgroundColor: '#111313'}}
-                        className="rounded-4 p-4 card border-0"
+                        className="rounded-4 pt-2 card border-0"
                     >
+                        <div className="p-3">
                         <span>Library</span>
                         <input
                             type="text"
                             placeholder="Search Exercises"
-                            className="mt-2 rounded-3 px-3 py-1"
+                            className="mt-2 rounded-3 border-0 px-3 py-2 w-100"
                             value={exerciseQuery}
                             onChange={(e) => setExerciseQuery(e.target.value)}
                         />
-                        <div style={{ height: 1, backgroundColor: "#2C2C2E"}}/>
-                        <span className="my-4 text-muted">All Exercises</span>
+                        </div>
+                        <div
+                            style={{ height: 1, backgroundColor: "#2C2C2E"}}
+                            className="mt-2"/>
+                        <div
+                            style={{ overflow: "scroll", overflowX: "hidden", maxHeight: 700}}
+                            className="pt-3"
+                        >
+                            <div className="mb-2">
+                            <span className="text-muted ms-3">All Exercises</span>
+                            </div>
                         {filteredExercises.map((exercise) => (
                             <button
                                 className="btn p-1 d-flex align-items-center"
                                 onClick={() => selectExercise(exercise)}
                             >
                                 <PlusCircleIcon color="#008CFF"/>
-                                <div>
+                                <div className="text-start">
                                     <p>
                                         {exercise.name}
                                     </p>
@@ -298,6 +308,7 @@ export default function NewRoutinePage(){
                                 </div>
                             </button>
                         ))}
+                        </div>
                     </div>
                 </div>
             </div>
