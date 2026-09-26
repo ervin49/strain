@@ -75,8 +75,13 @@ export default function ChangePasswordModal({onClose}) {
                                onChange={(e) => {setConfirmPassword(e.target.value)}}></input>
                     </div>
                     <div className="d-flex justify-content-between mt-3">
-                        <button className="mt-3 btn rounded" onClick={onClose} disabled={!isValid}>Cancel</button>
-                        <button className={`mt-3 btn ${ isValid ? 'btn-primary' : 'btn-secondary'} rounded`} onClick={onConfirm}>Reset password</button>
+                        <button className="mt-3 btn rounded"
+                                onClick={onClose}
+                                >Cancel</button>
+                        <button className={`mt-3 btn ${ isValid ? 'btn-primary' : 'btn-secondary'} rounded`}
+                                disabled={!isValid}
+                                onClick={onConfirm}
+                        >Reset password</button>
                     </div>
                 </div>
             </div>
