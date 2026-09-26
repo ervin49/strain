@@ -14,7 +14,7 @@ export default function NewRoutinePage(){
     const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([])
     const {refreshUser} = useUser()
     const navigate = useNavigate()
-    const submittable = selectedExercises.length > 1 && routineTitle.trim() !== ""
+    const submittable = selectedExercises.length > 0 && routineTitle.trim() !== "" && exerciseSets.length > 0
 
     const fetchExercises = async () => {
         try {
@@ -148,7 +148,7 @@ export default function NewRoutinePage(){
                             Create Routine
                         </h4>
                         <button
-                            className={`btn ${submittable ? 'btn-primary' : 'btn-secondary'} rounded-3`}
+                            className={`btn  ${submittable ? 'btn-primary' : 'btn-secondary'} rounded-3`}
                             onClick={handleSubmitRoutine}
                             disabled={!submittable}
                         >
@@ -191,7 +191,7 @@ export default function NewRoutinePage(){
                                     {exercise.name}
                                 </span>
                                         <button
-                                            className="border-0 bg-transparent"
+                                            className="border-0  bg-transparent"
                                             onClick={() => selectExercise(exercise)}
                                         >
                                             <X/>
@@ -292,7 +292,7 @@ export default function NewRoutinePage(){
                             </div>
                         {filteredExercises.map((exercise) => (
                             <button
-                                className="btn p-1 d-flex align-items-center"
+                                className="btn p-1 w-100 d-flex align-items-center"
                                 onClick={() => selectExercise(exercise)}
                             >
                                 <PlusCircleIcon color="#008CFF"/>

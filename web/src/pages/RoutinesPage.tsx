@@ -5,38 +5,54 @@ import {isSortable, useSortable} from "@dnd-kit/react/sortable";
 import {DragDropProvider} from "@dnd-kit/react";
 import {api} from "../constants/axios.tsx";
 import {Link, useNavigate} from "react-router-dom";
-
-function Sortable({item, id, index}: {item: Routine, id: string, index: number}) {
-    const {ref} = useSortable({id, index});
-    const navigate = useNavigate()
-    const exercises = item.exercises.map((ex, i) => {
-        let name = ex.name
-        if(i < item.exercises.length - 1){
-            name += ', '
-        }
-
-        return name
-    })
-
-
-    return (
-        <div
-            ref={ref} className="rounded-4 px-4 py-4 mb-3"
-            onClick={() => navigate(`/routines/${id}`)}
-             style={{ width: 642, backgroundColor: "#111313"}}>
-            <div>
-                <div className="fw-bold">{item.name}</div>
-                <span className="text-truncate d-block text-muted small mt-2">{exercises}</span>
-            </div>
-        </div>
-    );
-}
+import DeleteRoutineModal from "../components/DeleteRoutineModal.tsx";
+import {TrashIcon} from "lucide-react";
 
 export default function RoutinesPage() {
     const { user } = useUser();
     const [routines, setRoutines] = useState(user?.routines || [])
     const noOfRoutines = routines.length;
     const {refreshUser} = useUser()
+    const [isDeleteRoutineModalVisible, setIsDeleteRoutineModalVisible] = useState(false)
+    const [routineToDelete, setRoutineToDelete] = useState<string>("")
+
+    function Sortable({item, id, index}: {item: Routine, id: string, index: number}) {
+        const {ref} = useSortable({id, index});
+        const navigate = useNavigate()
+        const exercises = item.exercises.map((ex, i) => {
+            let name = ex.name
+            if(i < item.exercises.length - 1){
+                name += ', '
+            }
+
+            return name
+        })
+
+
+        return (
+            <div
+                ref={ref} className="rounded-4 p-4 mb-3 "
+                style={{ width: 642, backgroundColor: "#111313"}}
+                onClick={() => navigate(`/routines/${id}`)}
+            >
+                <div className="d-flex justify-content-between">
+                    <div className="fw-bold">{item.name}</div>
+                    <button
+                        className="bg-transparent border-0"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setRoutineToDelete(item.id)
+                            setIsDeleteRoutineModalVisible(true)}
+                        }
+                    >
+                        <TrashIcon/>
+                    </button>
+                </div>
+                <span className="text-truncate d-block text-muted small mt-2">{exercises}</span>
+            </div>
+        );
+    }
+
 
     const onOrder = async (event) => {
         if (event.canceled) return;
@@ -74,6 +90,7 @@ export default function RoutinesPage() {
     return (
         <div className="container-fluid d-flex min-vh-100 p-0 bg-black">
             <Sidebar/>
+            {isDeleteRoutineModalVisible && <DeleteRoutineModal onClose={() => setIsDeleteRoutineModalVisible(false)} routineId={routineToDelete}/>}
             <div className="flex-grow-1 d-flex justify-content-center">
                 <div>
                     <h4 className="mt-4 mb-3">Routines</h4>

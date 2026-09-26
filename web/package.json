@@ -11,15 +11,18 @@
   },
   "dependencies": {
     "@dnd-kit/react": "^0.5.0",
+    "@untitledui/icons": "^0.0.23",
     "axios": "^1.18.1",
     "bootstrap": "^5.3.8",
     "lucide-react": "^1.31.0",
     "lunr": "^2.3.9",
     "react": "^19.2.7",
+    "react-aria-components": "^1.21.1",
     "react-bootstrap": "^2.10.10",
     "react-calendar": "^6.0.1",
     "react-dom": "^19.2.7",
-    "react-router-dom": "^7.18.1"
+    "react-router-dom": "^7.18.1",
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
