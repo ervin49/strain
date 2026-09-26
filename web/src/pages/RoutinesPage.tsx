@@ -4,10 +4,11 @@ import {type Routine, useUser} from "../components/UserProvider.tsx";
 import {isSortable, useSortable} from "@dnd-kit/react/sortable";
 import {DragDropProvider} from "@dnd-kit/react";
 import {api} from "../constants/axios.tsx";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
-function Sortable({item,id, index}: {item: Routine, id: string, index: number}) {
+function Sortable({item, id, index}: {item: Routine, id: string, index: number}) {
     const {ref} = useSortable({id, index});
+    const navigate = useNavigate()
     const exercises = item.exercises.map((ex, i) => {
         let name = ex.name
         if(i < item.exercises.length - 1){
@@ -19,7 +20,9 @@ function Sortable({item,id, index}: {item: Routine, id: string, index: number}) 
 
 
     return (
-        <div ref={ref} className="rounded-4 px-4 py-4 mb-3"
+        <div
+            ref={ref} className="rounded-4 px-4 py-4 mb-3"
+            onClick={() => navigate(`/routines/${id}`)}
              style={{ width: 642, backgroundColor: "#111313"}}>
             <div>
                 <div className="fw-bold">{item.name}</div>
