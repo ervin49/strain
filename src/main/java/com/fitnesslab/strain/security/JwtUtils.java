@@ -76,7 +76,7 @@ public class JwtUtils {
                 return false;
             }
             String jsonSecondPart = new String(Base64.getDecoder().decode(jwtSplit[1]));
-            JSONObject secondPart = new JSONObject(jsonSecondPart);
+            new JSONObject(jsonSecondPart);
         } catch(JSONException e){
             return false;
         }

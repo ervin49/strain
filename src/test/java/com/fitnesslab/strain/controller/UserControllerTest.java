@@ -1,4 +1,4 @@
-package com.fitnesslab.strain.Controllers;
+package com.fitnesslab.strain.controller;
 
 import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
 import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
@@ -6,24 +6,27 @@ import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.security.JwtUtils;
 import com.fitnesslab.strain.service.UserService;
+import io.jsonwebtoken.security.JwkThumbprint;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,7 +40,6 @@ public class UserControllerTest{
     @LocalServerPort
     private Integer port;
 
-    private String jwt;
     private Cookie tokenCookie;
 
     private final UserRepository userRepository;
@@ -45,14 +47,15 @@ public class UserControllerTest{
     private final UserService userService;
 
     @Autowired
-    UserControllerTest(UserRepository userRepository, JwtUtils jwtUtils, UserService userService){
-        this.userService = userService;
-        this.jwtUtils = jwtUtils;
+    public UserControllerTest(UserRepository userRepository, JwtUtils jwtUtils, UserService userService){
         this.userRepository = userRepository;
+        this.jwtUtils = jwtUtils;
+        this.userService = userService;
     }
 
     @BeforeEach
     public void setUp(){
+        RestAssured.baseURI = "http://localhost:" + port;
         userRepository.deleteAll();
 
         RegisterRequest admin = RegisterRequest.builder()
@@ -67,9 +70,9 @@ public class UserControllerTest{
                 .email("admin@admin.com")
                 .password("AdminPassword!")
                 .build();
-        jwt = userService.login(adminDTO);
+        String jwt = userService.login(adminDTO);
 
-        tokenCookie = new Cookie.Builder("token",jwt).build();
+        tokenCookie = new Cookie.Builder("token", jwt).build();
     }
 
     @Container
@@ -77,16 +80,6 @@ public class UserControllerTest{
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
             "postgres:latest"
     );
-
-    @BeforeAll
-    static void beforeAll(){
-        postgres.start();
-    }
-
-    @AfterAll
-    static void afterAll(){
-        postgres.stop();
-    }
 
     @Test
     public void when_email_taken_return_message() throws Exception {
@@ -102,17 +95,16 @@ public class UserControllerTest{
     }
 
     @Test
-    public void when_short_password_return_error_message() throws Exception {
+    public void when_short_password_return_error_message() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("email","user@user.com");
         params.add("password","User!");
         params.add("firstName","user");
         params.add("lastName","user");
-
     }
 
     @Test
-    public void when_no_uppercase_letters_return_bad_request() throws Exception {
+    public void when_no_uppercase_letters_return_bad_request() {
         User user = User.builder()
                 .email("user@user.com")
                 .firstName("user")
@@ -120,6 +112,17 @@ public class UserControllerTest{
                 .password("password!")
                 .build();
 
+        given()
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post("/register")
+                .then()
+                .statusCode(400)
+                .body("[0]",equalTo(
+                        "Password must have at least one uppercase letter " +
+                                "and one special character."
+                ));
     }
 
     @Test
@@ -131,6 +134,17 @@ public class UserControllerTest{
                 .password("Password")
                 .build();
 
+        given()
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post("/register")
+                .then()
+                .statusCode(400)
+                .body("[0]",equalTo(
+                        "Password must have at least one uppercase letter " +
+                                "and one special character."
+                ));
     }
 
     @Test
@@ -142,17 +156,31 @@ public class UserControllerTest{
                 .password("Password!")
                 .build();
 
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post("/register");
+
+        assertThat(response.getStatusCode()).isEqualTo(201);
+        assertThat(jwtUtils.isJWT(response.getCookie("token"))).isEqualTo(true);
     }
 
     @Test
     public void when_login_with_wrong_email_return_bad_request(){
-        User user = User.builder()
+        AuthRequest request = AuthRequest.builder()
                 .email("user@user.com")
-                .firstName("user")
-                .lastName("user")
                 .password("Password!")
                 .build();
 
+        given()
+                .body(request)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(400)
+                .body(equalTo("Email is wrong."));
     }
 
     @Test
@@ -165,13 +193,19 @@ public class UserControllerTest{
                 .build();
         userRepository.save(user);
 
-        User userWithBadPass = User.builder()
+        AuthRequest userWithBadPass = AuthRequest.builder()
                 .email("user@user.com")
-                .firstName("user")
-                .lastName("user")
                 .password("badPassword")
                 .build();
 
+        given()
+                .body(userWithBadPass)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(400)
+                .body(equalTo("Password is wrong."));
     }
 
     @Test
@@ -184,20 +218,19 @@ public class UserControllerTest{
                 .build();
         userService.register(user);
 
-        AuthRequest authRequest = new AuthRequest("user@user.com", "Password!");
+        AuthRequest authRequest = AuthRequest.builder()
+                .email("user@user.com")
+                .password("Password!")
+                .build();
 
-    }
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(authRequest)
+                .when()
+                .post("/login");
 
-    @Test
-    public void should_return_all_users(){
-//        given()
-//                .contentType(ContentType.JSON)
-//                .header(new Header("Authorization","Bearer " + jwt))
-//                .port(port)
-//                .when()
-//                .get("/users")
-//                .then()
-//                .body();
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertThat(jwtUtils.isJWT(response.getCookie("token"))).isEqualTo(true);
     }
 
     @Test
@@ -214,11 +247,10 @@ public class UserControllerTest{
 
         given()
                 .cookie(cookie)
-                .port(port)
                 .when()
-                .get("/profile")
+                .get("/my-details")
                 .then()
-                .statusCode(200)
-                .body();
+                .body("email",equalTo("user@user.com"),
+                        "firstName",equalTo("John"));
     }
 }
