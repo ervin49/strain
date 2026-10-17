@@ -1,44 +1,77 @@
-# strain
+# Strain
 
-Spring Boot project for managing a workout tracking application.
+Workout tracking application designed to help users manage and track their fitness activities through web and mobile interfaces.
 
-## Technologies used
+The project consists of a Spring Boot backend, a React web application, and a React Native mobile application, sharing a common backend API.
+
+## Features
+
+- User authentication — cookie-based JWT authentication powered by Spring Security.
+
+- User registration — account creation through the application.
+
+- Workout tracking — a fitness-oriented application built around workout management.
+
+- Web application — a browser-based interface built with React and Bootstrap.
+
+- Mobile application — a cross-platform mobile client built with React Native and Expo.
+
+- REST API — backend endpoints implemented with Spring Boot.
+
+- API documentation — Swagger-based API documentation.
+
+- Automated testing — backend integration tests using Rest Assured and Testcontainers.
+
+## Tech Stack
+
+- Backend
+
+- Java 21
 
 - Spring Boot
+
 - Spring Data JPA
-- Spring Security for securing endpoints using cookie-based JWT authentication
-- Gradle for building project
-- Rest Assured + Testcontainers for integration tests
-- Swagger for API documentation
+
+- Spring Security
+
+- JWT authentication
+
+- Gradle
+
 - Lombok
-- Dockerized PostgreSQL
-- React for web frontend
-- React Native for mobile frontend
-- Axios for fetching data from API
-- Bootstrap for web styling
-- Nativewind for mobile styling
 
-## Build & Run
+- Swagger / OpenAPI
 
-### Backend
+- Rest Assured
 
-```bash
-docker compose up -d 
-./gradlew bootRun
-```
+- Testcontainers
 
+## Web Frontend
 
-### Web
+- React
 
-```bash
+- TypeScript
 
-cd ./web/ && npm run dev
-```
+- Axios
 
+- Bootstrap
 
-### Mobile
+## Mobile Frontend
 
-```bash
+- React Native
 
-cd ./mobile/ && npx expo start
-```
+- Expo
+
+- TypeScript
+
+- Axios
+
+- NativeWind
+
+## Database
+
+- PostgreSQL
+
+- Docker
+
+- Docker Compose
