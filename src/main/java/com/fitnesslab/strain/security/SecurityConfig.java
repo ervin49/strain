@@ -2,6 +2,7 @@ package com.fitnesslab.strain.security;
 
 import com.fitnesslab.strain.service.UserDetailsServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +28,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register","/login","/error", "/swagger-ui.html","/swagger-ui/**","/v3/api-docs/**","/*.ico", "/user-images/**")
                         .permitAll()
-                        .requestMatchers("/admin").hasRole("admin")
+                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/exercises", "/muscles").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/muscles/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(AbstractHttpConfigurer::disable)
