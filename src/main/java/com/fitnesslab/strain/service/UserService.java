@@ -104,7 +104,7 @@ public class UserService {
     public void updateUserProfile(UpdateProfileRequest request, Principal principal){
         User user = getUserByEmail(principal.getName());
         if(request.getFile() != null && !request.getFile().isEmpty()){
-            imageService.storeImage(request.getFile(),user.getEmail());
+            imageService.storeImage(request.getFile(), user);
         }
         if(request.getFirstName() != null && !request.getFirstName().isEmpty()){
             user.setFirstName(request.getFirstName());
@@ -122,7 +122,6 @@ public class UserService {
     @Transactional
     public void deleteProfilePictureByEmail(String email) {
         User user = userRepository.getUserByEmail(email).orElseThrow();
-        imageService.deleteAvatarFromFileSystem(email);
-        user.setAvatarPath(null);
+        imageService.deleteAvatarFromFileSystem(user);
     }
 }

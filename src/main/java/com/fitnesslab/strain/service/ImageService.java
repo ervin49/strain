@@ -1,9 +1,6 @@
 package com.fitnesslab.strain.service;
 
 import com.fitnesslab.strain.model.entity.User;
-import com.fitnesslab.strain.repository.UserRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,10 +16,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
 public class ImageService {
-    private UserRepository userRepository;
-
     private void validateImage(MultipartFile file){
         if(file.isEmpty()){
             throw new IllegalArgumentException("No file received");
@@ -45,7 +39,7 @@ public class ImageService {
         }
     }
 
-    public void storeImage(MultipartFile file, String email){
+    public void storeImage(MultipartFile file, User user){
         validateImage(file);
 
         String extension = switch (Objects.requireNonNullElse(file.getContentType(),"")){
@@ -56,8 +50,7 @@ public class ImageService {
 
         String filename = UUID.randomUUID() + "." + extension;
 
-        String rootDir = new FileSystemResource("").getFile().getAbsolutePath();
-        Path uploadDir = Paths.get(rootDir, "user-images");
+        Path uploadDir = getUploadDir();
         Path fullPath = uploadDir.resolve(filename);
 
         try {
@@ -67,23 +60,53 @@ public class ImageService {
             throw new RuntimeException("Could not store image",e);
         }
 
-        User user = userRepository.getUserByEmail(email).orElseThrow();
+        String previousAvatarPath = user.getAvatarPath();
         user.setAvatarPath(filename);
+        deletePreviousAvatar(uploadDir, previousAvatarPath, filename);
     }
 
 
-    public void deleteAvatarFromFileSystem(String email){
-        User user = userRepository.getUserByEmail(email).orElseThrow();
+    public void deleteAvatarFromFileSystem(User user){
         String avatarPath = user.getAvatarPath();
+        if (avatarPath == null || avatarPath.isBlank()) {
+            user.setAvatarPath(null);
+            return;
+        }
 
-        String rootDir = new FileSystemResource("").getFile().getAbsolutePath();
-        Path uploadDir = Paths.get(rootDir, "user-images");
-        Path fullPath = uploadDir.resolve(avatarPath);
+        Path fullPath = resolveAvatarPath(getUploadDir(), avatarPath);
 
         try{
-            Files.delete(fullPath);
+            Files.deleteIfExists(fullPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        user.setAvatarPath(null);
+    }
+
+    private void deletePreviousAvatar(Path uploadDir, String previousAvatarPath, String newFilename) {
+        if (previousAvatarPath == null || previousAvatarPath.isBlank() || previousAvatarPath.equals(newFilename)) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(resolveAvatarPath(uploadDir, previousAvatarPath));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not delete previous profile picture", e);
+        }
+    }
+
+    private Path getUploadDir() {
+        return Paths.get("").toAbsolutePath().resolve("user-images")
+                .toAbsolutePath()
+                .normalize();
+    }
+
+    private Path resolveAvatarPath(Path uploadDir, String filename) {
+        Path normalizedUploadDir = uploadDir.toAbsolutePath().normalize();
+        Path path = normalizedUploadDir.resolve(filename).normalize();
+        if (!path.startsWith(normalizedUploadDir)) {
+            throw new IllegalArgumentException("Invalid profile picture path");
+        }
+        return path;
     }
 }
