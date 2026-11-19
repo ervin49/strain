@@ -1,5 +1,6 @@
 package com.fitnesslab.strain.service;
 
+import com.fitnesslab.strain.exception.ResourceNotFoundException;
 import com.fitnesslab.strain.model.entity.ExerciseSet;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.model.entity.Workout;
@@ -32,12 +33,14 @@ public class WorkoutService {
         return workoutRepository.save(workout);
     }
 
-    public void delete(UUID workoutId) {
-        Workout workout = workoutRepository.findById(workoutId).orElseThrow();
+    public void delete(UUID workoutId, String email) {
+        Workout workout = workoutRepository.findByIdAndUser_Email(workoutId, email)
+                .orElseThrow(() -> new ResourceNotFoundException("Workout not found"));
         workoutRepository.delete(workout);
     }
 
-    public Workout findById(UUID workoutId) {
-        return workoutRepository.findById(workoutId).orElseThrow();
+    public Workout findById(UUID workoutId, String email) {
+        return workoutRepository.findByIdAndUser_Email(workoutId, email)
+                .orElseThrow(() -> new ResourceNotFoundException("Workout not found"));
     }
 }

@@ -38,12 +38,6 @@ public class UserController {
         return ResponseEntity.ok("Logged in as " + principal.getName());
     }
 
-    @GetMapping("/users")
-    @Operation(summary = "Retrieves all users")
-    public ResponseEntity<List<User>> getUsers(){
-        return ResponseEntity.ok(userService.getUsers());
-    }
-
     @PostMapping("/update-profile")
     public ResponseEntity<String> updateProfile(UpdateProfileRequest request, Principal principal){
         userService.updateUserProfile(request, principal);

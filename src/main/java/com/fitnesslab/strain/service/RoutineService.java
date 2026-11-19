@@ -5,8 +5,6 @@ import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.repository.RoutineRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +16,6 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RoutineService {
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private final RoutineRepository routineRepository;
     private final UserRepository userRepository;
 
@@ -35,15 +30,15 @@ public class RoutineService {
     }
 
     @Transactional
-    public void delete(UUID routineId) {
-        Routine routine = routineRepository.findById(routineId).orElseThrow();
+    public void delete(UUID routineId, String email) {
+        Routine routine = getOwnedRoutine(routineId, email);
         routine.getExercises().clear();
         routineRepository.delete(routine);
     }
 
     @Transactional
-    public Routine update(UUID routineId, Routine routine) {
-        Routine oldRoutine = routineRepository.findById(routineId).orElseThrow(() -> new ResourceNotFoundException("Routine not found"));
+    public Routine update(UUID routineId, Routine routine, String email) {
+        Routine oldRoutine = getOwnedRoutine(routineId, email);
         if (routine.getName() != null && !routine.getName().isBlank()) {
             oldRoutine.setName(routine.getName());
         }
@@ -59,18 +54,31 @@ public class RoutineService {
         return routineRepository.save(oldRoutine);
     }
 
-    public Routine getRoutineById(UUID routineId) {
-        return routineRepository.findById(routineId).orElseThrow();
+    public Routine getRoutineById(UUID routineId, String email) {
+        return getOwnedRoutine(routineId, email);
     }
 
     @Transactional
     public List<UUID> updateUsersRoutinesOrder(UUID[] routinesIds, String email) {
-        for(int i = 0; i < routinesIds.length; i++){
-            Routine routine = entityManager.getReference(Routine.class, routinesIds[i]);
+        List<Routine> userRoutines = routineRepository.findAllByUser_Email(email);
+        if (routinesIds == null || routinesIds.length != userRoutines.size()) {
+            throw new ResourceNotFoundException("Routine not found");
+        }
+
+        var routinesById = userRoutines.stream().collect(java.util.stream.Collectors.toMap(Routine::getId, routine -> routine));
+        for (int i = 0; i < routinesIds.length; i++) {
+            Routine routine = routinesById.remove(routinesIds[i]);
+            if (routine == null) {
+                throw new ResourceNotFoundException("Routine not found");
+            }
             routine.setRoutineOrder(i);
         }
 
-        User user = userRepository.getUserByEmail(email).orElseThrow();
-        return user.getRoutines().stream().map(Routine::getId).toList();
+        return List.of(routinesIds);
+    }
+
+    private Routine getOwnedRoutine(UUID routineId, String email) {
+        return routineRepository.findByIdAndUser_Email(routineId, email)
+                .orElseThrow(() -> new ResourceNotFoundException("Routine not found"));
     }
 }

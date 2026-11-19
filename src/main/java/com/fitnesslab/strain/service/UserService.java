@@ -31,8 +31,9 @@ public class UserService {
     private final JwtUtils jwtUtils;
     private final ImageService imageService;
 
-    public List<User> getUsers(){
-        return userRepository.findAll();
+    public List<UserProfileDto> getUsers(){
+        return userRepository.findAll().stream()
+                .map((user) -> new UserProfileDto(user));
     }
 
     public List<String> register(RegisterRequest request){

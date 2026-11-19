@@ -1,6 +1,7 @@
 package com.fitnesslab.strain.model.dtos.responses;
 
 import com.fitnesslab.strain.model.entity.Routine;
+import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.model.entity.Workout;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,4 +22,13 @@ public class UserProfileDto {
     private List<Workout> workouts;
     private List<Routine> routines;
     private String avatarPath;
+
+    public UserProfileDto(User user){
+        this.email = user.getEmail();
+        this.avatarPath = user.getAvatarPath();
+        this.dateOfBirth = user.getDateOfBirth();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.workouts = user.getWorkouts();
+    }
 }

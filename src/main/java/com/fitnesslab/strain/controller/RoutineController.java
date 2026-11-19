@@ -1,9 +1,7 @@
 package com.fitnesslab.strain.controller;
 
-import com.fitnesslab.strain.model.entity.ExerciseSet;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
-import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.service.RoutineService;
 import com.fitnesslab.strain.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,19 +15,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 public class RoutineController {
-    private final UserRepository userRepository;
     private final UserService userService;
     private final RoutineService routineService;
 
     @GetMapping("/routines/{routineId}")
-    public ResponseEntity<Routine> getRoutine(@PathVariable UUID routineId){
-        Routine routine = routineService.getRoutineById(routineId);
+    public ResponseEntity<Routine> getRoutine(@PathVariable UUID routineId, Principal principal){
+        Routine routine = routineService.getRoutineById(routineId, principal.getName());
         return ResponseEntity.status(200).body(routine);
     }
 
     @PutMapping("/routines/{routineId}")
-    public ResponseEntity<Routine> updateRoutine(@PathVariable UUID routineId, @RequestBody Routine newRoutine){
-        Routine routine = routineService.update(routineId, newRoutine);
+    public ResponseEntity<Routine> updateRoutine(@PathVariable UUID routineId, @RequestBody Routine newRoutine, Principal principal){
+        Routine routine = routineService.update(routineId, newRoutine, principal.getName());
         return ResponseEntity.status(200).body(routine);
     }
 
@@ -47,8 +44,8 @@ public class RoutineController {
     }
 
     @DeleteMapping("/routines/{routineId}")
-    public ResponseEntity<Void> deleteRoutine(@PathVariable UUID routineId){
-        routineService.delete(routineId);
+    public ResponseEntity<Void> deleteRoutine(@PathVariable UUID routineId, Principal principal){
+        routineService.delete(routineId, principal.getName());
         return ResponseEntity.noContent().build();
     }
 

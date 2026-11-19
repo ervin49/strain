@@ -25,14 +25,14 @@ public class WorkoutController {
     }
 
     @GetMapping("/workouts/{workoutId}")
-    public ResponseEntity<Workout> getWorkout(@PathVariable UUID workoutId){
-        Workout workout = workoutService.findById(workoutId);
+    public ResponseEntity<Workout> getWorkout(@PathVariable UUID workoutId, Principal principal){
+        Workout workout = workoutService.findById(workoutId, principal.getName());
         return ResponseEntity.ok(workout);
     }
 
     @DeleteMapping("/workouts/{workoutId}")
-    public ResponseEntity<Workout> deleteWorkout(@PathVariable UUID workoutId){
-        workoutService.delete(workoutId);
+    public ResponseEntity<Workout> deleteWorkout(@PathVariable UUID workoutId, Principal principal){
+        workoutService.delete(workoutId, principal.getName());
         return ResponseEntity.noContent().build();
     }
 }
