@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/update-profile")
-    public ResponseEntity<String> updateProfile(UpdateProfileRequest request, Principal principal){
+    public ResponseEntity<String> updateProfile(@Valid @ModelAttribute UpdateProfileRequest request, Principal principal){
         userService.updateUserProfile(request, principal);
         return ResponseEntity.ok("Success");
     }
@@ -75,7 +75,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody AuthRequest user, HttpServletResponse response){
+    public ResponseEntity<String> loginUser(@Valid @RequestBody AuthRequest user, HttpServletResponse response){
         if(userService.existsByEmail(user.getEmail())) {
             String token = userService.login(user);
             if(token.equals("Password is wrong.")) {
@@ -115,7 +115,7 @@ public class UserController {
 
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(
-            @RequestBody ChangePasswordDto request,
+            @Valid @RequestBody ChangePasswordDto request,
             Principal principal) {
         String email = principal.getName();
         User user = userService.getUserByEmail(email);

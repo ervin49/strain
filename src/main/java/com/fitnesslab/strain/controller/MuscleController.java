@@ -4,6 +4,7 @@ import com.fitnesslab.strain.model.dtos.requests.MuscleRequestDto;
 import com.fitnesslab.strain.model.dtos.responses.MuscleDto;
 import com.fitnesslab.strain.model.mapper.ApiDtoMapper;
 import com.fitnesslab.strain.service.MuscleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class MuscleController {
     }
 
     @PostMapping("/muscles")
-    public ResponseEntity<MuscleDto> addMuscle(@RequestBody MuscleRequestDto request){
+    public ResponseEntity<MuscleDto> addMuscle(@Valid @RequestBody MuscleRequestDto request){
         return ResponseEntity.status(201).body(dtoMapper.toDto(muscleService.create(dtoMapper.toEntity(request))));
     }
 

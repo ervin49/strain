@@ -4,6 +4,7 @@ import com.fitnesslab.strain.model.dtos.requests.ExerciseRequestDto;
 import com.fitnesslab.strain.model.dtos.responses.ExerciseDto;
 import com.fitnesslab.strain.model.mapper.ApiDtoMapper;
 import com.fitnesslab.strain.service.ExerciseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,7 @@ public class ExerciseController {
     }
 
     @PostMapping("/exercises")
-    public ResponseEntity<ExerciseDto> createExercise(@RequestBody ExerciseRequestDto request){
+    public ResponseEntity<ExerciseDto> createExercise(@Valid @RequestBody ExerciseRequestDto request){
         return ResponseEntity.status(201).body(dtoMapper.toDto(exerciseService.create(dtoMapper.toEntity(request))));
     }
 }

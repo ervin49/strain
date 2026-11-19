@@ -4,6 +4,7 @@ import com.fitnesslab.strain.exception.ResourceNotFoundException;
 import com.fitnesslab.strain.model.dtos.requests.ExerciseRequestDto;
 import com.fitnesslab.strain.model.dtos.requests.MuscleRequestDto;
 import com.fitnesslab.strain.model.dtos.requests.RoutineRequestDto;
+import com.fitnesslab.strain.model.dtos.requests.RoutineCreateRequestDto;
 import com.fitnesslab.strain.model.dtos.requests.WorkoutRequestDto;
 import com.fitnesslab.strain.model.dtos.responses.*;
 import com.fitnesslab.strain.model.entity.*;
@@ -87,6 +88,10 @@ public class ApiDtoMapper {
         routine.setExercises(dto.exercises() == null ? null : dto.exercises().stream().map(this::toExerciseReference).toList());
         routine.setSets(dto.sets() == null ? null : dto.sets().stream().map(this::toEntity).toList());
         return routine;
+    }
+
+    public Routine toEntity(RoutineCreateRequestDto dto) {
+        return toEntity(new RoutineRequestDto(dto.name(), dto.exercises(), dto.sets()));
     }
 
     public Workout toEntity(WorkoutRequestDto dto) {

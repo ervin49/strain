@@ -1,10 +1,12 @@
 package com.fitnesslab.strain.controller;
 
 import com.fitnesslab.strain.model.dtos.requests.RoutineRequestDto;
+import com.fitnesslab.strain.model.dtos.requests.RoutineCreateRequestDto;
 import com.fitnesslab.strain.model.dtos.responses.RoutineDto;
 import com.fitnesslab.strain.model.mapper.ApiDtoMapper;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
+import jakarta.validation.Valid;
 import com.fitnesslab.strain.service.RoutineService;
 import com.fitnesslab.strain.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class RoutineController {
     }
 
     @PutMapping("/routines/{routineId}")
-    public ResponseEntity<RoutineDto> updateRoutine(@PathVariable UUID routineId, @RequestBody RoutineRequestDto request, Principal principal){
+    public ResponseEntity<RoutineDto> updateRoutine(@PathVariable UUID routineId, @Valid @RequestBody RoutineRequestDto request, Principal principal){
         Routine routine = routineService.update(routineId, dtoMapper.toEntity(request), principal.getName());
         return ResponseEntity.ok(dtoMapper.toDto(routine));
     }
@@ -41,7 +43,7 @@ public class RoutineController {
     }
 
     @PostMapping("/routines")
-    public ResponseEntity<RoutineDto> createRoutine(@RequestBody RoutineRequestDto request, Principal principal){
+    public ResponseEntity<RoutineDto> createRoutine(@Valid @RequestBody RoutineCreateRequestDto request, Principal principal){
         User user = userService.getUserByEmail(principal.getName());
         Routine savedRoutine = routineService.create(user.getId(), dtoMapper.toEntity(request));
         return ResponseEntity.status(201).body(dtoMapper.toDto(savedRoutine));

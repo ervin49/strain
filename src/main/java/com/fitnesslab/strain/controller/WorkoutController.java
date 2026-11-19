@@ -5,6 +5,7 @@ import com.fitnesslab.strain.model.entity.Workout;
 import com.fitnesslab.strain.model.dtos.requests.WorkoutRequestDto;
 import com.fitnesslab.strain.model.dtos.responses.WorkoutDto;
 import com.fitnesslab.strain.model.mapper.ApiDtoMapper;
+import jakarta.validation.Valid;
 import com.fitnesslab.strain.service.UserService;
 import com.fitnesslab.strain.service.WorkoutService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class WorkoutController {
     private final ApiDtoMapper dtoMapper;
 
     @PostMapping("/workouts")
-    public ResponseEntity<WorkoutDto> addWorkout(@RequestBody WorkoutRequestDto request, Principal principal){
+    public ResponseEntity<WorkoutDto> addWorkout(@Valid @RequestBody WorkoutRequestDto request, Principal principal){
         User user = userService.getUserByEmail(principal.getName());
         Workout createdWorkout = workoutService.create(user.getId(), dtoMapper.toEntity(request));
         return ResponseEntity.status(201).body(dtoMapper.toDto(createdWorkout));

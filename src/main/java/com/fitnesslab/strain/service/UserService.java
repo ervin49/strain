@@ -98,6 +98,7 @@ public class UserService {
     @Transactional
     public void deleteByEmail(String email){
         User user = userRepository.getUserByEmail(email).orElseThrow();
+        imageService.deleteAvatarFromFileSystem(user);
         userRepository.delete(user);
     }
 
