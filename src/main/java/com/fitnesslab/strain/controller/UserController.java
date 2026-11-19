@@ -4,9 +4,11 @@ import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
 import com.fitnesslab.strain.model.dtos.requests.ChangePasswordDto;
 import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.dtos.requests.UpdateProfileRequest;
+import com.fitnesslab.strain.model.dtos.responses.RoutineDto;
 import com.fitnesslab.strain.model.dtos.responses.UserProfileDto;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
+import com.fitnesslab.strain.model.mapper.ApiDtoMapper;
 import com.fitnesslab.strain.security.JwtConfig;
 import com.fitnesslab.strain.security.JwtUtils;
 import com.fitnesslab.strain.service.UserService;
@@ -28,6 +30,7 @@ public class UserController {
     private final JwtConfig jwtConfig;
     private final JwtUtils jwtUtils;
     private final PasswordEncoder encoder;
+    private final ApiDtoMapper dtoMapper;
 
     @GetMapping("/me")
     public ResponseEntity<String> me(Principal principal){
@@ -46,9 +49,10 @@ public class UserController {
 
     @GetMapping("/routines")
     @Operation(summary = "Retrieves user's routines")
-    public ResponseEntity<List<Routine>> getRoutines(Principal principal){
+    public ResponseEntity<List<RoutineDto>> getRoutines(Principal principal){
         User user = userService.getUserByEmail(principal.getName());
-        return ResponseEntity.ok(user.getRoutines());
+        List<Routine> routines = user.getRoutines();
+        return ResponseEntity.ok(routines == null ? List.of() : routines.stream().map(dtoMapper::toDto).toList());
     }
 
     @PostMapping("/register")
@@ -96,7 +100,7 @@ public class UserController {
         if(principal == null){
             return ResponseEntity.badRequest().body(null);
         }
-        return ResponseEntity.ok(userService.getUserProfileByEmail(principal.getName()));
+        return ResponseEntity.ok(dtoMapper.toDto(userService.getUserByEmail(principal.getName())));
     }
 
     @DeleteMapping("/profile-picture")
@@ -105,7 +109,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(null);
         }
         userService.deleteProfilePictureByEmail(principal.getName());
-        return ResponseEntity.ok(userService.getUserProfileByEmail(principal.getName()));
+        return ResponseEntity.ok(dtoMapper.toDto(userService.getUserByEmail(principal.getName())));
     }
 
 

@@ -4,7 +4,6 @@ import com.fitnesslab.strain.model.dtos.requests.RegisterRequest;
 import com.fitnesslab.strain.model.dtos.requests.UpdateProfileRequest;
 import com.fitnesslab.strain.exception.ResourceNotFoundException;
 import com.fitnesslab.strain.model.dtos.requests.AuthRequest;
-import com.fitnesslab.strain.model.dtos.responses.*;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.repository.UserRepository;
 import com.fitnesslab.strain.security.JwtUtils;
@@ -30,11 +29,6 @@ public class UserService {
     //private final EmailService emailService;
     private final JwtUtils jwtUtils;
     private final ImageService imageService;
-
-    public List<UserProfileDto> getUsers(){
-        return userRepository.findAll().stream()
-                .map((user) -> new UserProfileDto(user));
-    }
 
     public List<String> register(RegisterRequest request){
         List<String> errors = new ArrayList<>();
@@ -91,19 +85,6 @@ public class UserService {
         user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
 //        emailService.sendEmail(email,"Password changed", "Your password has been changed at: " + new Date());
-    }
-
-    public UserProfileDto getUserProfileByEmail(String email){
-        User user = getUserByEmail(email);
-        return new UserProfileDto(
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getDateOfBirth(),
-                user.getWorkouts(),
-                user.getRoutines(),
-                user.getAvatarPath()
-        );
     }
 
     public User getUserByEmail(@NonNull String email) {

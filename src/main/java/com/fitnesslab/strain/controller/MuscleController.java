@@ -1,10 +1,9 @@
 package com.fitnesslab.strain.controller;
 
-import com.fitnesslab.strain.model.entity.Muscle;
-import com.fitnesslab.strain.repository.MuscleRepository;
+import com.fitnesslab.strain.model.dtos.requests.MuscleRequestDto;
+import com.fitnesslab.strain.model.dtos.responses.MuscleDto;
+import com.fitnesslab.strain.model.mapper.ApiDtoMapper;
 import com.fitnesslab.strain.service.MuscleService;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,16 +15,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MuscleController {
     private final MuscleService muscleService;
+    private final ApiDtoMapper dtoMapper;
 
     @GetMapping("/muscles")
-    public ResponseEntity<List<Muscle>> getMuscles(){
-        return ResponseEntity.ok(muscleService.getAll());
+    public ResponseEntity<List<MuscleDto>> getMuscles(){
+        return ResponseEntity.ok(muscleService.getAll().stream().map(dtoMapper::toDto).toList());
     }
 
     @PostMapping("/muscles")
-    public ResponseEntity<Muscle> addMuscle(@RequestBody Muscle muscle){
-        Muscle savedMuscle = muscleService.create(muscle);
-        return ResponseEntity.status(201).body(savedMuscle);
+    public ResponseEntity<MuscleDto> addMuscle(@RequestBody MuscleRequestDto request){
+        return ResponseEntity.status(201).body(dtoMapper.toDto(muscleService.create(dtoMapper.toEntity(request))));
     }
 
     @DeleteMapping("/muscles/{id}")

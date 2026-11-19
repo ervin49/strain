@@ -1,5 +1,8 @@
 package com.fitnesslab.strain.controller;
 
+import com.fitnesslab.strain.model.dtos.requests.RoutineRequestDto;
+import com.fitnesslab.strain.model.dtos.responses.RoutineDto;
+import com.fitnesslab.strain.model.mapper.ApiDtoMapper;
 import com.fitnesslab.strain.model.entity.Routine;
 import com.fitnesslab.strain.model.entity.User;
 import com.fitnesslab.strain.service.RoutineService;
@@ -17,17 +20,18 @@ import java.util.UUID;
 public class RoutineController {
     private final UserService userService;
     private final RoutineService routineService;
+    private final ApiDtoMapper dtoMapper;
 
     @GetMapping("/routines/{routineId}")
-    public ResponseEntity<Routine> getRoutine(@PathVariable UUID routineId, Principal principal){
+    public ResponseEntity<RoutineDto> getRoutine(@PathVariable UUID routineId, Principal principal){
         Routine routine = routineService.getRoutineById(routineId, principal.getName());
-        return ResponseEntity.status(200).body(routine);
+        return ResponseEntity.ok(dtoMapper.toDto(routine));
     }
 
     @PutMapping("/routines/{routineId}")
-    public ResponseEntity<Routine> updateRoutine(@PathVariable UUID routineId, @RequestBody Routine newRoutine, Principal principal){
-        Routine routine = routineService.update(routineId, newRoutine, principal.getName());
-        return ResponseEntity.status(200).body(routine);
+    public ResponseEntity<RoutineDto> updateRoutine(@PathVariable UUID routineId, @RequestBody RoutineRequestDto request, Principal principal){
+        Routine routine = routineService.update(routineId, dtoMapper.toEntity(request), principal.getName());
+        return ResponseEntity.ok(dtoMapper.toDto(routine));
     }
 
     @PutMapping("/routines")
@@ -37,10 +41,10 @@ public class RoutineController {
     }
 
     @PostMapping("/routines")
-    public ResponseEntity<Routine> createRoutine(@RequestBody Routine routine, Principal principal){
+    public ResponseEntity<RoutineDto> createRoutine(@RequestBody RoutineRequestDto request, Principal principal){
         User user = userService.getUserByEmail(principal.getName());
-        Routine savedRoutine = routineService.create(user.getId(), routine);
-        return ResponseEntity.status(201).body(savedRoutine);
+        Routine savedRoutine = routineService.create(user.getId(), dtoMapper.toEntity(request));
+        return ResponseEntity.status(201).body(dtoMapper.toDto(savedRoutine));
     }
 
     @DeleteMapping("/routines/{routineId}")
